@@ -24,7 +24,7 @@
   "long_description": "详细描述",
   "external_links": [
     {
-      "type": "website|social|email",
+      "type": "链接将会显示的名称",
       "url": "链接地址"
     }
   ],
@@ -34,6 +34,7 @@
 - logo_url支持地路径或远程URL
 - 标签1填写：正式社团、非正式社团（如同好会、学生组织等）
 - 标签2~n可以填写：技术内容(例如Unity、音乐等)
+- 链接支持多个
 ### 贡献
 欢迎通过 Pull Request 添加新的社团信息或改进功能：
 
