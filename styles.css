@@ -49,7 +49,7 @@ body {
 }
 
 .sidebar-header {
-    padding: 20px;
+    padding: 10px 15px;
     background: #2c3e50;
     color: white;
     display: flex;
@@ -58,7 +58,7 @@ body {
 }
 
 .sidebar-header h1 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -66,12 +66,12 @@ body {
     background: none;
     border: none;
     color: white;
-    font-size: 28px;
+    font-size: 24px;
     cursor: pointer;
     line-height: 1;
     padding: 0;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
 }
 
 .close-btn:hover {
@@ -80,16 +80,16 @@ body {
 
 /* 搜索区域 */
 .search-section {
-    padding: 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid #e0e0e0;
 }
 
 #searchInput {
     width: 100%;
-    padding: 12px;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 #searchInput:focus {
@@ -98,8 +98,8 @@ body {
 }
 
 .search-results {
-    margin-top: 10px;
-    max-height: 200px;
+    margin-top: 6px;
+    max-height: 150px;
     overflow-y: auto;
 }
 
@@ -127,32 +127,34 @@ body {
 
 /* 省份分类区域 */
 .province-section {
-    padding: 20px;
+    padding: 8px 15px;
     border-bottom: 1px solid #e0e0e0;
 }
 
 .province-section h3 {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
+    margin-top: 0;
     color: #2c3e50;
 }
 
 .province-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 4px;
 }
 
 .province-item {
-    padding: 8px 16px;
+    padding: 4px 8px;
     background: #f8f9fa;
     border: 1px solid #e9ecef;
-    border-radius: 20px;
-    font-size: 13px;
+    border-radius: 12px;
+    font-size: 11px;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    line-height: 1.2;
 }
 
 .province-item:hover {

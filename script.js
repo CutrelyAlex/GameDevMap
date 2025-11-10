@@ -41,10 +41,10 @@ function displayMarkers(provinceFilter = null) {
         if (club.latitude && club.longitude) {
             // 如果有省份过滤器，检查是否匹配
             if (provinceFilter && provinceFilter !== 'all') {
-                if (provinceFilter === '国外') {
-                    // "国外"包括国外和没有省份信息的社团
-                    if (!club.province || isChineseProvince(club.province)) {
-                        return; // 跳过中国省份和有省份信息的社团
+                if (provinceFilter === '其他地区') {
+                    // "其他地区"仅包括海外和没有省份信息的社团
+                    if (club.province) {
+                        return; // 跳过有省份信息的社团
                     }
                 } else if (club.province !== provinceFilter) {
                     return; // 跳过不匹配的省份
@@ -279,16 +279,66 @@ function isChineseProvince(province) {
 function createProvinceList() {
     const provinceListContainer = document.getElementById('provinceList');
     
-    // 提取所有省份并去重
-    const provinces = new Set();
+    // 省份简称映射表（标准二字简称）
+    const provinceShortNames = {
+        '北京市': '北京',
+        '天津市': '天津',
+        '上海市': '上海',
+        '重庆市': '重庆',
+        '河北省': '河北',
+        '山西省': '山西',
+        '辽宁省': '辽宁',
+        '吉林省': '吉林',
+        '黑龙江省': '黑龙江',
+        '江苏省': '江苏',
+        '浙江省': '浙江',
+        '安徽省': '安徽',
+        '福建省': '福建',
+        '江西省': '江西',
+        '山东省': '山东',
+        '河南省': '河南',
+        '湖北省': '湖北',
+        '湖南省': '湖南',
+        '广东省': '广东',
+        '海南省': '海南',
+        '四川省': '四川',
+        '贵州省': '贵州',
+        '云南省': '云南',
+        '陕西省': '陕西',
+        '甘肃省': '甘肃',
+        '青海省': '青海',
+        '台湾省': '台湾',
+        '内蒙古自治区': '内蒙',
+        '广西壮族自治区': '广西',
+        '西藏自治区': '西藏',
+        '宁夏回族自治区': '宁夏',
+        '新疆维吾尔自治区': '新疆',
+        '香港特别行政区': '香港',
+        '澳门特别行政区': '澳门'
+    };
+    
+    // 获取所有中国省份列表
+    const allChineseProvinces = [
+        '北京市', '天津市', '上海市', '重庆市',
+        '河北省', '山西省', '辽宁省', '吉林省', '黑龙江省',
+        '江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省',
+        '河南省', '湖北省', '湖南省', '广东省', '海南省',
+        '四川省', '贵州省', '云南省', '陕西省', '甘肃省',
+        '青海省', '台湾省', '内蒙古自治区', '广西壮族自治区', '西藏自治区',
+        '宁夏回族自治区', '新疆维吾尔自治区', '香港特别行政区', '澳门特别行政区'
+    ];
+    
+    const existingProvinces = new Set();
     clubsData.forEach(club => {
         if (club.province) {
-            provinces.add(club.province);
+            existingProvinces.add(club.province);
         }
     });
     
+    const allProvinces = new Set([...allChineseProvinces, ...existingProvinces]);
+    
     // 转换为数组并排序
-    const provinceArray = Array.from(provinces).sort((a, b) => {
+    const provinceArray = Array.from(allProvinces).sort((a, b) => {
         // 中国省份排在前面，其他排在后面
         const aIsChinese = isChineseProvince(a);
         const bIsChinese = isChineseProvince(b);
@@ -307,6 +357,7 @@ function createProvinceList() {
     allBtn.className = 'province-item all active';
     allBtn.dataset.province = 'all';
     allBtn.textContent = '全部';
+    allBtn.title = '全部';
     provinceListContainer.appendChild(allBtn);
     
     // 添加省份选项
@@ -314,15 +365,23 @@ function createProvinceList() {
         const btn = document.createElement('div');
         btn.className = 'province-item';
         btn.dataset.province = province;
-        btn.textContent = province;
+        const clubCount = clubsData.filter(club => club.province === province).length;
+        
+        // 使用简称或自定义短名称
+        const shortName = provinceShortNames[province] || province.substring(0, 2);
+        btn.textContent = shortName;
+        btn.title = `${province}${clubCount > 0 ? ` (${clubCount})` : ''}`;
+        
         provinceListContainer.appendChild(btn);
     });
     
-    // 添加"其他"选项（国外）
+    // 添加"其他地区"选项（仅包含海外和没有省份信息的社团）
     const otherBtn = document.createElement('div');
     otherBtn.className = 'province-item';
-    otherBtn.dataset.province = '国外';
-    otherBtn.textContent = '国外';
+    otherBtn.dataset.province = '其他地区';
+    const otherCount = clubsData.filter(club => !club.province).length;
+    otherBtn.textContent = '其他';
+    otherBtn.title = `其他地区${otherCount > 0 ? ` (${otherCount})` : ''}`;
     provinceListContainer.appendChild(otherBtn);
     
     // 添加点击事件
@@ -363,11 +422,9 @@ function showProvinceClubs(province) {
     if (province === 'all') {
         // "全部"显示所有社团
         filteredClubs = clubsData;
-    } else if (province === '国外') {
-        // "国外"包括国外和没有省份信息的社团
-        filteredClubs = clubsData.filter(club => 
-            !club.province || !isChineseProvince(club.province)
-        );
+    } else if (province === '其他地区') {
+        // "其他地区"仅包含海外和没有省份信息的社团
+        filteredClubs = clubsData.filter(club => !club.province);
     } else {
         filteredClubs = clubsData.filter(club => club.province === province);
     }
