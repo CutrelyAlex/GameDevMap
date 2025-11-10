@@ -1,6 +1,6 @@
 [
   {
-    "id": "club-001",
+    "id": "ceshi-shetuan",
     "name": "测试社团",
     "school": "测试大学1",
     "city": "深圳",
@@ -19,7 +19,7 @@
     "tags": ["游戏开发", "Unity", "技术"]
   },
   {
-    "id": "club-002",
+    "id": "xiamen-daxue-di-jiu-yishu-you-chuang-she",
     "name": "厦门大学第九艺术游创社",
     "school": "厦门大学",
     "city": "厦门",
@@ -32,7 +32,7 @@
     "tags": [ "正式社团" ]
   },
   {
-    "id": "club-003",
+    "id": "meng-wu",
     "name": "萌屋",
     "school": "湘潭大学",
     "city": "湘潭",
@@ -41,7 +41,7 @@
     "longitude": 112.863096,
     "logo_url": "assets/logos/Cutyroom-game-club.png",
     "short_description": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
-    "long_description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
+    "long_description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等�[...]",
     "external_links": [
         {
             "type": "website",
@@ -53,9 +53,9 @@
         }
     ],
     "tags": [ "正式社团", "游戏开发", "unity", "策划", "2d与3d美术" ]
-  }
+  },
   {
-    "id": "club-004",
+    "id": "you-xi-shi-guang-gong-zuo-shi",
     "name": "游隙拾光工作室",
     "school": "长春理工大学",
     "city": "长春",
@@ -64,7 +64,7 @@
     "longitude": 125.31427,
     "logo_url": "assets/logos/cust-YOUGAP.png",
     "short_description": "拾起那份藏在缝隙中的，对游戏的热爱",
-    "long_description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
+    "long_description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游�[...]",
     "external_links": [
       {
         "type": "知识库/社群联系方式",
