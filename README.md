@@ -48,7 +48,7 @@
   "province": "省份",
   "latitude": 纬度,
   "longitude": 经度,
-  "logo_url": "assets/logos/your-logo.png",  // 本地路径或远程URL
+  "logo_url": "assets/logos/your-logo.png",
   "short_description": "简短描述",
   "long_description": "详细描述",
   "external_links": [
@@ -60,7 +60,7 @@
   "tags": ["标签1", "标签2"]
 }
 ```
-
+logo_url支持地路径或远程URL
 ### 侧边栏操作
 
 - **展开侧边栏**：点击右上角的 ☰ 按钮
