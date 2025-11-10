@@ -1,0 +1,54 @@
+[
+  {
+    "id": "club-001",
+    "name": "测试社团",
+    "school": "测试大学1",
+    "city": "深圳",
+    "province": "广东省",
+    "latitude": 22.700346,
+    "longitude": 114.404883,
+    "logo_url": "assets/logos/placeholder.png",
+    "short_description": "专注于游戏开发的社团",
+    "long_description": "我们致力于学习游戏开发技术，包括Unity、Unreal等引擎，定期举办Game Jam和技术分享会。",
+    "external_links": [
+      {
+        "type": "website",
+        "url": "https://example.com"
+      }
+    ],
+    "tags": ["游戏开发", "Unity", "技术"]
+  },
+  {
+    "id": "club-002",
+    "name": "测试社团2",
+    "school": "测试大学2",
+    "city": "深圳",
+    "province": "广东省",
+    "latitude": 22.600346,
+    "longitude": 114.504883,
+    "logo_url": "assets/logos/placeholder.png",
+    "short_description": "专注于游戏开发的社团",
+    "long_description": "我们致力于学习游戏开发技术，包括Unity、Unreal等引擎，定期举办Game Jam和技术分享会。",
+    "external_links": [
+      {
+        "type": "website",
+        "url": "https://example.com"
+      }
+    ],
+    "tags": ["游戏开发", "Unity", "技术"]
+  },
+  {
+    "id": "club-003",
+    "name": "测试社团3",
+    "school": "测试大学3",
+    "city": "北京",
+    "province": "北京市",
+    "latitude": 39.9996,
+    "longitude": 116.3268,
+    "logo_url": "assets/logos/placeholder.png",
+    "short_description": "北京高校游戏社团",
+    "long_description": "北京地区高校游戏爱好者聚集地。",
+    "external_links": [],
+    "tags": ["游戏", "北京"]
+  }
+]

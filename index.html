@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="全国高校游戏社团地图 - 发现和连接全国各地的高校游戏社团">
+    <title>全国高校游戏社团地图</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 展开侧边栏按钮 -->
+        <button class="toggle-sidebar-btn" id="toggleSidebar" aria-label="展开侧边栏">☰</button>
+        
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar" role="complementary" aria-label="社团信息侧边栏">
+            <div class="sidebar-header">
+                <h1>全国高校游戏社团地图</h1>
+                <button class="close-btn" id="closeSidebar" aria-label="关闭侧边栏">&times;</button>
+            </div>
+            
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <label for="searchInput" class="sr-only">搜索社团</label>
+                <input type="text" id="searchInput" placeholder="搜索社团、学校或标签..." aria-label="搜索社团、学校或标签" />
+                <div id="searchResults" class="search-results" role="list"></div>
+            </div>
+            
+            <!-- 省份分类区域 -->
+            <div class="province-section">
+                <h3>按省份浏览</h3>
+                <div id="provinceList" class="province-list" role="list"></div>
+            </div>
+            
+            <!-- 社团详情区域 -->
+            <div class="club-details" id="clubDetails" role="article">
+                <p class="placeholder">点击地图上的社团标记查看详情</p>
+            </div>
+        </aside>
+        
+        <!-- 地图区域 -->
+        <main class="map-container" role="main">
+            <div id="map" role="application" aria-label="社团地图"></div>
+        </main>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* 无障碍：隐藏但保留给屏幕阅读器 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* 侧边栏样式 */
+.sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 400px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: #2c3e50;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.close-btn:hover {
+    opacity: 0.8;
+}
+
+/* 搜索区域 */
+.search-section {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.search-results {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.search-result-item:hover {
+    background: #f5f5f5;
+}
+
+.search-result-item h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.search-result-item p {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 省份分类区域 */
+.province-section {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.province-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.province-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.province-item {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.province-item:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.province-item.active {
+    background: #2196f3;
+    border-color: #1976d2;
+    color: white;
+}
+
+.province-item.all {
+    background: #2c3e50;
+    color: white;
+    border-color: #2c3e50;
+}
+
+.province-item.all:hover {
+    background: #34495e;
+    border-color: #34495e;
+}
+
+/* 省份社团列表样式 */
+.province-clubs-list {
+    margin-top: 15px;
+}
+
+.province-club-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.province-club-item:hover {
+    background: #f8f9fa;
+    border-color: #3498db;
+}
+
+.province-club-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.province-club-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #2c3e50;
+}
+
+.province-club-info p {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+/* 社团详情区域 */
+.club-details {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.club-details .placeholder {
+    color: #999;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.club-logo {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin: 0 auto 20px;
+    display: block;
+    border-radius: 8px;
+}
+
+.club-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.club-school {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.club-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.club-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tag {
+    padding: 4px 12px;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 16px;
+    font-size: 12px;
+}
+
+.club-links {
+    margin-top: 20px;
+}
+
+.club-links h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.link-item {
+    display: block;
+    padding: 8px 0;
+    color: #3498db;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.link-item:hover {
+    text-decoration: underline;
+}
+
+.locate-btn {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.locate-btn:hover {
+    background: #2980b9;
+}
+
+/* 地图容器 */
+.map-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* 展开侧边栏按钮 */
+.toggle-sidebar-btn {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    width: 50px;
+    height: 50px;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 999;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.toggle-sidebar-btn:hover {
+    background: #34495e;
+    transform: scale(1.05);
+}
+
+.toggle-sidebar-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    .toggle-sidebar-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 18px;
+    }
+
+    .club-logo {
+        max-width: 150px;
+    }
+
+    .club-name {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        max-width: 100%;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+    }
+
+    .search-section {
+        padding: 15px;
+    }
+
+    .club-details {
+        padding: 15px;
+    }
+}
+
+.leaflet-control-attribution {
+    display: none !important;
+}
