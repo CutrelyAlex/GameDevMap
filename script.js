@@ -3,7 +3,7 @@ let markers = [];
 let clubsData = [];
 let currentProvinceFilter = null; // 当前选中的省份过滤器
 
-const AMAP_KEY = '62f275dfc2b00c300c0ea9842ed315ca';
+const AMAP_KEY = '5cb8fcdd6990f463d15a601676fdb6d5';
 
 // 初始化地图
 function initMap() {
@@ -60,13 +60,21 @@ function displayMarkers(provinceFilter = null) {
 
             const logoUrl = club.logo_url || 'assets/logos/placeholder.png';
 
+            // 创建高德地图自定义图标
+            const icon = new AMap.Icon({
+                image: logoUrl,
+                size: new AMap.Size(60, 60),        // 图标显示大小
+                imageSize: new AMap.Size(60, 60),   // 图片大小
+                imageOffset: new AMap.Pixel(0, 0)   // 图片偏移
+            });
+
             // 创建高德地图标记
             const marker = new AMap.Marker({
                 position: [club.longitude, club.latitude], // 高德地图是[经度,纬度]
-                icon: logoUrl, // 直接使用URL字符串
+                icon: icon,
                 title: club.name,
                 map: map,
-                offset: new AMap.Pixel(-30, -60) // 调整偏移，使图标底部中心对准坐标点
+                offset: new AMap.Pixel(-30, -60) // 偏移使图标底部对准坐标点
             });
 
             // 添加点击事件
