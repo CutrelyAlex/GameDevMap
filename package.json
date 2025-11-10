@@ -1,0 +1,24 @@
+{
+  "name": "gamedevmap-cache",
+  "version": "1.0.0",
+  "description": "Map cache server for GameDevMap",
+  "main": "server/cache-server.js",
+  "scripts": {
+    "start": "node server/cache-server.js",
+    "pre-cache": "node server/pre-cache.js",
+    "cache:clear": "curl -X DELETE http://localhost:3000/api/cache/clear",
+    "cache:clear:all": "curl -X DELETE \"http://localhost:3000/api/cache/clear?permanent=true\"",
+    "cache:stats": "curl http://localhost:3000/api/cache/stats"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.7"
+  },
+  "keywords": [
+    "map",
+    "cache",
+    "amap"
+  ],
+  "author": "",
+  "license": "MIT"
+}
