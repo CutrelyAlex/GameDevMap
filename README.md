@@ -54,15 +54,10 @@
    ```
 
 2. 启动服务器：
-   
-   **Linux/Mac:**
-   ```bash
-   chmod +x start-server.sh
-   ./start-server.sh dev      # 开发模式
-   ```
 
    **Windows:**
    ```bash
+   cd /public
    python -m http.server 8000
    ```
 
