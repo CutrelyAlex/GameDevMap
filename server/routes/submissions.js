@@ -238,7 +238,6 @@ router.get('/:id', apiLimiter, authenticate, async (req, res) => {
 
   try {
     const submission = await Submission.findById(id)
-      .populate('metadata.duplicateCheck.similarClubs')
       .lean();
 
     if (!submission) {

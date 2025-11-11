@@ -127,8 +127,15 @@ const submissionSchema = new mongoose.Schema({
         default: true
       },
       similarClubs: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Club'
+        id: String,
+        name: String,
+        school: String,
+        matchType: {
+          type: String,
+          enum: ['exact', 'similar', 'nearby']
+        },
+        confidence: Number,
+        distance: Number // 仅用于nearby类型，单位米
       }]
     }
   }

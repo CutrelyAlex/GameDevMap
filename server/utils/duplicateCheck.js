@@ -36,6 +36,15 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
  */
 async function findSimilarClubs(name, school, coordinates = null) {
   try {
+    // 直接返回通过，不进行重复检查
+    return {
+      passed: true,
+      similarClubs: [],
+      totalFound: 0
+    };
+
+    // 以下代码被注释掉，不再执行重复检查
+    /*
     const similarClubs = [];
 
     // 1. 检查完全相同的 name + school 组合
@@ -128,6 +137,7 @@ async function findSimilarClubs(name, school, coordinates = null) {
       similarClubs: similarClubs.slice(0, 5), // 最多返回5个
       totalFound: similarClubs.length
     };
+    */
 
   } catch (error) {
     console.error('Duplicate check failed:', error);
