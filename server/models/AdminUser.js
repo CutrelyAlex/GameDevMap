@@ -39,8 +39,6 @@ const adminUserSchema = new mongoose.Schema({
   }
 });
 
-// Ensure indexes
-adminUserSchema.index({ username: 1 }, { unique: true });
-adminUserSchema.index({ email: 1 }, { unique: true });
+// Indexes are automatically created by unique: true in schema definition
 
 module.exports = mongoose.model('AdminUser', adminUserSchema);
