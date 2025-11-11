@@ -1,15 +1,15 @@
 [
   {
-    "id": "69135e109f510be24595d6a8",
+    "id": "6913641f128a0bc766485b3d",
     "name": "Test",
     "school": "Test",
     "city": "Test",
-    "province": "浙江省",
-    "latitude": 32,
-    "longitude": 32,
-    "img_name": "20251111_7a0b2pef_240d0b0966a8fba815c4601d7b3d70e.png",
-    "short_description": "Tes1",
-    "long_description": "ese1",
+    "province": "湖南省",
+    "latitude": 39,
+    "longitude": 116,
+    "img_name": "20251111_ibitg800_test.png",
+    "short_description": "Test",
+    "long_description": "Test",
     "tags": [],
     "website": "",
     "contact": {}
@@ -22,7 +22,7 @@
     "province": "北京市",
     "latitude": 39.5928,
     "longitude": 116.2518,
-    "img_name": "/assets/submissions/20251111_xse1q2re_logo.png",
+    "img_name": "youchuang.png",
     "short_description": "来自联大的初创社团",
     "long_description": "活动就是没有活动",
     "tags": [
