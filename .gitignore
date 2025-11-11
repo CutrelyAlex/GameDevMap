@@ -35,3 +35,4 @@ map-cache/
 .github/prompts/
 .specify/
 specs/
+/.venv

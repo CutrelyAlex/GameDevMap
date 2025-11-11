@@ -5,14 +5,6 @@
 
 ## 快速开始
 
-### 获取代码
-
-```bash
-# 克隆仓库
-git clone https://github.com/CutrelyAlex/GameDevMap.git
-cd GameDevMap
-```
-
 ### 添加社团数据
 
 - 编辑 `data/clubs.json` 文件，添加新的社团信息，并提交PR或者Issue（带图片）
@@ -55,7 +47,13 @@ cd GameDevMap
 
 ### 本地运行
 
-1. 启动服务器：
+1. 克隆仓库：
+   ```bash
+   git clone https://github.com/CutrelyAlex/GameDevMap.git
+   cd GameDevMap
+   ```
+
+2. 启动服务器：
    
    **Linux/Mac:**
    ```bash
@@ -68,7 +66,7 @@ cd GameDevMap
    python -m http.server 8000
    ```
 
-2. 访问：`http://localhost:8000`
+3. 访问：`http://localhost:8000`
 
 ### 使用说明
 
@@ -76,7 +74,7 @@ cd GameDevMap
 
 1. 将社团的Logo图片放在 `public/assets/logos/` 文件夹中
 2. 推荐使用 PNG 格式（透明背景）
-3. 建议尺寸：至少 160x160 像素（地图上显示尺寸）
+3. 建议尺寸：建议不超过 500KB
 4. 文件命名示例：`tsinghua-game-club.png`
 5. 在 `data/clubs.json` 中添加社团信息时，`img_name` 字段只需填写文件名
 
