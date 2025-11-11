@@ -10,8 +10,9 @@ const connectDB = require('./config/db');
 const app = express();
 
 // Trust proxy - CRITICAL for correct IP detection behind Nginx/reverse proxy
-// This allows express-rate-limit and other middleware to read X-Forwarded-For header
-app.set('trust proxy', true); // Trust all proxies (safer for production)
+// Trust only the first proxy (Nginx on same server) for security
+// See: https://expressjs.com/en/guide/behind-proxies.html
+app.set('trust proxy', 1); // Trust first proxy only
 
 // Middleware
 app.use(helmet({
