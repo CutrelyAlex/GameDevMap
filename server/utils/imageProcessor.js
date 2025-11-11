@@ -63,10 +63,13 @@ async function processApprovedImage(logoPath) {
       if (stderr) {
         console.warn('⚠️  Compression warnings:', stderr.trim());
       }
+      console.log('✅ Image compressed successfully');
     } catch (compressError) {
       console.error('❌ Image compression failed:', compressError.message);
     }
 
+    // 返回文件名（前端会自动尝试从 compressedLogos 加载，失败则回退到 logos）
+    console.log(`✅ Image processing complete. Returning filename: ${filename}`);
     return filename;
   } catch (error) {
     console.error('❌ Image processing error:', error);

@@ -52,12 +52,11 @@ function resolveLogoPath(imgName) {
         filename = trimmed.split('/').pop(); // 提取文件名
     }
 
-    // 构建压缩 logo 路径
-    // 统一使用 .png 扩展名
+    // 优先尝试压缩版本（.png 格式）
     const baseFilename = filename.replace(/\.(png|jpg|jpeg|gif|webp|svg)$/i, '');
     const compressedPath = `${CONFIG.LOGO_DIR}${baseFilename}.png`;
 
-    // 返回压缩路径，如果加载失败会通过 img.onerror 处理
+    // 返回压缩路径
     return compressedPath;
 }
 

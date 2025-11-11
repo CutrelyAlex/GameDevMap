@@ -185,23 +185,5 @@
     ],
     "website": "",
     "contact": {}
-  },
-  {
-    "id": "691302a359f190d5219b9811",
-    "name": "游点开发",
-    "school": "深圳技术大学",
-    "city": "深圳市",
-    "province": "广东省",
-    "latitude": 22.704482,
-    "longitude": 114.3934,
-    "img_name": "",
-    "short_description": "",
-    "long_description": "",
-    "tags": [
-      "非正式社团",
-      "Unity"
-    ],
-    "website": "",
-    "contact": {}
   }
 ]
