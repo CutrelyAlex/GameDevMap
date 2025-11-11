@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
+    "generate:jwt": "node scripts/generate-jwt-secret.js",
     "seed:admin": "node server/scripts/seedAdmin.js",
     "migrate:clubs": "node server/scripts/migrateClubs.js",
     "sync:json": "node server/scripts/syncToJson.js",
