@@ -5,6 +5,14 @@
 
 ## 快速开始
 
+### 获取代码
+
+```bash
+# 克隆仓库
+git clone https://github.com/CutrelyAlex/GameDevMap.git
+cd GameDevMap
+```
+
 ### 添加社团数据
 
 - 编辑 `data/clubs.json` 文件，添加新的社团信息，并提交PR或者Issue（带图片）
@@ -47,13 +55,7 @@
 
 ### 本地运行
 
-1. 克隆仓库：
-   ```bash
-   git clone https://github.com/CutrelyAlex/GameDevMap.git
-   cd GameDevMap
-   ```
-
-2. 启动服务器：
+1. 启动服务器：
    
    **Linux/Mac:**
    ```bash
@@ -66,7 +68,7 @@
    python -m http.server 8000
    ```
 
-3. 访问：`http://localhost:8000`
+2. 访问：`http://localhost:8000`
 
 ### 使用说明
 
