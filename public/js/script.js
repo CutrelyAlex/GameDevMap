@@ -21,7 +21,8 @@ function getResourcePath(path) {
 
 // 配置：资源路径
 const CONFIG = {
-    LOGO_DIR: getResourcePath('/assets/logos/'),
+    LOGO_DIR: getResourcePath('/assets/compressedLogos/'),
+    FALLBACK_LOGO_DIR: getResourcePath('/assets/logos/'),
     DATA_PATH: getResourcePath('/data/clubs.json'),
     PLACEHOLDER: getResourcePath('/assets/logos/placeholder.png'),
     DEFAULT_ZOOM: 5,
@@ -39,8 +40,13 @@ function resolveLogoPath(imgName) {
         return CONFIG.PLACEHOLDER;
     }
 
-    const path = `${CONFIG.LOGO_DIR}${imgName.trim()}`;
-    return `${path}?t=${Date.now()}`;
+    const compressedPath = `${CONFIG.LOGO_DIR}${imgName.trim()}`;
+    const fallbackPath = `${CONFIG.FALLBACK_LOGO_DIR}${imgName.trim()}`;
+
+    // Try to load compressed, fallback to original if needed
+    // Since we can't check existence in JS, return compressed path
+    // Fallback can be handled by img onerror in usage, but for AMap.Icon, we assume compressed exists
+    return compressedPath;
 }
 
 function initMap() {
