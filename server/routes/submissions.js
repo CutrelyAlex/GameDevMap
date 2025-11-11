@@ -8,6 +8,7 @@ const { submissionLimiter, apiLimiter } = require('../middleware/rateLimiter');
 const { authenticate } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
 const { findSimilarClubs } = require('../utils/duplicateCheck');
+const { processApprovedImage } = require('../utils/imageProcessor');
 const fs = require('fs');
 const path = require('path');
 
@@ -300,6 +301,18 @@ router.put('/:id/approve', authenticate, async (req, res) => {
           Number(submission.data.coordinates?.latitude) || 0
         ];
 
+    // 处理图片：移动到 logos 目录并压缩
+    let processedLogoFilename = submission.data.logo;
+    if (submission.data.logo) {
+      try {
+        processedLogoFilename = await processApprovedImage(submission.data.logo);
+        console.log(`Processed logo: ${submission.data.logo} -> ${processedLogoFilename}`);
+      } catch (imageError) {
+        console.error('⚠️  Image processing failed, using original path:', imageError.message);
+        // 继续流程，使用原始路径
+      }
+    }
+
     const club = new Club({
       name: submission.data.name,
       school: submission.data.school,
@@ -309,7 +322,7 @@ router.put('/:id/approve', authenticate, async (req, res) => {
       description: submission.data.description,
       shortDescription: submission.data.shortDescription || '',
       tags: submission.data.tags,
-      logo: submission.data.logo,
+      logo: processedLogoFilename, // 使用处理后的文件名
       website: submission.data.website,
       contact: submission.data.contact,
       sourceSubmission: submission._id,

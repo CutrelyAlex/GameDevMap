@@ -46,18 +46,17 @@ function resolveLogoPath(imgName) {
 
     const trimmed = imgName.trim();
 
-    // 如果是完整路径（以 / 开头），直接使用
+    // 如果是完整路径（以 / 开头），转换为文件名
+    let filename = trimmed;
     if (trimmed.startsWith('/')) {
-        return getResourcePath(trimmed);
+        filename = trimmed.split('/').pop(); // 提取文件名
     }
 
-    // 否则，拼接压缩 logo 目录
-    const compressedPath = `${CONFIG.LOGO_DIR}${trimmed}`;
-    const fallbackPath = `${CONFIG.FALLBACK_LOGO_DIR}${trimmed}`;
+    // 优先尝试压缩版本（.png 格式）
+    const baseFilename = filename.replace(/\.(png|jpg|jpeg|gif|webp|svg)$/i, '');
+    const compressedPath = `${CONFIG.LOGO_DIR}${baseFilename}.png`;
 
-    // Try to load compressed, fallback to original if needed
-    // Since we can't check existence in JS, return compressed path
-    // Fallback can be handled by img onerror in usage, but for AMap.Icon, we assume compressed exists
+    // 返回压缩路径
     return compressedPath;
 }
 

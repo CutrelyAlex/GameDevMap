@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Club = require('../models/Club');
+const { authenticate } = require('../middleware/auth');
+const syncToJson = require('../scripts/syncToJson');
 
 /**
  * GET /api/clubs
@@ -115,6 +117,58 @@ router.get('/:id', async (req, res) => {
       success: false,
       error: 'SERVER_ERROR',
       message: '获取社团详情失败'
+    });
+  }
+});
+
+/**
+ * DELETE /api/clubs/:id
+ * 管理员端点 - 删除社团
+ * 
+ * @param {string} id - 社团ID
+ * @returns {Object} 删除结果
+ */
+router.delete('/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const club = await Club.findById(id);
+
+    if (!club) {
+      return res.status(404).json({
+        success: false,
+        error: 'NOT_FOUND',
+        message: '未找到该社团'
+      });
+    }
+
+    // 保存社团信息用于日志
+    const clubInfo = `${club.name} (${club.school})`;
+
+    // 删除社团
+    await Club.findByIdAndDelete(id);
+
+    console.log(`🗑️  Deleted club: ${clubInfo} by ${req.user.username}`);
+
+    // 自动同步到 clubs.json
+    syncToJson().catch(err => {
+      console.error('⚠️  Failed to sync clubs.json after deletion:', err);
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: '社团已删除',
+      data: {
+        id,
+        name: clubInfo
+      }
+    });
+  } catch (error) {
+    console.error('❌ Delete club failed:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'SERVER_ERROR',
+      message: '删除社团失败'
     });
   }
 });

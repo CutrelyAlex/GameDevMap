@@ -28,8 +28,8 @@
     <section id="dashboard" class="card card--dashboard hidden" aria-hidden="true">
       <header class="dashboard-header">
         <div>
-          <h1>社团提交审核</h1>
-          <p>查看并处理待审核的社团信息。数据自动每 60 秒刷新一次。</p>
+          <h1>管理后台</h1>
+          <p>管理社团提交和已批准的社团数据。</p>
         </div>
         <div class="dashboard-header__actions">
           <span id="adminDisplay" class="admin-display"></span>
@@ -37,50 +37,94 @@
         </div>
       </header>
 
-      <div class="toolbar">
-        <div class="toolbar__filters">
-          <label>
-            状态筛选
-            <select id="statusFilter">
-              <option value="pending">待审核</option>
-              <option value="approved">已通过</option>
-              <option value="rejected">已拒绝</option>
-              <option value="all">全部</option>
-            </select>
-          </label>
-          <label>
-            排序
-            <select id="sortSelect">
-              <option value="newest">最新提交</option>
-              <option value="oldest">最早提交</option>
-            </select>
-          </label>
+      <!-- 标签页切换 -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="submissions">提交审核</button>
+        <button class="tab-button" data-tab="clubs">社团管理</button>
+      </div>
+
+      <!-- 提交审核面板 -->
+      <div id="submissionsPanel" class="tab-panel active">
+        <div class="toolbar">
+          <div class="toolbar__filters">
+            <label>
+              状态筛选
+              <select id="statusFilter">
+                <option value="pending">待审核</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已拒绝</option>
+                <option value="all">全部</option>
+              </select>
+            </label>
+            <label>
+              排序
+              <select id="sortSelect">
+                <option value="newest">最新提交</option>
+                <option value="oldest">最早提交</option>
+              </select>
+            </label>
+          </div>
+          <div class="toolbar__actions">
+            <button id="refreshButton" class="secondary-button">立即刷新</button>
+          </div>
         </div>
-        <div class="toolbar__actions">
-          <button id="refreshButton" class="secondary-button">立即刷新</button>
+
+        <div id="listStatus" class="status-message" aria-live="polite"></div>
+
+        <div class="table-container">
+          <table aria-label="提交列表">
+            <thead>
+              <tr>
+                <th scope="col">社团名称</th>
+                <th scope="col">学校</th>
+                <th scope="col">省份</th>
+                <th scope="col">提交时间</th>
+                <th scope="col">状态</th>
+                <th scope="col">操作</th>
+              </tr>
+            </thead>
+            <tbody id="submissionTableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- 社团管理面板 -->
+      <div id="clubsPanel" class="tab-panel">
+        <div class="toolbar">
+          <div class="toolbar__filters">
+            <label>
+              搜索
+              <input type="text" id="clubSearchInput" placeholder="搜索社团名称或学校...">
+            </label>
+          </div>
+          <div class="toolbar__actions">
+            <button id="refreshClubsButton" class="secondary-button">刷新列表</button>
+          </div>
+        </div>
+
+        <div id="clubsListStatus" class="status-message" aria-live="polite"></div>
+
+        <div class="table-container">
+          <table aria-label="社团列表">
+            <thead>
+              <tr>
+                <th scope="col">社团名称</th>
+                <th scope="col">学校</th>
+                <th scope="col">省份</th>
+                <th scope="col">城市</th>
+                <th scope="col">创建时间</th>
+                <th scope="col">操作</th>
+              </tr>
+            </thead>
+            <tbody id="clubsTableBody">
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div id="listStatus" class="status-message" aria-live="polite"></div>
-
-      <div class="table-container">
-        <table aria-label="提交列表">
-          <thead>
-            <tr>
-              <th scope="col">社团名称</th>
-              <th scope="col">学校</th>
-              <th scope="col">省份</th>
-              <th scope="col">提交时间</th>
-              <th scope="col">状态</th>
-              <th scope="col">操作</th>
-            </tr>
-          </thead>
-          <tbody id="submissionTableBody">
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pagination" id="pagination"></div>
     </section>
   </main>
 

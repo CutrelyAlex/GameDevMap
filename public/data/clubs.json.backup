@@ -1,99 +1,47 @@
 [
   {
-    "id": "xiamen-daxue-di-jiu-yishu-you-chuang-she",
-    "name": "厦门大学第九艺术游创社",
-    "school": "厦门大学",
-    "city": "厦门",
-    "province": "福建省",
-    "latitude": 24.607377,
-    "longitude": 118.309695,
-    "img_name": "xmu-game-club.png",
-    "short_description": "厦门大学游戏开发社团",
-    "long_description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
-    "tags": [ "正式社团" ]
-  },
-  {
-    "id": "meng-wu",
-    "name": "萌屋",
-    "school": "湘潭大学",
-    "city": "湘潭",
-    "province": "湖南省",
-    "latitude": 27.882942,
-    "longitude": 112.863096,
-    "img_name": "Cutyroom-game-club.png",
-    "short_description": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
-    "long_description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
-    "external_links": [
-        {
-            "type": "《烛光：灵魂边境》",
-            "url": "https://www.taptap.cn/app/726467?os=pc"
-        },
-        {
-            "type": "《新闻学模拟器》",
-            "url": "https://www.gcores.com/games/141972"
-        }
+    "id": "691356ed014c1d4dbbc53f4c",
+    "name": "游创工坊",
+    "school": "北京联合大学",
+    "city": "北京",
+    "province": "北京市",
+    "latitude": 39.5928,
+    "longitude": 116.2518,
+    "img_name": "/assets/submissions/20251111_xse1q2re_logo.png",
+    "short_description": "来自联大的初创社团",
+    "long_description": "活动就是没有活动",
+    "tags": [
+      "游戏开发",
+      "游戏设计",
+      "编程",
+      "美术"
     ],
-    "tags": [ "正式社团", "游戏开发", "unity", "策划", "2d与3d美术" ]
+    "website": "",
+    "contact": {}
   },
   {
-    "id": "you-xi-shi-guang-gong-zuo-shi",
-    "name": "游隙拾光工作室",
-    "school": "长春理工大学",
-    "city": "长春",
-    "province": "吉林省",
-    "latitude": 43.83093,
-    "longitude": 125.31427,
-    "img_name": "cust-yougap.png",
-    "short_description": "拾起那份藏在缝隙中的，对游戏的热爱",
-    "long_description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
-    "external_links": [
-      {
-        "type": "知识库/社群联系方式",
-        "url": "https://rcn5t7x1agov.feishu.cn/wiki/O2iZwMmjGiql3skD0khceKx1nRe"
-      }
-    ],
-    "tags": ["正式社团", "游戏开发", "技术", "Unreal", "Unity", "Godot", "Gamejam"]
-  },
-  {
-    "id": "cdtu-hivest",
-    "name": "蜂巢工作室",
-    "school": "成都工业学院",
-    "city": "成都",
-    "province": "四川省",
-    "latitude":  30.7872,
-    "longitude": 103.8848,
-    "img_name": "cdtu-hivest.png",
-    "short_description": "我们是成都工业学院The Hivest Studio--蜂巢工作室",
-    "long_description": "蜂巢工作室成立于2017年。我们汇聚了一群热爱游戏、热衷开发的志同道合者，致力于为成员提供学习、实践与展示的平台，助力每一位怀揣梦想的游戏开发者成长。",
-    "external_links": [
-      {
-        "type": "游戏开发协会首页",
-        "url": "https://bqt4a2kph6x.feishu.cn/wiki/GpHpwcLT2iunl2kmFt7cYDbrnhe"
-      }
-    ],
-    "tags": ["正式社团","游戏开发","技术","Unity", "Godot","Gamejam","闲聊"]
-  },
-  {
-    "id": "siulight",
-    "name": "微光漫摄协会游戏部",
-    "school": "南昌大学",
-    "city": "南昌",
+    "id": "6913134a62b484cf99359411",
+    "name": "逻辑机械游创社",
+    "school": "赣南师范大学科技学院",
+    "city": "赣州市",
     "province": "江西省",
-    "latitude":  28.68366,
-    "longitude": 115.93735,
-    "img_name": "siulight.png",
-    "short_description": "Anime is trash,and so am I",
-    "long_description": "南昌大学微光漫摄协会是青山湖校区软件学院唯一与动漫、游戏相关的兴趣社团。我们致力于推广动漫、游戏文化，为广大动漫、游戏爱好者提供一个交流、学习和展示的平台。",
-    "external_links": [
-      {
-        "type": "微光漫摄协会官网",
-        "url": "https://siulight.com"
-      }
+    "latitude": 25.849374,
+    "longitude": 114.931543,
+    "img_name": "/assets/submissions/20251111_egm8bwba________________.png",
+    "short_description": "",
+    "long_description": "不定期组织校内游戏活动，主推计算机设计大赛、其它GameJam活动\n2025年新建社团，公开合作计划在制定中……",
+    "tags": [
+      "游戏开发",
+      "竞赛",
+      "程序",
+      "美术",
+      "策划"
     ],
-    "tags": ["正式社团","动画","二创","游戏开发","爱好","Unity","Game派对","闲聊"]
+    "website": "",
+    "contact": {}
   },
   {
-    "id": "ICGATEAM",
+    "id": "691305a269db973e744a47fc",
     "name": "游漫社游戏与动漫设计协会",
     "school": "福建师范大学",
     "city": "福州",
@@ -103,6 +51,142 @@
     "img_name": "fjnu_icon.png",
     "short_description": "福建师范大学游戏开发社团",
     "long_description": "为校友提供技术交流与gamejam组队的平台。",
-    "tags": ["正式社团","游戏开发","技术","Unity", "Godot","Gamejam","闲聊"]
+    "tags": [
+      "正式社团",
+      "游戏开发",
+      "技术",
+      "Unity",
+      "Godot",
+      "Gamejam",
+      "闲聊"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691305a269db973e744a47f9",
+    "name": "微光漫摄协会游戏部",
+    "school": "南昌大学",
+    "city": "南昌",
+    "province": "江西省",
+    "latitude": 28.68366,
+    "longitude": 115.93735,
+    "img_name": "siulight.png",
+    "short_description": "Anime is trash,and so am I",
+    "long_description": "南昌大学微光漫摄协会是青山湖校区软件学院唯一与动漫、游戏相关的兴趣社团。我们致力于推广动漫、游戏文化，为广大动漫、游戏爱好者提供一个交流、学习和展示的平台。",
+    "tags": [
+      "正式社团",
+      "动画",
+      "二创",
+      "游戏开发",
+      "爱好",
+      "Unity",
+      "Game派对",
+      "闲聊"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691305a269db973e744a47f6",
+    "name": "蜂巢工作室",
+    "school": "成都工业学院",
+    "city": "成都",
+    "province": "四川省",
+    "latitude": 30.7872,
+    "longitude": 103.8848,
+    "img_name": "cdtu-hivest.png",
+    "short_description": "我们是成都工业学院The Hivest Studio--蜂巢工作室",
+    "long_description": "蜂巢工作室成立于2017年。我们汇聚了一群热爱游戏、热衷开发的志同道合者，致力于为成员提供学习、实践与展示的平台，助力每一位怀揣梦想的游戏开发者成长。",
+    "tags": [
+      "正式社团",
+      "游戏开发",
+      "技术",
+      "Unity",
+      "Godot",
+      "Gamejam",
+      "闲聊"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691305a269db973e744a47f3",
+    "name": "游隙拾光工作室",
+    "school": "长春理工大学",
+    "city": "长春",
+    "province": "吉林省",
+    "latitude": 43.83093,
+    "longitude": 125.31427,
+    "img_name": "cust-yougap.png",
+    "short_description": "拾起那份藏在缝隙中的，对游戏的热爱",
+    "long_description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
+    "tags": [
+      "正式社团",
+      "游戏开发",
+      "技术",
+      "Unreal",
+      "Unity",
+      "Godot",
+      "Gamejam"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691305a269db973e744a47f0",
+    "name": "萌屋",
+    "school": "湘潭大学",
+    "city": "湘潭",
+    "province": "湖南省",
+    "latitude": 27.882942,
+    "longitude": 112.863096,
+    "img_name": "Cutyroom-game-club.png",
+    "short_description": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
+    "long_description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
+    "tags": [
+      "正式社团",
+      "游戏开发",
+      "unity",
+      "策划",
+      "2d与3d美术"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691305a269db973e744a47ed",
+    "name": "厦门大学第九艺术游创社",
+    "school": "厦门大学",
+    "city": "厦门",
+    "province": "福建省",
+    "latitude": 24.607377,
+    "longitude": 118.309695,
+    "img_name": "xmu-game-club.png",
+    "short_description": "厦门大学游戏开发社团",
+    "long_description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
+    "tags": [
+      "正式社团"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "691302a359f190d5219b9811",
+    "name": "游点开发",
+    "school": "深圳技术大学",
+    "city": "深圳市",
+    "province": "广东省",
+    "latitude": 22.704482,
+    "longitude": 114.3934,
+    "img_name": "",
+    "short_description": "",
+    "long_description": "",
+    "tags": [
+      "非正式社团",
+      "Unity"
+    ],
+    "website": "",
+    "contact": {}
   }
 ]

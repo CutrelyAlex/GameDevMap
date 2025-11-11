@@ -50,6 +50,7 @@ npm run migrate:clubs
 - 初始化数据库
 - 从静态文件恢复数据
 - 导入社区贡献的新社团
+- 同步：删除数据库中存在但 clubs.json 中不存在的社团
 
 **脚本**: `server/scripts/migrateClubs.js`
 

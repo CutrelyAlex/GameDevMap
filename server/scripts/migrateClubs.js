@@ -27,11 +27,19 @@ async function migrateClubs() {
 
     let imported = 0;
     let updated = 0;
+    let deleted = 0;
     let skipped = 0;
 
-    // 导入每个社团
+    // 创建一个 Set 来记录 clubs.json 中的社团（用 name+school 作为唯一标识）
+    const jsonClubKeys = new Set();
+
+    // 导入/更新每个社团
     for (const club of clubs) {
       try {
+        // 生成唯一标识
+        const clubKey = `${club.name}|${club.school}`;
+        jsonClubKeys.add(clubKey);
+
         // 检查是否已存在（通过 name + school 判断）
         const existing = await Club.findOne({
           name: club.name,
@@ -75,17 +83,35 @@ async function migrateClubs() {
       }
     }
 
-    console.log('\n📊 Migration Summary:');
+    // 删除数据库中存在但 clubs.json 中不存在的社团
+    console.log('\n Checking for clubs to delete...');
+    const allDbClubs = await Club.find({});
+    
+    for (const dbClub of allDbClubs) {
+      const clubKey = `${dbClub.name}|${dbClub.school}`;
+      
+      if (!jsonClubKeys.has(clubKey)) {
+        // 这个社团在数据库中存在，但在 clubs.json 中不存在，需要删除
+        await Club.findByIdAndDelete(dbClub._id);
+        deleted++;
+        console.log(`  ✗  Deleted: ${dbClub.name} (${dbClub.school}) - not in clubs.json`);
+      }
+    }
+
+    console.log('\n' + '='.repeat(60));
+    console.log('Migration Summary:');
     console.log(`  ✓ Imported: ${imported}`);
     console.log(`  ↻ Updated: ${updated}`);
-    console.log(`  ✗ Skipped: ${skipped}`);
-    console.log(`  Total: ${clubs.length}`);
+    console.log(`  ✗ Deleted: ${deleted}`);
+    console.log(`  -> Skipped: ${skipped}`);
+    console.log(`  📄 Total in JSON: ${clubs.length}`);
+    console.log(`  💾 Total in DB: ${clubs.length} (after sync)`);
+    console.log('='.repeat(60));
 
   } catch (error) {
     console.error('❌ Migration failed:', error);
     process.exit(1);
   } finally {
-    await mongoose.connection.close();
     console.log('\n✅ Migration complete');
   }
 }

@@ -1,22 +1,39 @@
 import os
+import sys
 import glob
 import shutil
 from PIL import Image
 
-# Directories
-source_dir = 'public/assets/logos/'
-target_dir = 'public/assets/compressedLogos/'
+# Parse arguments
+if len(sys.argv) > 1:
+    # Single file mode: compress_images.py <filename>
+    specific_file = sys.argv[1]
+    source_dir = 'public/assets/logos/'
+    target_dir = 'public/assets/compressedLogos/'
+else:
+    # Batch mode: compress all files
+    specific_file = None
+    source_dir = 'public/assets/logos/'
+    target_dir = 'public/assets/compressedLogos/'
 
 # Ensure target dir exists
 os.makedirs(target_dir, exist_ok=True)
 
-# Supported extensions
-extensions = ['*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp']
-
-# Collect all image files
-all_files = []
-for ext in extensions:
-    all_files.extend(glob.glob(os.path.join(source_dir, ext)))
+# Collect image files
+if specific_file:
+    # Process only the specified file
+    source_path = os.path.join(source_dir, specific_file)
+    if os.path.exists(source_path):
+        all_files = [source_path]
+    else:
+        print(f"Error: File not found: {source_path}")
+        sys.exit(1)
+else:
+    # Process all files
+    extensions = ['*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp']
+    all_files = []
+    for ext in extensions:
+        all_files.extend(glob.glob(os.path.join(source_dir, ext)))
 
 max_size = 80 * 1024  # 80KB
 
