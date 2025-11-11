@@ -5,20 +5,16 @@ let currentProvinceFilter = null; // 当前选中的省份过滤器
 
 const AMAP_KEY = '62f275dfc2b00c300c0ea9842ed315ca';
 
-// 智能路径检测：本地开发用相对路径，线上用绝对路径
 function getResourcePath(path) {
     // 如果是本地开发（localhost 或 127.0.0.1），用相对路径
-    // 否则（线上）用绝对路径
     const isLocalDev = window.location.hostname === 'localhost' || 
                        window.location.hostname === '127.0.0.1' ||
                        window.location.hostname.startsWith('192.168') ||
                        window.location.hostname.startsWith('[::');
     
     if (isLocalDev) {
-        // 本地开发：相对路径
         return path.startsWith('/') ? '.' + path : path;
     } else {
-        // 线上环境：绝对路径
         return path.startsWith('/') ? path : '/' + path;
     }
 }
@@ -72,7 +68,7 @@ async function validateLogos() {
         try {
             const res = await fetch(path, { method: 'HEAD' });
             if (res.ok) {
-                club.logoUrl = path;
+                club.logoUrl = `${path}?t=${Date.now()}`;
             } else {
                 console.warn(`[Logo] 不可访问 (${res.status}): ${name} -> ${path}`);
                 club.logoUrl = CONFIG.PLACEHOLDER;
