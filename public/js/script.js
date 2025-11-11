@@ -3,8 +3,6 @@ let markers = [];
 let clubsData = [];
 let currentProvinceFilter = null; // 当前选中的省份过滤器
 
-const AMAP_KEY = '62f275dfc2b00c300c0ea9842ed315ca';
-
 function getResourcePath(path) {
     // 如果是本地开发（localhost 或 127.0.0.1），用相对路径
     const isLocalDev = window.location.hostname === 'localhost' || 
