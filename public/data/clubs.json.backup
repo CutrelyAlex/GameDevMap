@@ -7,7 +7,7 @@
     "province": "北京市",
     "latitude": 39.5928,
     "longitude": 116.2518,
-    "img_name": "/assets/submissions/20251111_xse1q2re_logo.png",
+    "img_name": "youchuang.png",
     "short_description": "来自联大的初创社团",
     "long_description": "活动就是没有活动",
     "tags": [
@@ -167,24 +167,6 @@
     "long_description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
     "tags": [
       "正式社团"
-    ],
-    "website": "",
-    "contact": {}
-  },
-  {
-    "id": "691302a359f190d5219b9811",
-    "name": "游点开发",
-    "school": "深圳技术大学",
-    "city": "深圳市",
-    "province": "广东省",
-    "latitude": 22.704482,
-    "longitude": 114.3934,
-    "img_name": "",
-    "short_description": "",
-    "long_description": "",
-    "tags": [
-      "非正式社团",
-      "Unity"
     ],
     "website": "",
     "contact": {}
