@@ -5,37 +5,55 @@ let currentProvinceFilter = null; // 当前选中的省份过滤器
 
 const AMAP_KEY = '62f275dfc2b00c300c0ea9842ed315ca';
 
-// 处理Logo图片路径
+// 配置：资源路径
+const CONFIG = {
+    LOGO_DIR: './assets/logos/',
+    DATA_PATH: './data/clubs.json',
+    PLACEHOLDER: './assets/logos/placeholder.png',
+    DEFAULT_ZOOM: 5,
+    CENTER: [104.1954, 35.8617],
+    DETAIL_ZOOM: 13
+};
+
+/**
+ * 解析 Logo 图片路径
+ * @param {string} imgName - 图片文件名（仅文件名，不含路径）
+ * @returns {string} 完整的图片路径
+ */
 function resolveLogoPath(imgName) {
-    if (!imgName) return '/assets/logos/placeholder.png';
-    // 如果只是文件名，自动拼接完整路径
-    if (!imgName.includes('/')) {
-        return `/assets/logos/${imgName}`;
+    if (!imgName || typeof imgName !== 'string' || imgName.trim() === '') {
+        return CONFIG.PLACEHOLDER;
     }
-    return imgName;
+    
+    return `${CONFIG.LOGO_DIR}${imgName.trim()}`;
 }
 
 function initMap() {
     try {
         map = new AMap.Map('map', {
-            zoom: 5,
-            center: [104.1954, 35.8617],
+            zoom: CONFIG.DEFAULT_ZOOM,
+            center: CONFIG.CENTER,
             viewMode: '2D',
             lang: 'zh_cn'
         });
     } catch (error) {
+        console.error('地图初始化失败:', error);
         alert('地图初始化失败，请检查网络连接。');
     }
 }
 
 async function loadData() {
     try {
-        const response = await fetch('../data/clubs.json');
+        const response = await fetch(CONFIG.DATA_PATH);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         clubsData = await response.json();
         displayMarkers();
         createProvinceList();
     } catch (error) {
-        alert('数据加载失败，请检查 data/clubs.json 文件是否存在');
+        console.error('数据加载失败:', error);
+        alert(`数据加载失败：${error.message}\n请检查 ${CONFIG.DATA_PATH} 文件是否存在`);
     }
 }
 
@@ -183,7 +201,11 @@ function showClubDetails(club) {
 
 // 定位到社团
 function locateClub(lat, lng) {
-    map.setZoomAndCenter(13, [lng, lat]); // 高德地图是[经度,纬度]
+    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        console.warn('无效的坐标:', { lat, lng });
+        return;
+    }
+    map.setZoomAndCenter(CONFIG.DETAIL_ZOOM, [lng, lat]); // 高德地图是[经度,纬度]
 }
 
 // 搜索功能
