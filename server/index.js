@@ -29,6 +29,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/submissions', require('./routes/submissions'));
 app.use('/api/clubs', require('./routes/clubs'));
+app.use('/api/upload', require('./routes/upload'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

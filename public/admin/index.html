@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 - 全国高校游戏开发社团地图</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <main class="admin-container">
+    <section id="loginSection" class="card">
+      <h1>管理后台登录</h1>
+      <p class="description">请输入管理员账号和密码。如果忘记密码，请联系系统维护人员。</p>
+      <form id="loginForm" class="form" novalidate>
+        <label class="form-field">
+          <span>用户名</span>
+          <input type="text" id="username" name="username" autocomplete="username" required>
+        </label>
+        <label class="form-field">
+          <span>密码</span>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" id="loginButton" class="primary-button">登录</button>
+      </form>
+      <div id="loginStatus" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <section id="dashboard" class="card card--dashboard hidden" aria-hidden="true">
+      <header class="dashboard-header">
+        <div>
+          <h1>社团提交审核</h1>
+          <p>查看并处理待审核的社团信息。数据自动每 60 秒刷新一次。</p>
+        </div>
+        <div class="dashboard-header__actions">
+          <span id="adminDisplay" class="admin-display"></span>
+          <button id="logoutButton" class="secondary-button">退出登录</button>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="toolbar__filters">
+          <label>
+            状态筛选
+            <select id="statusFilter">
+              <option value="pending">待审核</option>
+              <option value="approved">已通过</option>
+              <option value="rejected">已拒绝</option>
+              <option value="all">全部</option>
+            </select>
+          </label>
+          <label>
+            排序
+            <select id="sortSelect">
+              <option value="newest">最新提交</option>
+              <option value="oldest">最早提交</option>
+            </select>
+          </label>
+        </div>
+        <div class="toolbar__actions">
+          <button id="refreshButton" class="secondary-button">立即刷新</button>
+        </div>
+      </div>
+
+      <div id="listStatus" class="status-message" aria-live="polite"></div>
+
+      <div class="table-container">
+        <table aria-label="提交列表">
+          <thead>
+            <tr>
+              <th scope="col">社团名称</th>
+              <th scope="col">学校</th>
+              <th scope="col">省份</th>
+              <th scope="col">提交时间</th>
+              <th scope="col">状态</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="submissionTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </section>
+  </main>
+
+  <section id="detailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal__backdrop" id="modalBackdrop"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="detailTitle">提交详情</h2>
+        <button id="closeModalButton" class="icon-button" aria-label="关闭详情">×</button>
+      </header>
+      <div class="modal__body" id="detailBody">
+        <div class="detail-grid">
+          <div>
+            <h3>社团信息</h3>
+            <dl id="clubInfo"></dl>
+          </div>
+          <div>
+            <h3>提交元数据</h3>
+            <dl id="metaInfo"></dl>
+          </div>
+        </div>
+        <div id="duplicateInfo" class="duplicate-info hidden"></div>
+      </div>
+      <footer class="modal__footer" id="modalFooter"></footer>
+    </div>
+  </section>
+
+  <template id="tableRowTemplate">
+    <tr>
+      <td data-field="name"></td>
+      <td data-field="school"></td>
+      <td data-field="province"></td>
+      <td data-field="submittedAt"></td>
+      <td data-field="status"></td>
+      <td data-field="actions"></td>
+    </tr>
+  </template>
+
+  <script type="module" src="js/submissions.js"></script>
+</body>
+</html>

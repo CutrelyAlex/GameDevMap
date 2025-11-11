@@ -36,3 +36,4 @@ map-cache/
 .specify/
 specs/
 /.venv
+public/assets/submissions/

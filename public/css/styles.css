@@ -10,6 +10,12 @@ body {
     overflow: hidden;
 }
 
+.sidebar-header__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 /* 无障碍：隐藏但保留给屏幕阅读器 */
 .sr-only {
     position: absolute;
@@ -49,17 +55,19 @@ body {
 }
 
 .sidebar-header {
-    padding: 10px 15px;
+    padding: 12px 15px 16px;
     background: #2c3e50;
     color: white;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
 }
 
 .sidebar-header h1 {
     font-size: 16px;
     font-weight: 600;
+    margin: 0;
 }
 
 .close-btn {
@@ -429,6 +437,33 @@ body {
     pointer-events: none;
 }
 
+/* 提交社团信息按钮 */
+.submit-club-btn {
+    position: fixed;
+    right: 20px;
+    top: 80px;
+    width: 50px;
+    height: 50px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 999;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.submit-club-btn:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
     .sidebar {
@@ -440,6 +475,13 @@ body {
         width: 45px;
         height: 45px;
         font-size: 20px;
+    }
+
+    .submit-club-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        top: 75px;
     }
 
     .sidebar-header h1 {
@@ -475,8 +517,6 @@ body {
 
 .leaflet-control-attribution {
     display: none !important;
-
-    
 }
 
 /* 地图上社团Logo的半透明白色背景 */

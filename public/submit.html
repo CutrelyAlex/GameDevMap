@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提交社团信息 - 全国高校游戏开发社团地图</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/submit.css">
+</head>
+<body>
+  <header class="submit-header">
+    <div class="submit-header__content">
+      <h1>提交社团信息</h1>
+      <p>请填写以下内容，管理员将在 1-3 个工作日内完成审核。</p>
+      <a class="back-link" href="/">返回地图首页</a>
+    </div>
+  </header>
+
+  <main class="submit-main">
+    <section class="form-card" aria-labelledby="submissionFormTitle">
+      <h2 id="submissionFormTitle">社团信息</h2>
+      <form id="submissionForm" novalidate>
+        <div class="form-grid">
+          <label class="form-field">
+            <span>社团名称 <strong class="required">*</strong></span>
+            <input type="text" id="name" name="name" placeholder="例如：深圳技术大学第九艺术社" required maxlength="100">
+          </label>
+
+          <label class="form-field">
+            <span>所属学校 <strong class="required">*</strong></span>
+            <input type="text" id="school" name="school" placeholder="例如：深圳技术大学" required maxlength="200">
+          </label>
+
+          <label class="form-field">
+            <span>所在省份 <strong class="required">*</strong></span>
+            <select id="province" name="province" required>
+              <option value="">请选择省份</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>所在城市</span>
+            <input type="text" id="city" name="city" placeholder="例如：北京市" maxlength="50">
+          </label>
+        </div>
+
+        <fieldset class="form-field coordinates-field">
+          <legend>坐标信息 <strong class="required">*</strong></legend>
+          <div class="coordinates-inputs">
+            <label>
+              <span>纬度   </span>
+              <input type="number" id="latitude" name="latitude" placeholder="例如：39.9042" step="0.000001" min="-90" max="90" required>
+            </label>
+            <label>
+              <span>经度   </span>
+              <input type="number" id="longitude" name="longitude" placeholder="例如：116.4074" step="0.000001" min="-180" max="180" required>
+            </label>
+          </div>
+          <p class="helper-text">提示：建议尽量精确，可以通过其他地图软件获取</p>
+        </fieldset>
+
+        <label class="form-field">
+          <span>社团简介（短）</span>
+          <textarea id="shortDescription" name="shortDescription" rows="2" maxlength="200" placeholder="一句话介绍或者阐述你的社团"></textarea>
+        </label>
+
+        <label class="form-field">
+          <span>社团简介（长）</span>
+          <textarea id="longDescription" name="longDescription" rows="6" maxlength="1000" placeholder="详细介绍社团的活动等。"></textarea>
+        </label>
+
+        <label class="form-field">
+          <span>标签（使用逗号分隔，最多 10 个）</span>
+          <input type="text" id="tags" name="tags" placeholder="例如：游戏开发, 编程, 美术">
+        </label>
+
+        <label class="form-field">
+          <span>社团 Logo（PNG/JPG/GIF/SVG，最大 20MB）</span>
+          <input type="file" id="logo" name="logo" accept=".png,.jpg,.jpeg,.gif,.svg">
+        </label>
+
+        <fieldset class="form-field links-fieldset">
+          <legend>相关链接（可选）</legend>
+          <p class="helper-text">添加社团的网站、社交媒体或其他相关链接。例如：网站、GitHub、微博、抖音、B站、小红书、微信公众号等</p>
+          <div id="linksContainer" class="links-container">
+            <div class="link-item">
+              <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (如: 网站, GitHub, 微博等)">
+              <input type="url" name="linkUrl" class="link-url-input" placeholder="输入链接地址或ID">
+              <button type="button" class="remove-link-btn" style="display: none;">删除</button>
+            </div>
+          </div>
+          <button type="button" id="addLinkBtn" class="secondary-button">+ 添加链接</button>
+        </fieldset>
+
+        <label class="form-field">
+          <span>提交者邮箱（用于接收审核通知） <strong class="required">*</strong></span>
+          <input type="email" id="submitterEmail" name="submitterEmail" placeholder="例如：yourname@example.com" required>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button" id="submitButton">提交信息</button>
+          <p class="form-hint">点击提交即表示您同意我们对提交内容进行核验与公开展示。</p>
+        </div>
+      </form>
+
+      <div id="formStatus" role="alert" aria-live="polite" class="status-message"></div>
+    </section>
+
+    <aside class="guidelines" aria-label="提交指南">
+      <h2>填写指南</h2>
+      <ul>
+        <li>请确保坐标准确，以便地图正确显示位置。</li>
+        <li>若暂无社团 Logo，可先提交或上传临时占位图片。</li>
+        <li>审核通过后，管理员可能会与您联系确认细节。</li>
+        <li>如需修改提交内容，可通过邮箱联系我们。</li>
+      </ul>
+      <h3>需要帮助？</h3>
+      <p>请发送邮件至 <a href="mailto:huangqiongtong@gmail.com">huangqiongtong@gmail.com</a>，或通过 QQ 2470819243 咨询。</p>
+    </aside>
+  </main>
+
+  <footer class="submit-footer">
+    <p>感谢您为全国高校游戏开发社团地图贡献力量！</p>
+  </footer>
+
+  <script type="module" src="js/submit.js"></script>
+</body>
+</html>
