@@ -11,7 +11,7 @@ const app = express();
 
 // Trust proxy - CRITICAL for correct IP detection behind Nginx/reverse proxy
 // This allows express-rate-limit and other middleware to read X-Forwarded-For header
-app.set('trust proxy', 1); // Trust first proxy (Nginx on same server)
+app.set('trust proxy', true); // Trust all proxies (safer for production)
 
 // Middleware
 app.use(helmet({

@@ -87,7 +87,7 @@ npm run migrate:clubs
 npm run sync:json
 # 3. 提交更新后的clubs.json到Git
 ```
-
+   
 ## 备份策略
 
 ### 自动备份
