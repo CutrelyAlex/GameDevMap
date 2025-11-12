@@ -1,8 +1,36 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs').promises;
+const path = require('path');
 const Club = require('../models/Club');
 const { authenticate } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
+
+/**
+ * 删除社团相关的Logo文件
+ * @param {string} logoFilename - Logo文件名
+ */
+async function deleteClubLogoFiles(logoFilename) {
+  if (!logoFilename) return;
+
+  const projectRoot = path.resolve(__dirname, '../..');
+  const logoPaths = [
+    path.join(projectRoot, 'public', 'assets', 'logos', logoFilename),
+    path.join(projectRoot, 'public', 'assets', 'compressedLogos', logoFilename)
+  ];
+
+  for (const logoPath of logoPaths) {
+    try {
+      await fs.access(logoPath);
+      await fs.unlink(logoPath);
+      console.log(`Deleted logo file: ${logoPath}`);
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        console.warn(`ailed to delete logo file ${logoPath}:`, error.message);
+      }
+    }
+  }
+}
 
 /**
  * GET /api/clubs
@@ -146,6 +174,11 @@ router.delete('/:id', authenticate, async (req, res) => {
 
     // 保存社团信息用于日志
     const clubInfo = `${club.name} (${club.school})`;
+
+    // 删除相关的Logo文件
+    if (club.logo) {
+      await deleteClubLogoFiles(club.logo);
+    }
 
     // 删除社团
     await Club.findByIdAndDelete(id);

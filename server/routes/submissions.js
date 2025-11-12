@@ -13,6 +13,28 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * 删除提交相关的Logo文件
+ * @param {string} logoFilename - Logo文件名
+ */
+async function deleteSubmissionLogoFiles(logoFilename) {
+  if (!logoFilename) return;
+
+  const projectRoot = path.resolve(__dirname, '../..');
+  const logoPath = path.join(projectRoot, 'data', 'submissions', logoFilename);
+
+  try {
+    await fs.promises.access(logoPath);
+    await fs.promises.unlink(logoPath);
+    console.log(`🗑️  Deleted submission logo file: ${logoPath}`);
+  } catch (error) {
+    // 文件不存在或删除失败，静默处理
+    if (error.code !== 'ENOENT') {
+      console.warn(`⚠️  Failed to delete submission logo file ${logoPath}:`, error.message);
+    }
+  }
+}
+
+/**
  * POST /api/submissions
  * 公开端点 - 提交新的社团信息
  * 
@@ -412,6 +434,11 @@ router.put('/:id/reject', authenticate, async (req, res) => {
     submission.reviewedBy = req.user.username;
     submission.rejectionReason = rejectionReason.trim().slice(0, 500);
     await submission.save();
+
+    // 删除相关的Logo文件
+    if (submission.data && submission.data.logo) {
+      await deleteSubmissionLogoFiles(submission.data.logo);
+    }
 
     return res.status(200).json({
       success: true,
