@@ -56,19 +56,19 @@ graph TB
     A --> C[submit.html\n提交表单页面]
     A --> D[admin/index.html\n管理后台页面]
 
-    B --> E[public/data/clubs.json\n静态社团数据]
-    B --> F[public/assets/\ncompressedLogos/\n社团Logo]
+    B --> E["public/data/clubs.json\n静态社团数据"]
+    B --> F["public/assets/\ncompressedLogos/\n社团Logo"]
 
     C --> G[JavaScript\n表单验证]
     D --> H[JavaScript\n管理界面]
 
-    G --> I[POST /api/submissions\n提交社团信息]
-    H --> J[GET /api/submissions\n获取待审核列表]
-    H --> K[PUT /api/submissions/:id/approve\n批准提交]
-    H --> L[PUT /api/submissions/:id/reject\n拒绝提交]
-    H --> M[GET /api/clubs\n获取社团列表]
-    H --> N[PUT /api/clubs/:id\n编辑社团]
-    H --> O[DELETE /api/clubs/:id\n删除社团]
+    G --> I["POST /api/submissions\n提交社团信息"]
+    H --> J["GET /api/submissions\n获取待审核列表"]
+    H --> K["PUT /api/submissions/:id/approve\n批准提交"]
+    H --> L["PUT /api/submissions/:id/reject\n拒绝提交"]
+    H --> M["GET /api/clubs\n获取社团列表"]
+    H --> N["PUT /api/clubs/:id\n编辑社团"]
+    H --> O["DELETE /api/clubs/:id\n删除社团"]
 
     I --> P[Express.js Server\n端口 3000]
     J --> P
@@ -103,27 +103,27 @@ graph TB
     end
 
     subgraph "路由层"
-        D1[/api/auth\n认证路由]
-        D2[/api/upload\n文件上传路由]
-        D3[/api/submissions\n提交管理路由]
-        D4[/api/clubs\n社团查询路由]
+        D1["/api/auth\n认证路由"]
+        D2["/api/upload\n文件上传路由"]
+        D3["/api/submissions\n提交管理路由"]
+        D4["/api/clubs\n社团查询路由"]
     end
 
     subgraph "数据访问层"
         E1[MongoDB\n主数据库]
-        E2[文件系统\ndata/目录]
-        E3[静态JSON\npublic/data/]
+        E2["文件系统\ndata/目录"]
+        E3["静态JSON\npublic/data/"]
     end
 
     subgraph "数据存储"
         F1[(Submissions\n待审核提交)]
         F2[(Clubs\n已批准社团)]
         F3[(AdminUsers\n管理员账户)]
-        F4[data/submissions/\n上传的Logo文件]
-        F5[data/pending_submissions/\n临时JSON备份]
-        F6[public/data/clubs.json\n前端读取数据]
-        F7[public/assets/logos/\n处理后Logo]
-        F8[public/assets/compressedLogos/\n压缩Logo]
+        F4["data/submissions/\n上传的Logo文件"]
+        F5["data/pending_submissions/\n临时JSON备份"]
+        F6["public/data/clubs.json\n前端读取数据"]
+        F7["public/assets/logos/\n处理后Logo"]
+        F8["public/assets/compressedLogos/\n压缩Logo"]
     end
 
     A --> B
