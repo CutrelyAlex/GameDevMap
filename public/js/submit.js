@@ -59,6 +59,7 @@ const displayElements = {
 let currentMode = 'new'; // 'new' or 'edit'
 let selectedClub = null;
 let currentEditingField = null;
+let formData = new Map(); // Store edited form data
 
 /**
  * Populate the province dropdown.
@@ -272,39 +273,70 @@ form.addEventListener('submit', async (event) => {
   toggleLoading(true);
 
   try {
-    const latitude = parseFloat(latitudeInput.value.trim());
-    const longitude = parseFloat(longitudeInput.value.trim());
-    validateCoordinates(latitude, longitude);
+    // Use formData values if in edit mode, otherwise use form inputs
+    let latitude, longitude, tags, links, payload;
+    
+    if (currentMode === 'edit') {
+      latitude = parseFloat(formData.get('latitude') || '0');
+      longitude = parseFloat(formData.get('longitude') || '0');
+      validateCoordinates(latitude, longitude);
+      tags = JSON.parse(formData.get('tags') || '[]');
+      links = collectLinks(); // Links are still collected from the form
+      
+      payload = {
+        submissionType: currentMode,
+        name: formData.get('name') || '',
+        school: formData.get('school') || '',
+        province: formData.get('province') || '',
+        city: formData.get('city') || '',
+        coordinates: {
+          latitude,
+          longitude
+        },
+        short_description: formData.get('short_description') || '',
+        long_description: formData.get('long_description') || '',
+        tags,
+        external_links: links,
+        submitterEmail: document.getElementById('submitterEmail').value.trim()
+      };
 
-    const tags = parseTags(tagsInput.value);
-    const links = collectLinks();
+      // Add editing club ID if in edit mode
+      if (selectedClub) {
+        payload.editingClubId = selectedClub.id;
+      }
+    } else {
+      // Original logic for new submissions
+      latitude = parseFloat(latitudeInput.value.trim());
+      longitude = parseFloat(longitudeInput.value.trim());
+      validateCoordinates(latitude, longitude);
 
-    const payload = {
-      submissionType: currentMode,
-      name: document.getElementById('name').value.trim(),
-      school: document.getElementById('school').value.trim(),
-      province: provinceSelect.value,
-      city: document.getElementById('city').value.trim(),
-      coordinates: {
-        latitude,
-        longitude
-      },
-      short_description: shortDescriptionInput.value.trim(),
-      long_description: longDescriptionInput.value.trim(),
-      tags,
-      external_links: links,
-      submitterEmail: document.getElementById('submitterEmail').value.trim()
-    };
+      tags = parseTags(tagsInput.value);
+      links = collectLinks();
 
-    // Add editing club ID if in edit mode
-    if (currentMode === 'edit' && selectedClub) {
-      payload.editingClubId = selectedClub.id;
+      payload = {
+        submissionType: currentMode,
+        name: document.getElementById('name').value.trim(),
+        school: document.getElementById('school').value.trim(),
+        province: provinceSelect.value,
+        city: document.getElementById('city').value.trim(),
+        coordinates: {
+          latitude,
+          longitude
+        },
+        short_description: shortDescriptionInput.value.trim(),
+        long_description: longDescriptionInput.value.trim(),
+        tags,
+        external_links: links,
+        submitterEmail: document.getElementById('submitterEmail').value.trim()
+      };
     }
 
     const logoFile = logoInput.files?.[0];
     if (logoFile) {
       const logoPath = await uploadLogo(logoFile);
       payload.logo = logoPath;
+    } else if (currentMode === 'edit' && formData.get('logo')) {
+      payload.logo = formData.get('logo');
     }
 
     const response = await fetch('/api/submissions', {
@@ -451,6 +483,21 @@ function selectClub(club) {
 
 // Populate the edit interface with club data
 function populateEditInterface(club) {
+  // Initialize formData with club data
+  formData = new Map();
+  formData.set('name', club.name || '');
+  formData.set('school', club.school || '');
+  formData.set('province', club.province || '');
+  formData.set('city', club.city || '');
+  formData.set('latitude', club.latitude || '');
+  formData.set('longitude', club.longitude || '');
+  formData.set('short_description', club.short_description || '');
+  formData.set('long_description', club.long_description || '');
+  formData.set('tags', club.tags ? JSON.stringify(club.tags) : '[]');
+  formData.set('website', club.website || '');
+  formData.set('contact', club.contact ? JSON.stringify(club.contact) : '{}');
+  formData.set('logo', club.img_name || '');
+
   // Set logo
   if (club.img_name) {
     displayElements.logo.src = `/assets/compressedLogos/${club.img_name}`;
@@ -718,11 +765,11 @@ saveEdit.addEventListener('click', async () => {
     currentEditingField = null;
     
     // Show success message
-    showMessage('修改已保存', 'success');
+    showStatus('修改已保存', 'success');
     
   } catch (error) {
     console.error('保存编辑失败:', error);
-    showMessage('保存失败，请重试', 'error');
+    showStatus('保存失败，请重试', 'error');
   }
 });
 
