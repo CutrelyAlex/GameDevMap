@@ -41,6 +41,11 @@ const editFormContent = document.getElementById('editFormContent');
 const cancelEdit = document.getElementById('cancelEdit');
 const saveEdit = document.getElementById('saveEdit');
 
+// Confirm edit actions
+const confirmEditActions = document.getElementById('confirmEditActions');
+const confirmEdit = document.getElementById('confirmEdit');
+const cancelAllEdits = document.getElementById('cancelAllEdits');
+
 // Display elements
 const displayElements = {
   name: document.getElementById('displayName'),
@@ -391,11 +396,13 @@ toggleEditMode.addEventListener('click', () => {
     currentMode = 'new';
     clubSearchSection.style.display = 'none';
     editModeInterface.style.display = 'none';
+    confirmEditActions.style.display = 'none';
     submissionForm.style.display = 'block';
     resetForm();
     selectedClub = null;
     selectedClubInfo.style.display = 'none';
     searchResults.innerHTML = '';
+    formData.clear();
   } else {
     // Switch to edit mode
     toggleEditMode.classList.add('active');
@@ -403,6 +410,7 @@ toggleEditMode.addEventListener('click', () => {
     clubSearchSection.style.display = 'block';
     submissionForm.style.display = 'none';
     editModeInterface.style.display = 'none';
+    confirmEditActions.style.display = 'none';
   }
 });
 
@@ -476,6 +484,7 @@ function selectClub(club) {
   // Hide search section and show edit interface
   clubSearchSection.style.display = 'none';
   editModeInterface.style.display = 'block';
+  confirmEditActions.style.display = 'none';
   
   // Populate the edit interface with club data
   populateEditInterface(club);
@@ -487,15 +496,13 @@ function populateEditInterface(club) {
   formData = new Map();
   formData.set('name', club.name || '');
   formData.set('school', club.school || '');
-  formData.set('province', club.province || '');
-  formData.set('city', club.city || '');
-  formData.set('latitude', club.latitude || '');
-  formData.set('longitude', club.longitude || '');
-  formData.set('short_description', club.short_description || '');
-  formData.set('long_description', club.long_description || '');
-  formData.set('tags', club.tags ? JSON.stringify(club.tags) : '[]');
+  formData.set('location', club.city ? `${club.city}, ${club.province}` : club.province || '');
+  formData.set('coordinates', club.latitude && club.longitude ? `${club.latitude}, ${club.longitude}` : '');
+  formData.set('shortDescription', club.short_description || '');
+  formData.set('longDescription', club.long_description || '');
+  formData.set('tags', club.tags && club.tags.length > 0 ? club.tags.join(', ') : '');
   formData.set('website', club.website || '');
-  formData.set('contact', club.contact ? JSON.stringify(club.contact) : '{}');
+  formData.set('contact', formatContactInfo(club.contact) || '');
   formData.set('logo', club.img_name || '');
 
   // Set logo
@@ -764,8 +771,13 @@ saveEdit.addEventListener('click', async () => {
     editForm.style.display = 'none';
     currentEditingField = null;
     
+    // Show confirm edit actions if we have changes
+    if (formData.size > 0) {
+      confirmEditActions.style.display = 'block';
+    }
+    
     // Show success message
-    showStatus('修改已保存', 'success');
+    showStatus('修改已保存，请点击"确认修改"提交更改', 'success');
     
   } catch (error) {
     console.error('保存编辑失败:', error);
@@ -1005,3 +1017,123 @@ function updateDisplayValue(field, value) {
 updateRemoveButtonVisibility();
 
 populateProvinces();
+
+// Handle confirm edit submission
+confirmEdit.addEventListener('click', async () => {
+  if (!selectedClub || !formData.size) {
+    showStatus('没有修改内容', 'error');
+    return;
+  }
+
+  try {
+    // Show loading state
+    confirmEdit.disabled = true;
+    confirmEdit.textContent = '提交中...';
+
+    // Prepare update data
+    const updateData = {};
+    
+    // Handle logo upload first if changed
+    if (formData.has('logo')) {
+      const logoFile = formData.get('logo');
+      if (logoFile instanceof File) {
+        const logoPath = await uploadLogo(logoFile);
+        if (logoPath) {
+          updateData.logo = logoPath;
+        }
+      }
+    }
+
+    // Add other fields
+    for (const [field, value] of formData) {
+      if (field === 'logo') continue; // Already handled above
+      
+      switch (field) {
+        case 'name':
+          updateData.name = value;
+          break;
+        case 'school':
+          updateData.school = value;
+          break;
+        case 'location':
+          const [city, province] = value.split(', ');
+          updateData.province = province;
+          if (city) updateData.city = city;
+          break;
+        case 'coordinates':
+          const [lat, lng] = value.split(', ');
+          updateData.latitude = parseFloat(lat);
+          updateData.longitude = parseFloat(lng);
+          break;
+        case 'shortDescription':
+          updateData.shortDescription = value;
+          break;
+        case 'longDescription':
+          updateData.longDescription = value;
+          break;
+        case 'tags':
+          updateData.tags = parseTags(value);
+          break;
+        case 'website':
+          updateData.website = value;
+          break;
+        case 'contact':
+          updateData.contact = value;
+          break;
+      }
+    }
+
+    // Submit update
+    const response = await fetch(`/api/clubs/${selectedClub.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updateData)
+    });
+
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result?.success) {
+      throw new Error(result?.message || '修改失败，请稍后再试');
+    }
+
+    // Success
+    showStatus('修改已提交，等待管理员审核', 'success');
+    
+    // Reset edit state
+    formData.clear();
+    confirmEditActions.style.display = 'none';
+    editModeInterface.style.display = 'none';
+    clubSearchSection.style.display = 'none';
+    toggleEditMode.classList.remove('active');
+    currentMode = 'new';
+    selectedClub = null;
+
+  } catch (error) {
+    console.error('提交编辑失败:', error);
+    showStatus(error.message || '提交失败，请重试', 'error');
+  } finally {
+    // Reset button state
+    confirmEdit.disabled = false;
+    confirmEdit.textContent = '确认修改';
+  }
+});
+
+// Handle cancel all edits
+cancelAllEdits.addEventListener('click', () => {
+  if (confirm('确定要取消所有修改吗？')) {
+    // Reset form data
+    formData.clear();
+    
+    // Reload original club data
+    if (selectedClub) {
+      populateEditInterface(selectedClub);
+    }
+    
+    // Hide confirm actions
+    confirmEditActions.style.display = 'none';
+    
+    showStatus('已取消所有修改', 'success');
+  }
+});
