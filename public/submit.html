@@ -164,8 +164,19 @@
 
         <!-- 确认修改按钮 -->
         <div class="confirm-edit-actions" id="confirmEditActions" style="display: none;">
-          <button type="button" id="confirmEdit" class="primary-button">确认修改</button>
-          <button type="button" id="cancelAllEdits" class="secondary-button">取消所有修改</button>
+          <div class="edit-email-field">
+            <label for="editSubmitterEmail">提交者邮箱（用于接收审核通知） <strong class="required">*</strong></label>
+            <input type="email" id="editSubmitterEmail" placeholder="例如：yourname@example.com" required>
+          </div>
+          <div class="confirm-buttons">
+            <button type="button" id="confirmEdit" class="primary-button">确认修改</button>
+            <button type="button" id="cancelAllEdits" class="secondary-button">取消所有修改</button>
+          </div>
+        </div>
+
+        <!-- 调试按钮（临时） -->
+        <div style="margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 0.5rem;">
+          <button type="button" id="debugShowConfirm" style="padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 0.25rem; cursor: pointer;">显示确认修改按钮（调试）</button>
         </div>
       </div>
 
@@ -273,6 +284,6 @@
     <p>感谢您为全国高校游戏开发社团地图贡献力量！</p>
   </footer>
 
-  <script type="module" src="js/submit.js?v1.0.0"></script>
+  <script type="module" src="js/submit.js?v1.0.1"></script>
 </body>
 </html>

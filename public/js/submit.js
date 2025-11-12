@@ -45,6 +45,10 @@ const saveEdit = document.getElementById('saveEdit');
 const confirmEditActions = document.getElementById('confirmEditActions');
 const confirmEdit = document.getElementById('confirmEdit');
 const cancelAllEdits = document.getElementById('cancelAllEdits');
+const editSubmitterEmail = document.getElementById('editSubmitterEmail');
+
+// Debug button (temporary)
+const debugShowConfirm = document.getElementById('debugShowConfirm');
 
 // Display elements
 const displayElements = {
@@ -772,7 +776,9 @@ saveEdit.addEventListener('click', async () => {
     currentEditingField = null;
     
     // Show confirm edit actions if we have changes
+    console.log('Form data size:', formData.size);
     if (formData.size > 0) {
+      console.log('Showing confirm edit actions');
       confirmEditActions.style.display = 'block';
     }
     
@@ -1025,6 +1031,19 @@ confirmEdit.addEventListener('click', async () => {
     return;
   }
 
+  // Validate email
+  const submitterEmail = editSubmitterEmail.value.trim();
+  if (!submitterEmail) {
+    showStatus('请输入邮箱地址', 'error');
+    editSubmitterEmail.focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(submitterEmail)) {
+    showStatus('请输入有效的邮箱地址', 'error');
+    editSubmitterEmail.focus();
+    return;
+  }
+
   try {
     // Show loading state
     confirmEdit.disabled = true;
@@ -1083,13 +1102,34 @@ confirmEdit.addEventListener('click', async () => {
       }
     }
 
-    // Submit update
-    const response = await fetch(`/api/clubs/${selectedClub.id}`, {
-      method: 'PUT',
+    // Submit update as an edit submission
+    const submissionData = {
+      submissionType: 'edit',
+      editingClubId: selectedClub.id,
+      originalData: {
+        name: selectedClub.name,
+        school: selectedClub.school,
+        province: selectedClub.province,
+        city: selectedClub.city,
+        latitude: selectedClub.latitude,
+        longitude: selectedClub.longitude,
+        short_description: selectedClub.short_description,
+        long_description: selectedClub.long_description,
+        tags: selectedClub.tags,
+        website: selectedClub.website,
+        contact: selectedClub.contact,
+        img_name: selectedClub.img_name
+      },
+      data: updateData,
+      submitterEmail: submitterEmail
+    };
+
+    const response = await fetch('/api/submissions', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(updateData)
+      body: JSON.stringify(submissionData)
     });
 
     const result = await response.json().catch(() => null);
@@ -1136,4 +1176,10 @@ cancelAllEdits.addEventListener('click', () => {
     
     showStatus('已取消所有修改', 'success');
   }
+});
+
+// Debug button handler (temporary)
+debugShowConfirm.addEventListener('click', () => {
+  console.log('Debug: Showing confirm edit actions');
+  confirmEditActions.style.display = 'block';
 });
