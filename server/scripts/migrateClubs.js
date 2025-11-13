@@ -25,27 +25,18 @@ async function migrateClubs() {
 
     console.log(`📄 Found ${clubs.length} clubs in clubs.json`);
 
+    // 第一步：完全删除数据库中的所有 Club 记录
+    console.log('\n🗑️  Clearing database...');
+    const deleteResult = await Club.deleteMany({});
+    console.log(`  Deleted ${deleteResult.deletedCount} existing clubs`);
+
     let imported = 0;
-    let updated = 0;
-    let deleted = 0;
     let skipped = 0;
 
-    // 创建一个 Set 来记录 clubs.json 中的社团（用 name+school 作为唯一标识）
-    const jsonClubKeys = new Set();
-
-    // 导入/更新每个社团
+    // 第二步：从 clubs.json 中导入所有数据
+    console.log('\n📥 Importing from clubs.json...');
     for (const club of clubs) {
       try {
-        // 生成唯一标识
-        const clubKey = `${club.name}|${club.school}`;
-        jsonClubKeys.add(clubKey);
-
-        // 检查是否已存在（通过 name + school 判断）
-        const existing = await Club.findOne({
-          name: club.name,
-          school: club.school
-        });
-
         const clubData = {
           name: club.name,
           school: club.school,
@@ -58,60 +49,28 @@ async function migrateClubs() {
           logo: club.img_name || '',
           external_links: club.external_links || [],
           verifiedBy: 'system',
+          createdAt: new Date(),
           updatedAt: new Date()
         };
 
-        if (existing) {
-          // 更新现有记录 - 使用 $set 操作符确保字段被正确更新
-          await Club.updateOne(
-            { _id: existing._id },
-            { 
-              $set: clubData
-            }
-          );
-          updated++;
-          const linkInfo = clubData.external_links?.length > 0 ? ` (${clubData.external_links.length} links)` : '';
-          console.log(`  ↻ Updated: ${club.name} (${club.school})${linkInfo}`);
-        } else {
-          // 创建新记录
-          const newClub = new Club({
-            ...clubData,
-            createdAt: new Date()
-          });
-          await newClub.save();
-          imported++;
-          const linkInfo = clubData.external_links?.length > 0 ? ` (${clubData.external_links.length} links)` : '';
-          console.log(`  ✓ Imported: ${club.name} (${club.school})${linkInfo}`);
-        }
+        // 创建新记录
+        const newClub = new Club(clubData);
+        await newClub.save();
+        imported++;
+        const linkInfo = clubData.external_links?.length > 0 ? ` (${clubData.external_links.length} links)` : '';
+        console.log(`  ✓ Imported: ${club.name} (${club.school})${linkInfo}`);
       } catch (error) {
         console.error(`  ✗ Failed to import ${club.name}:`, error.message);
         skipped++;
       }
     }
 
-    // 删除数据库中存在但 clubs.json 中不存在的社团
-    console.log('\n Checking for clubs to delete...');
-    const allDbClubs = await Club.find({});
-    
-    for (const dbClub of allDbClubs) {
-      const clubKey = `${dbClub.name}|${dbClub.school}`;
-      
-      if (!jsonClubKeys.has(clubKey)) {
-        // 这个社团在数据库中存在，但在 clubs.json 中不存在，需要删除
-        await Club.findByIdAndDelete(dbClub._id);
-        deleted++;
-        console.log(`  ✗  Deleted: ${dbClub.name} (${dbClub.school}) - not in clubs.json`);
-      }
-    }
-
     console.log('\n' + '='.repeat(60));
     console.log('Migration Summary:');
     console.log(`  ✓ Imported: ${imported}`);
-    console.log(`  ↻ Updated: ${updated}`);
-    console.log(`  ✗ Deleted: ${deleted}`);
-    console.log(`  -> Skipped: ${skipped}`);
+    console.log(`  ✗ Skipped: ${skipped}`);
     console.log(`  📄 Total in JSON: ${clubs.length}`);
-    console.log(`  💾 Total in DB: ${clubs.length} (after sync)`);
+    console.log(`  💾 Total in DB: ${imported} (after migration)`);
     console.log('='.repeat(60));
 
   } catch (error) {
