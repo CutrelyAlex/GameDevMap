@@ -249,9 +249,9 @@
     <header class="admin-header">
       <h1>数据同步管理</h1>
       <nav class="admin-nav">
-        <a href="index.html">管理后台</a>
+        <a href="index.html">提交审核</a>
+        <a href="clubs.html">社团管理</a>
         <a href="sync.html" class="active">数据同步</a>
-        <a href="tools.html">系统工具</a>
         <button id="logoutBtn" class="logout-btn">退出登录</button>
       </nav>
     </header>
@@ -263,6 +263,8 @@
         <button id="compareBtn" class="sync-btn primary">对比数据</button>
         <button id="mergeBtn" class="sync-btn primary">智能合并</button>
         <button id="replaceBtn" class="sync-btn danger">完全替换</button>
+        <button id="jsonToDB" class="sync-btn primary">JSON→DB替换</button>
+        <button id="gitQuickBtn" class="sync-btn primary">Git快速提交</button>
       </div>
 
       <div id="statsContainer" style="display: none;">
@@ -303,6 +305,7 @@
             <button class="tab-btn" data-tab="dbOnly">仅在数据库</button>
             <button class="tab-btn" data-tab="jsonOnly">仅在 JSON</button>
             <button class="tab-btn" data-tab="conflicts">冲突</button>
+            <button class="tab-btn" data-tab="logs">操作日志</button>
           </div>
 
           <div id="identicalTab" class="tab-content active">
@@ -328,6 +331,11 @@
           <div id="conflictsTab" class="tab-content">
             <h3>可能的冲突</h3>
             <div id="conflictsList" class="club-list"></div>
+          </div>
+
+          <div id="logsTab" class="tab-content">
+            <h3>最近操作日志</h3>
+            <div id="logsList" class="club-list" style="max-height: 600px;"></div>
           </div>
         </div>
       </div>
