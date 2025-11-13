@@ -19,22 +19,30 @@ const Club = require('../models/Club');
  */
 
 /**
- * 转换 Club 对象为 JSON 格式
+ * 转换 Club 对象为 JSON 格式（统一为驼峰命名约定）
  */
 function formatClubForJson(club) {
+  // 处理外部链接，移除 _id 字段
+  let externalLinks = [];
+  if (club.externalLinks && Array.isArray(club.externalLinks)) {
+    externalLinks = club.externalLinks.map(link => ({
+      type: link.type,
+      url: link.url
+    }));
+  }
+
   return {
     id: club._id.toString(),
     name: club.name,
     school: club.school,
     city: club.city || '',
     province: club.province,
-    latitude: club.coordinates[1],
-    longitude: club.coordinates[0],
-    img_name: club.logo || '',
-    short_description: club.shortDescription || '',
-    long_description: club.description || '',
+    coordinates: club.coordinates || [0, 0],
+    logo: club.logo || '',
+    shortDescription: club.shortDescription || '',
+    description: club.description || '',
     tags: club.tags || [],
-    external_links: club.external_links || []
+    externalLinks: externalLinks
   };
 }
 

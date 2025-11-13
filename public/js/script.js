@@ -225,7 +225,7 @@ function displayMarkers(provinceFilter = null) {
                 }
             }
 
-            const logoUrl = resolveLogoPath(club.img_name);
+            const logoUrl = resolveLogoPath(club.logo);
 
             // 创建高德地图自定义图标
             const icon = new AMap.Icon({
@@ -237,7 +237,7 @@ function displayMarkers(provinceFilter = null) {
 
             // 创建高德地图标记
             const marker = new AMap.Marker({
-                position: [club.longitude, club.latitude], // 高德地图是[经度,纬度]
+                position: [club.coordinates[0], club.coordinates[1]], // 高德地图是[经度,纬度]
                 icon: icon,
                 title: club.name,
                 map: map,
@@ -264,8 +264,8 @@ function showClubDetails(club) {
     const content = template.content.cloneNode(true);
     
     const logoImg = content.querySelector('.club-logo');
-    logoImg.src = resolveLogoPath(club.img_name);
-    if (club.img_name) {
+    logoImg.src = resolveLogoPath(club.logo);
+    if (club.logo) {
         logoImg.style.display = 'block';
     } else {
         logoImg.style.display = 'none';
@@ -276,22 +276,22 @@ function showClubDetails(club) {
     
     // 简介
     const descDiv = content.querySelector('.club-description');
-    if (club.short_description || club.long_description) {
+    if (club.shortDescription || club.description) {
         descDiv.innerHTML = ''; // 清空内容
         
-        if (club.short_description) {
+        if (club.shortDescription) {
             const blockquote = document.createElement('blockquote');
             blockquote.className = 'club-quote';
-            blockquote.textContent = club.short_description;
+            blockquote.textContent = club.shortDescription;
             descDiv.appendChild(blockquote);
         }
         
-        if (club.long_description) {
-            if (club.short_description) {
+        if (club.description) {
+            if (club.shortDescription) {
                 descDiv.appendChild(document.createElement('br'));
             }
             const paragraph = document.createElement('p');
-            paragraph.textContent = club.long_description;
+            paragraph.textContent = club.description;
             paragraph.style.margin = '0';
             descDiv.appendChild(paragraph);
         }
@@ -320,13 +320,13 @@ function showClubDetails(club) {
     h3.textContent = '外部链接';
     linksDiv.appendChild(h3);
     
-    if (club.external_links && club.external_links.length > 0) {
+    if (club.externalLinks && club.externalLinks.length > 0) {
         // 创建链接容器
         const linksContainer = document.createElement('div');
         linksContainer.className = 'external-links-container';
         
         let hasValidLinks = false;
-        club.external_links.forEach(link => {
+        club.externalLinks.forEach(link => {
             if (link.type && link.url) {
                 hasValidLinks = true;
                 const linkWrapper = document.createElement('div');
@@ -661,8 +661,8 @@ function showProvinceClubs(province) {
         const item = template.content.cloneNode(true);
         
         const logo = item.querySelector('.province-club-logo');
-        logo.src = resolveLogoPath(club.img_name);
-        if (club.img_name) {
+        logo.src = resolveLogoPath(club.logo);
+        if (club.logo) {
             logo.style.display = 'block';
         } else {
             logo.style.display = 'none';

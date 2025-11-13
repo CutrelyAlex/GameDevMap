@@ -391,7 +391,7 @@ function renderDetail(submission) {
     ['短简介', submission.data?.shortDescription || '未提供'],
     ['长简介', submission.data?.description || '未提供'],
     ['Logo', submission.data?.logo || '未上传'],
-    ['外部链接', formatExternalLinks(submission.data?.external_links)]
+    ['外部链接', formatExternalLinks(submission.data?.externalLinks)]
   );
 
   fillList(clubInfoList, clubInfo);
@@ -445,7 +445,7 @@ function renderEditComparison(submission) {
     { key: 'description', label: '长简介' },
     { key: 'tags', label: '标签' },
     { key: 'logo', label: 'Logo' },
-    { key: 'external_links', label: '外部链接' }
+    { key: 'externalLinks', label: '外部链接' }
   ];
 
   fields.forEach(field => {
@@ -453,7 +453,7 @@ function renderEditComparison(submission) {
     
     if (field.key === 'tags' && Array.isArray(original[field.key])) {
       oldValue = original[field.key].join(', ');
-    } else if (field.key === 'external_links' && Array.isArray(original[field.key])) {
+    } else if (field.key === 'externalLinks' && Array.isArray(original[field.key])) {
       oldValue = formatExternalLinks(original[field.key]);
     } else {
       oldValue = original[field.key] || '未提供';
@@ -461,7 +461,7 @@ function renderEditComparison(submission) {
     
     if (field.key === 'tags' && Array.isArray(updated[field.key])) {
       newValue = updated[field.key].join(', ');
-    } else if (field.key === 'external_links' && Array.isArray(updated[field.key])) {
+    } else if (field.key === 'externalLinks' && Array.isArray(updated[field.key])) {
       newValue = formatExternalLinks(updated[field.key]);
     } else {
       newValue = updated[field.key] || '未提供';
