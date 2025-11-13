@@ -628,14 +628,14 @@ function populateEditInterface(club) {
   }
   formData.set('coordinates', coordsText);
   
-  formData.set('shortDescription', club.shortDescription || club.short_description || '');
-  formData.set('description', club.description || club.long_description || '');
+  formData.set('shortDescription', club.shortDescription || '');
+  formData.set('description', club.description || '');
   // Store tags as JSON string for consistency with updateFormData
   formData.set('tags', JSON.stringify(club.tags && club.tags.length > 0 ? club.tags : []));
-  formData.set('logo', club.logo || club.img_name || '');
+  formData.set('logo', club.logo || '');
 
   // Set logo
-  const logoToUse = club.logo || club.img_name;
+  const logoToUse = club.logo;
   if (logoToUse) {
     displayElements.logo.src = `/assets/compressedLogos/${logoToUse}`;
     displayElements.logo.style.display = 'block';
@@ -658,8 +658,8 @@ function populateEditInterface(club) {
   }
   displayElements.coordinates.textContent = coordDisplay;
   
-  displayElements.shortDescription.textContent = club.shortDescription || club.short_description || '-';
-  displayElements.longDescription.textContent = club.description || club.long_description || '-';
+  displayElements.shortDescription.textContent = club.shortDescription || '-';
+  displayElements.longDescription.textContent = club.description || '-';
   displayElements.tags.textContent = club.tags && club.tags.length > 0 ? club.tags.join(', ') : '-';
   
   // Display external links
@@ -934,11 +934,11 @@ function getCurrentFieldValue(field) {
         return `${selectedClub.latitude}, ${selectedClub.longitude}`;
       }
       return '';
-    case 'shortDescription': return selectedClub.shortDescription || selectedClub.short_description || '';
-    case 'longDescription': return selectedClub.description || selectedClub.long_description || '';
+    case 'shortDescription': return selectedClub.shortDescription || '';
+    case 'longDescription': return selectedClub.description || '';
     case 'tags': return selectedClub.tags && selectedClub.tags.length > 0 ? selectedClub.tags.join(', ') : '';
     case 'externalLinks': return selectedClub.externalLinks || [];
-    case 'logo': return selectedClub.logo || selectedClub.img_name || '';
+    case 'logo': return selectedClub.logo || '';
     default: return '';
   }
 }
@@ -1262,7 +1262,7 @@ confirmEdit.addEventListener('click', async () => {
     confirmEdit.textContent = '提交中...';
 
     // Handle logo upload first if changed
-    let logoPath = selectedClub.logo || selectedClub.img_name || '';
+    let logoPath = selectedClub.logo || selectedClub.logo || '';
     if (formData.has('logo')) {
       const logoFile = formData.get('logo');
       if (logoFile instanceof File) {
@@ -1291,8 +1291,8 @@ confirmEdit.addEventListener('click', async () => {
         latitude: selectedClub.coordinates?.[1] || selectedClub.latitude || 0,
         longitude: selectedClub.coordinates?.[0] || selectedClub.longitude || 0
       },
-      shortDescription: selectedClub.shortDescription || selectedClub.short_description || '',
-      description: selectedClub.description || selectedClub.long_description || '',
+      shortDescription: selectedClub.shortDescription || selectedClub.shortDescription || '',
+      description: selectedClub.description || selectedClub.description || '',
       tags: selectedClub.tags || [],
       logo: logoPath,
       externalLinks: externalLinks

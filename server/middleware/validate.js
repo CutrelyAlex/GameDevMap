@@ -111,7 +111,7 @@ const submissionSchema = Joi.object({
       'string.max': '社团简介最多 500 个字符'
     }),
 
-  short_description: Joi.string()
+  shortDescription: Joi.string()
     .max(200)
     .optional()
     .allow('')
@@ -120,7 +120,7 @@ const submissionSchema = Joi.object({
       'string.max': '短介绍最多 200 个字符'
     }),
 
-  long_description: Joi.string()
+  description: Joi.string()
     .max(1000)
     .optional()
     .allow('')

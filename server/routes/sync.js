@@ -23,9 +23,9 @@ function formatClub(club) {
       type: link.type,
       url: link.url
     }));
-  } else if (club.external_links && Array.isArray(club.external_links)) {
+  } else if (club.externalLinks && Array.isArray(club.externalLinks)) {
     // 兼容旧字段名
-    externalLinks = club.external_links.map(link => ({
+    externalLinks = club.externalLinks.map(link => ({
       type: link.type,
       url: link.url
     }));
@@ -38,9 +38,9 @@ function formatClub(club) {
     city: club.city || '',
     province: club.province,
     coordinates: club.coordinates || [0, 0],
-    imgName: club.logo || club.imgName || club.img_name || '',
-    shortDescription: club.shortDescription || club.short_description || '',
-    description: club.description || club.long_description || '',
+    imgName: club.logo || club.imgName || '',
+    shortDescription: club.shortDescription || '',
+    description: club.description || '',
     tags: club.tags || [],
     externalLinks: externalLinks
   };
@@ -260,7 +260,7 @@ router.post('/merge', authenticate, async (req, res) => {
             description: existingClub.description,
             shortDescription: existingClub.shortDescription,
             tags: existingClub.tags || [],
-            external_links: existingClub.external_links || []
+            externalLinks: existingClub.externalLinks || []
           });
           
           const jsonStr = JSON.stringify({
@@ -269,10 +269,10 @@ router.post('/merge', authenticate, async (req, res) => {
             city: jsonClub.city,
             province: jsonClub.province,
             coordinates: [jsonClub.longitude, jsonClub.latitude],
-            description: jsonClub.long_description,
-            shortDescription: jsonClub.short_description,
+            description: jsonClub.description,
+            shortDescription: jsonClub.shortDescription,
             tags: jsonClub.tags || [],
-            external_links: jsonClub.external_links || []
+            externalLinks: jsonClub.externalLinks || []
           });
 
           if (dbStr !== jsonStr) {
@@ -285,11 +285,11 @@ router.post('/merge', authenticate, async (req, res) => {
                 city: jsonClub.city,
                 province: jsonClub.province,
                 coordinates: [jsonClub.longitude, jsonClub.latitude],
-                description: jsonClub.long_description,
-                shortDescription: jsonClub.short_description,
+                description: jsonClub.description,
+                shortDescription: jsonClub.shortDescription,
                 tags: jsonClub.tags || [],
-                external_links: jsonClub.external_links || [],
-                logo: jsonClub.img_name || ''
+                externalLinks: jsonClub.externalLinks || [],
+                logo: jsonClub.logo || ''
               },
               { new: true }
             );
@@ -308,11 +308,11 @@ router.post('/merge', authenticate, async (req, res) => {
             city: jsonClub.city,
             province: jsonClub.province,
             coordinates: [jsonClub.longitude, jsonClub.latitude],
-            description: jsonClub.long_description,
-            shortDescription: jsonClub.short_description,
+            description: jsonClub.description,
+            shortDescription: jsonClub.shortDescription,
             tags: jsonClub.tags || [],
-            external_links: jsonClub.external_links || [],
-            logo: jsonClub.img_name || ''
+            externalLinks: jsonClub.externalLinks || [],
+            logo: jsonClub.logo || ''
           });
           dbAdded++;
           console.log(`✅ Added to DB: ${jsonClub.name} (${jsonClub.school})`);

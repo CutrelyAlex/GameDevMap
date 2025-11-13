@@ -50,12 +50,12 @@ npm run migrate:clubs
 - 完全覆盖 MongoDB 中的 Club 数据，用 clubs.json 的内容替换
 - 确保数据库与 JSON 文件完全一致
 - 删除数据库中所有旧的、废弃的字段（如 `website`、`contact`）
-- 正确同步 `external_links` 字段
+- 正确同步 `externalLinks` 字段
 
 **工作流程**:
 1. 清空数据库中所有 Club 集合
 2. 从 clubs.json 读取所有社团数据
-3. 创建新的 Club 记录，包含所有必要字段（包括 `external_links`）
+3. 创建新的 Club 记录，包含所有必要字段（包括 `externalLinks`）
 4. 确保废弃字段（如 `website`、`contact`）不会被导入
 
 **脚本**: `server/scripts/migrateClubs.js`
@@ -67,7 +67,7 @@ npm run validate:db
 
 此命令会检查：
 - 数据库中是否存在废弃字段（`website`、`contact`）
-- `external_links` 数据是否与 JSON 文件一致
+- `externalLinks` 数据是否与 JSON 文件一致
 
 ### MongoDB → JSON (导出)
 ```bash

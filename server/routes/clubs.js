@@ -73,11 +73,11 @@ router.get('/', async (req, res) => {
       province: club.province,
       latitude: club.coordinates[1],  // [lng, lat] -> lat
       longitude: club.coordinates[0], // [lng, lat] -> lng
-      img_name: club.logo || '',
-      short_description: club.shortDescription || '',
-      long_description: club.description || '',
+      logo: club.logo || '',
+      shortDescription: club.shortDescription || '',
+      description: club.description || '',
       tags: club.tags || [],
-      external_links: club.external_links || [],
+      externalLinks: club.externalLinks || [],
       shortDescription: club.shortDescription || '',
       description: club.description || '',
       coordinates: club.coordinates,
@@ -138,11 +138,11 @@ router.get('/:id', async (req, res) => {
       province: club.province,
       latitude: club.coordinates[1],
       longitude: club.coordinates[0],
-      img_name: club.logo || '',
-      short_description: club.shortDescription || '',
-      long_description: club.description || '',
+      logo: club.logo || '',
+      shortDescription: club.shortDescription || '',
+      description: club.description || '',
       tags: club.tags || [],
-      external_links: club.external_links || []
+      externalLinks: club.externalLinks || []
     };
 
     return res.status(200).json({
@@ -164,7 +164,7 @@ router.get('/:id', async (req, res) => {
  * 管理员端点 - 编辑社团信息
  * 
  * @param {string} id - 社团ID
- * @body {Object} 更新数据（支持：name, school, province, city, coordinates, description, shortDescription, tags, external_links）
+ * @body {Object} 更新数据（支持：name, school, province, city, coordinates, description, shortDescription, tags, externalLinks）
  * @returns {Object} 更新结果
  */
 router.put('/:id', authenticate, async (req, res) => {
@@ -186,7 +186,7 @@ router.put('/:id', authenticate, async (req, res) => {
     const allowedFields = [
       'name', 'school', 'province', 'city', 
       'description', 'shortDescription', 
-      'tags', 'external_links', 'coordinates'
+      'tags', 'externalLinks', 'coordinates'
     ];
 
     // 更新允许的字段

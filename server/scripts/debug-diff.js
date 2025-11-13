@@ -16,9 +16,9 @@ const Club = require('./server/models/Club');
  */
 function formatClub(club) {
   // 处理外部链接，移除 MongoDB 的 _id 字段
-  let external_links = [];
-  if (club.external_links && Array.isArray(club.external_links)) {
-    external_links = club.external_links.map(link => ({
+  let externalLinks = [];
+  if (club.externalLinks && Array.isArray(club.externalLinks)) {
+    externalLinks = club.externalLinks.map(link => ({
       type: link.type,
       url: link.url
     }));
@@ -32,11 +32,11 @@ function formatClub(club) {
     province: club.province,
     latitude: club.coordinates ? club.coordinates[1] : club.latitude,
     longitude: club.coordinates ? club.coordinates[0] : club.longitude,
-    img_name: club.logo || club.img_name || '',
-    short_description: club.shortDescription || club.short_description || '',
-    long_description: club.description || club.long_description || '',
+    logo: club.logo || '',
+    shortDescription: club.shortDescription || '',
+    description: club.description || '',
     tags: club.tags || [],
-    external_links: external_links
+    externalLinks: externalLinks
   };
 }
 

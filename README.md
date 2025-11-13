@@ -19,10 +19,10 @@
   "province": "省份",
   "latitude": 纬度,
   "longitude": 经度,
-  "img_name": "XXXXX.png",
-  "short_description": "简短描述",
-  "long_description": "详细描述",
-  "external_links": [
+  "logo": "XXXXX.png",
+  "shortDescription": "简短描述",
+  "description": "详细描述",
+  "externalLinks": [
     {
       "type": "链接将会显示的名称",
       "url": "链接地址"
@@ -71,7 +71,7 @@
 2. 推荐使用 PNG 格式（透明背景）
 3. 如果您本地有Python环境，可以运行一次scripts/下的compress_images.py进行压缩
 4. 文件命名示例：`tsinghua-game-club.png`
-5. 在 `data/clubs.json` 中添加社团信息时，`img_name` 字段只需填写文件名
+5. 在 `data/clubs.json` 中添加社团信息时，`logo` 字段只需填写文件名
 
 ### 侧边栏操作
 

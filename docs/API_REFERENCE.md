@@ -497,7 +497,7 @@ Authorization: Bearer <admin_token>
           },
           "differences": [
             {
-              "field": "external_links",
+              "field": "externalLinks",
               "database": [
                 {
                   "type": "微博",
@@ -701,7 +701,7 @@ GameDevMap 采用统一的驼峰命名约定，所有数据源（MongoDB 数据�
 | `description` | `string` | 可选 | 详细介绍 |
 | `tags` | `Array<string>` | 可选 | 标签数组 |
 | `logo` | `string` | 可选 | Logo文件名 |
-| `external_links` | `Array<Object>` | 可选 | 外部链接数组，每项包含 `type` 和 `url` 以及 MongoDB 生成的 `_id` |
+| `externalLinks` | `Array<Object>` | 可选 | 外部链接数组，每项包含 `type` 和 `url` 以及 MongoDB 生成的 `_id` |
 | `createdAt` | `Date` | 自动 | 创建时间 |
 | `updatedAt` | `Date` | 自动 | 更新时间 |
 | `verifiedBy` | `string` | 可选 | 数据验证者（系统内部使用） |
@@ -717,11 +717,11 @@ GameDevMap 采用统一的驼峰命名约定，所有数据源（MongoDB 数据�
 | `city` | `string` | 所在城市 |
 | `latitude` | `number` | 纬度 |
 | `longitude` | `number` | 经度 |
-| `short_description` | `string` | 简介 |
-| `long_description` | `string` | 详细介绍 |
+| `shortDescription` | `string` | 简介 |
+| `description` | `string` | 详细介绍 |
 | `tags` | `Array<string>` | 标签数组 |
-| `img_name` | `string` | Logo文件名 |
-| `external_links` | `Array<Object>` | 外部链接数组（无 `_id` 字段） |
+| `logo` | `string` | Logo文件名 |
+| `externalLinks` | `Array<Object>` | 外部链接数组（无 `_id` 字段） |
 
 ---
 

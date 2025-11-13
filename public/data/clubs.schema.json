@@ -15,14 +15,14 @@
       "province": { "type": "string", "minLength": 1 },
       "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
       "longitude": { "type": "number", "minimum": -180, "maximum": 180 },
-      "img_name": { 
+      "logo": { 
         "type": "string",
         "description": "Logo图片文件名，例如: club-logo.png",
         "pattern": "^[a-zA-Z0-9_-]+\\.(png|jpg|jpeg|gif|svg)$"
       },
-      "short_description": { "type": "string" },
-      "long_description": { "type": "string" },
-      "external_links": {
+      "shortDescription": { "type": "string" },
+      "description": { "type": "string" },
+      "externalLinks": {
         "type": "array",
         "items": {
           "type": "object",

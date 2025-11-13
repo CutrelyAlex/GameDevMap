@@ -43,11 +43,11 @@ async function migrateClubs() {
           province: club.province,
           city: club.city || '',
           coordinates: [club.longitude, club.latitude], // [lng, lat]
-          description: club.long_description || club.short_description || '',
-          shortDescription: club.short_description || '',
+          description: club.description || club.shortDescription || '',
+          shortDescription: club.shortDescription || '',
           tags: club.tags || [],
-          logo: club.img_name || '',
-          external_links: club.external_links || [],
+          logo: club.logo || '',
+          externalLinks: club.externalLinks || [],
           verifiedBy: 'system',
           createdAt: new Date(),
           updatedAt: new Date()
@@ -57,7 +57,7 @@ async function migrateClubs() {
         const newClub = new Club(clubData);
         await newClub.save();
         imported++;
-        const linkInfo = clubData.external_links?.length > 0 ? ` (${clubData.external_links.length} links)` : '';
+        const linkInfo = clubData.externalLinks?.length > 0 ? ` (${clubData.externalLinks.length} links)` : '';
         console.log(`  ✓ Imported: ${club.name} (${club.school})${linkInfo}`);
       } catch (error) {
         console.error(`  ✗ Failed to import ${club.name}:`, error.message);
