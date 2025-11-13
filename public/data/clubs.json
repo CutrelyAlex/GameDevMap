@@ -1,5 +1,37 @@
 [
   {
+    "id": "691552c70f72a898ffbd98b6",
+    "name": "GAMERS游戏制作社",
+    "school": "吉林动画学院",
+    "city": "长春市",
+    "province": "吉林省",
+    "latitude": 41.81,
+    "longitude": 123.429996,
+    "img_name": "20251113_q0kdam1n_logo.png",
+    "short_description": "是游戏制作爱好者的聚集地",
+    "long_description": "",
+    "tags": [],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "6914e29a0f72a898ffbd9889",
+    "name": "艺数盒子",
+    "school": "哈尔滨工业大学（深圳）",
+    "city": "深圳市",
+    "province": "广东省",
+    "latitude": 22.586866,
+    "longitude": 113.970924,
+    "img_name": "20251112_y864go8l_logo2.png",
+    "short_description": "哈工深游戏开发社团",
+    "long_description": "艺数盒子ArtTech成立于2024年9月，是哈尔滨工业大学（深圳）的游戏开发者社区。我们致力于打造一个集游戏开发、中国传统文化传承与新兴媒体技术探索于一体的综合性技术社团。",
+    "tags": [
+      "游戏开发"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
     "id": "691356ed014c1d4dbbc53f4c",
     "name": "游创工坊",
     "school": "北京联合大学",
