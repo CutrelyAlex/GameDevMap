@@ -1,5 +1,20 @@
 [
   {
+    "id": "691552c70f72a898ffbd98b6",
+    "name": "GAMERS游戏制作社",
+    "school": "吉林动画学院",
+    "city": "长春市",
+    "province": "吉林省",
+    "latitude": 41.81,
+    "longitude": 123.429996,
+    "img_name": "20251113_q0kdam1n_logo.png",
+    "short_description": "是游戏制作爱好者的聚集地",
+    "long_description": "",
+    "tags": [],
+    "website": "",
+    "contact": {}
+  },
+  {
     "id": "6914e29a0f72a898ffbd9889",
     "name": "艺数盒子",
     "school": "哈尔滨工业大学（深圳）",
@@ -184,6 +199,27 @@
     "long_description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
     "tags": [
       "正式社团"
+    ],
+    "website": "",
+    "contact": {}
+  },
+  {
+    "id": "guang-star-workshop",
+    "name": "光Star游戏工坊",
+    "school": "广东技术师范大学",
+    "city": "广州",
+    "province": "广东省",
+    "latitude": 23.282807,
+    "longitude": 113.212974,
+    "img_name": "GuangStar.png",
+    "short_description": "光Star游戏工坊",
+    "long_description": "光Star游戏工坊由校内一群热爱游戏创作与开发的学生组成，每一位成员都将自己对电子游戏的热爱倾注在创作与开发工作中，以学习技术、体验创作、实现创意、赋能创业为目标不断努力。",
+    "tags": [
+      "非正式社团",
+      "游戏开发",
+      "Unity",
+      "GameMaker Studio",
+      "Gamejam"
     ],
     "website": "",
     "contact": {}
