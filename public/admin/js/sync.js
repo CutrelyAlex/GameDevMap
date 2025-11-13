@@ -1,65 +1,5 @@
 import { checkAuth, logout, authFetch } from './auth.js';
 
-// 操作日志数组（存储在内存中）
-let operationLogs = [];
-
-// 添加操作日志
-function addLog(action, details, success = true) {
-  const timestamp = new Date().toLocaleString('zh-CN');
-  operationLogs.unshift({
-    timestamp,
-    action,
-    details,
-    success,
-    id: Date.now()
-  });
-  // 只保留最近100条日志
-  if (operationLogs.length > 100) {
-    operationLogs.pop();
-  }
-  localStorage.setItem('syncLogs', JSON.stringify(operationLogs));
-}
-
-// 从本地存储加载日志
-function loadLogs() {
-  const stored = localStorage.getItem('syncLogs');
-  if (stored) {
-    try {
-      operationLogs = JSON.parse(stored);
-    } catch (e) {
-      operationLogs = [];
-    }
-  }
-}
-
-// 渲染日志列表
-function renderLogs() {
-  const logsList = document.getElementById('logsList');
-  if (!logsList) return;
-
-  if (operationLogs.length === 0) {
-    logsList.innerHTML = '<p class="loading">暂无操作记录</p>';
-    return;
-  }
-
-  logsList.innerHTML = operationLogs.map(log => `
-    <div class="club-item" style="border-left: 3px solid ${log.success ? '#27ae60' : '#e74c3c'};">
-      <div class="club-header">
-        <div>
-          <div class="club-name">${escapeHtml(log.action)}</div>
-          <div class="club-school" style="color: #999;">${log.timestamp}</div>
-        </div>
-        <span class="badge ${log.success ? 'success' : 'danger'}">
-          ${log.success ? '✓ 成功' : '✗ 失败'}
-        </span>
-      </div>
-      <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f9f9f9; border-radius: 0.25rem; font-size: 0.875rem; color: #666;">
-        ${escapeHtml(log.details)}
-      </div>
-    </div>
-  `).join('');
-}
-
 // Check authentication on page load and initialize accordingly
 async function initializePage() {
   try {
@@ -67,7 +7,6 @@ async function initializePage() {
 
     if (isAuthenticated) {
       // 用户已认证，初始化同步功能
-      loadLogs();
       initSyncModule();
     } else {
       // 用户未认证，显示登录提示或等待状态
@@ -84,15 +23,24 @@ initializePage();
 function initSyncModule() {
   console.log('🔄 Initializing Sync Module...');
 
+  // 检查是否有服务不可用消息，如果有则不初始化
+  const serviceMessage = document.getElementById('service-unavailable-message');
+  if (serviceMessage) {
+    console.log('⏳ Service unavailable, skipping sync module initialization');
+    return;
+  }
+
   // 检查必要的 DOM 元素
   const compareBtn = document.getElementById('compareBtn');
   const mergeBtn = document.getElementById('mergeBtn');
   const replaceBtn = document.getElementById('replaceBtn');
-  const jsonToDBBtn = document.getElementById('jsonToDB');
-  const gitQuickBtn = document.getElementById('gitQuickBtn');
   
-  if (!compareBtn || !mergeBtn || !replaceBtn || !jsonToDBBtn || !gitQuickBtn) {
-    console.warn('⚠️ Sync buttons not found in DOM');
+  if (!compareBtn || !mergeBtn || !replaceBtn) {
+    console.warn('⚠️  Sync buttons not found in DOM:', {
+      compareBtn: !!compareBtn,
+      mergeBtn: !!mergeBtn,
+      replaceBtn: !!replaceBtn
+    });
     return;
   }
 
@@ -101,14 +49,15 @@ function initSyncModule() {
   const comparisonContainer = document.getElementById('comparisonContainer');
   
   if (!messageContainer || !statsContainer || !comparisonContainer) {
-    console.warn('⚠️ Required containers not found');
+    console.warn('⚠️  Required containers not found:', {
+      messageContainer: !!messageContainer,
+      statsContainer: !!statsContainer,
+      comparisonContainer: !!comparisonContainer
+    });
     return;
   }
   
   console.log('✅ All required DOM elements found');
-
-  // 初始化标签页事件
-  initTabsEvent();
 
   // Compare data
   compareBtn.addEventListener('click', async () => {
@@ -162,16 +111,16 @@ function initSyncModule() {
       }
 
       const data = result.data;
-      const msg = `双向智能合并完成！\n\n MongoDB 数据库:\n  - 新增: ${data.database.added}\n  - 更新: ${data.database.updated}\n\nJSON 文件:\n  - 新增: ${data.json.added}\n  - 未变: ${data.json.unchanged}`;
-      addLog('双向智能合并', msg, true);
-      showMessage(msg, 'success');
+      showMessage(
+        `双向智能合并完成！\n\n MongoDB 数据库:\n  - 新增: ${data.database.added}\n  - 更新: ${data.database.updated}\n\nJSON 文件:\n  - 新增: ${data.json.added}\n  - 未变: ${data.json.unchanged}`,
+        'success'
+      );
 
       // Refresh comparison
       compareBtn.click();
 
     } catch (error) {
       console.error('Merge error:', error);
-      addLog('双向智能合并', error.message, false);
       if (error.message === 'SERVICE_UNAVAILABLE') {
         showMessage('数据库连接暂时不可用，请稍后再试', 'warning');
       } else {
@@ -179,11 +128,11 @@ function initSyncModule() {
       }
     } finally {
       mergeBtn.disabled = false;
-      mergeBtn.textContent = '智能合并';
+      mergeBtn.textContent = '双向合并';
     }
   });
 
-  // Replace data (DB -> JSON)
+  // Replace data
   replaceBtn.addEventListener('click', async () => {
     if (!confirm('⚠️ 警告：单向完全替换模式\n\n此操作将用 MongoDB 数据完全覆盖 JSON 文件！\nJSON 中独有的记录将被删除。\n\n确定要继续吗？')) {
       return;
@@ -204,16 +153,16 @@ function initSyncModule() {
         throw new Error(result.message || '替换失败');
       }
 
-      const msg = `单向完全替换完成（MongoDB -> JSON）！\n总计: ${result.data.total} 个社团`;
-      addLog('DB→JSON替换', msg, true);
-      showMessage(msg, 'success');
+      showMessage(
+        `单向完全替换完成（MongoDB -> JSON）！\n总计: ${result.data.total} 个社团`,
+        'success'
+      );
 
       // Refresh comparison
       compareBtn.click();
 
     } catch (error) {
       console.error('Replace error:', error);
-      addLog('DB→JSON替换', error.message, false);
       if (error.message === 'SERVICE_UNAVAILABLE') {
         showMessage('数据库连接暂时不可用，请稍后再试', 'warning');
       } else {
@@ -221,87 +170,7 @@ function initSyncModule() {
       }
     } finally {
       replaceBtn.disabled = false;
-      replaceBtn.textContent = '完全替换';
-    }
-  });
-
-  // JSON to DB Replace
-  jsonToDBBtn.addEventListener('click', async () => {
-    if (!confirm('⚠️ 警告：JSON → DB 替换模式\n\n此操作将用 JSON 文件数据完全覆盖 MongoDB 数据库！\nMongoDB 中独有的记录将被删除。\n\n确定要继续吗？')) {
-      return;
-    }
-
-    try {
-      jsonToDBBtn.disabled = true;
-      jsonToDBBtn.textContent = '替换中...';
-      clearMessage();
-
-      const response = await authFetch('/api/sync/jsonToDB', {
-        method: 'POST'
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'JSON→DB替换失败');
-      }
-
-      const msg = `JSON → DB 替换完成！\n总计: ${result.data.total} 个社团`;
-      addLog('JSON→DB替换', msg, true);
-      showMessage(msg, 'success');
-
-      // Refresh comparison
-      compareBtn.click();
-
-    } catch (error) {
-      console.error('JSON to DB error:', error);
-      addLog('JSON→DB替换', error.message, false);
-      if (error.message === 'SERVICE_UNAVAILABLE') {
-        showMessage('数据库连接暂时不可用，请稍后再试', 'warning');
-      } else {
-        showMessage(error.message || 'JSON→DB替换失败，请重试', 'error');
-      }
-    } finally {
-      jsonToDBBtn.disabled = false;
-      jsonToDBBtn.textContent = 'JSON→DB替换';
-    }
-  });
-
-  // Git Quick Submit
-  gitQuickBtn.addEventListener('click', async () => {
-    const commitMsg = prompt('请输入 Git 提交信息：', '更新社团数据');
-    if (!commitMsg) return;
-
-    try {
-      gitQuickBtn.disabled = true;
-      gitQuickBtn.textContent = 'Git操作中...';
-      clearMessage();
-
-      const response = await authFetch('/api/sync/gitQuick', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: commitMsg })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Git操作失败');
-      }
-
-      const msg = `Git 快速提交完成！\n✓ git add .\n✓ git commit -m "${commitMsg}"\n✓ git pull\n✓ git push`;
-      addLog('Git快速提交', msg, true);
-      showMessage(msg, 'success');
-
-    } catch (error) {
-      console.error('Git quick error:', error);
-      addLog('Git快速提交', error.message, false);
-      showMessage(error.message || 'Git操作失败，请重试', 'error');
-    } finally {
-      gitQuickBtn.disabled = false;
-      gitQuickBtn.textContent = 'Git快速提交';
+      replaceBtn.textContent = '单向替换';
     }
   });
 
@@ -310,51 +179,57 @@ function initSyncModule() {
     const { stats, details } = data;
 
     // Update stats
-    document.getElementById('dbTotal').textContent = stats.database.total;
-    document.getElementById('jsonTotal').textContent = stats.json.total;
-    document.getElementById('identicalCount').textContent = stats.comparison.identical;
-    document.getElementById('differentCount').textContent = stats.comparison.different;
-    document.getElementById('dbOnlyCount').textContent = stats.comparison.dbOnly;
-    document.getElementById('jsonOnlyCount').textContent = stats.comparison.jsonOnly;
+    document.getElementById('dbCount').textContent = stats.database.total;
+    document.getElementById('jsonCount').textContent = stats.json.total;
+    document.getElementById('duplicateCount').textContent = stats.comparison.identical;
+    document.getElementById('differenceCount').textContent = stats.comparison.different;
 
-    statsContainer.style.display = 'block';
-    comparisonContainer.style.display = 'block';
+    statsContainer.classList.remove('hidden');
+    comparisonContainer.classList.remove('hidden');
 
-    // Store details for tab rendering
-    window.comparisonDetails = details;
-
-    // Render tabs
+    // Render comparison tabs
     renderComparisonTabs(details);
   }
 
   function renderComparisonTabs(details) {
-    // Render identical
-    const identicalList = document.getElementById('identicalList');
-    if (identicalList) {
-      if (details.identical.length === 0) {
-        identicalList.innerHTML = '<p class="loading">没有完全相同的社团</p>';
-      } else {
-        identicalList.innerHTML = details.identical.map(club => `
+    const container = document.getElementById('comparisonContent');
+    
+    // 创建标签页内容
+    const tabsData = {
+      'only-db': {
+        title: '仅在数据库中的社团',
+        items: details.dbOnly,
+        template: (club) => `
           <div class="club-item">
             <div class="club-header">
               <div>
                 <div class="club-name">${escapeHtml(club.name)}</div>
                 <div class="club-school">${escapeHtml(club.school)}</div>
               </div>
-              <span class="badge success">✓</span>
+              <span class="badge info">仅在数据库</span>
             </div>
           </div>
-        `).join('');
-      }
-    }
-
-    // Render different
-    const differentList = document.getElementById('differentList');
-    if (differentList) {
-      if (details.different.length === 0) {
-        differentList.innerHTML = '<p class="loading">没有存在差异的社团</p>';
-      } else {
-        differentList.innerHTML = details.different.map(item => `
+        `
+      },
+      'only-json': {
+        title: '仅在 JSON 文件中的社团',
+        items: details.jsonOnly,
+        template: (club) => `
+          <div class="club-item">
+            <div class="club-header">
+              <div>
+                <div class="club-name">${escapeHtml(club.name)}</div>
+                <div class="club-school">${escapeHtml(club.school)}</div>
+              </div>
+              <span class="badge danger">⚠️ 仅在 JSON</span>
+            </div>
+          </div>
+        `
+      },
+      'differences': {
+        title: '有差异的记录',
+        items: details.different,
+        template: (item) => `
           <div class="diff-item">
             <div class="club-header">
               <div>
@@ -379,117 +254,49 @@ function initSyncModule() {
               </div>
             `).join('')}
           </div>
-        `).join('');
+        `
       }
-    }
+    };
 
-    // Render dbOnly
-    const dbOnlyList = document.getElementById('dbOnlyList');
-    if (dbOnlyList) {
-      if (details.dbOnly.length === 0) {
-        dbOnlyList.innerHTML = '<p class="loading">没有仅在数据库中的社团</p>';
-      } else {
-        dbOnlyList.innerHTML = details.dbOnly.map(club => `
-          <div class="club-item">
-            <div class="club-header">
-              <div>
-                <div class="club-name">${escapeHtml(club.name)}</div>
-                <div class="club-school">${escapeHtml(club.school)}</div>
-              </div>
-              <span class="badge info">仅在数据库</span>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
+    // 绑定标签页点击事件
+    document.querySelectorAll('.comp-tab-btn').forEach(btn => {
+      btn.removeEventListener('click', handleTabClick);
+      btn.addEventListener('click', handleTabClick);
+    });
 
-    // Render jsonOnly
-    const jsonOnlyList = document.getElementById('jsonOnlyList');
-    if (jsonOnlyList) {
-      if (details.jsonOnly.length === 0) {
-        jsonOnlyList.innerHTML = '<p class="loading">没有仅在 JSON 文件中的社团</p>';
-      } else {
-        jsonOnlyList.innerHTML = details.jsonOnly.map(club => `
-          <div class="club-item">
-            <div class="club-header">
-              <div>
-                <div class="club-name">${escapeHtml(club.name)}</div>
-                <div class="club-school">${escapeHtml(club.school)}</div>
-              </div>
-              <span class="badge danger">⚠️ 仅在 JSON</span>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    // Render conflicts
-    const conflictsList = document.getElementById('conflictsList');
-    if (conflictsList) {
-      if (!details.conflicts || details.conflicts.length === 0) {
-        conflictsList.innerHTML = '<p class="loading">没有冲突</p>';
-      } else {
-        conflictsList.innerHTML = details.conflicts.map(conflict => `
-          <div class="diff-item">
-            <div class="club-header">
-              <div>
-                <div class="club-name">${escapeHtml(conflict.name)}</div>
-                <div class="club-school">${escapeHtml(conflict.school)}</div>
-              </div>
-              <span class="badge danger">⚠️ 冲突</span>
-            </div>
-            <div style="margin-top: 0.5rem;">
-              <div class="diff-label">数据库 ID</div>
-              <div class="diff-value db">${conflict.dbId}</div>
-            </div>
-            <div style="margin-top: 0.5rem;">
-              <div class="diff-label">JSON ID</div>
-              <div class="diff-value json">${conflict.jsonId}</div>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    // Render logs
-    renderLogs();
-  }
-
-  // 初始化标签页事件处理
-  function initTabsEvent() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const tabName = e.target.getAttribute('data-tab');
-        
-        // 更新按钮状态
-        tabButtons.forEach(btn => {
-          btn.classList.toggle('active', btn === button);
-        });
-
-        // 更新内容显示
-        tabContents.forEach(content => {
-          const contentId = content.id.replace('Tab', '');
-          if (contentId === tabName) {
-            content.classList.add('active');
-          } else {
-            content.classList.remove('active');
-          }
-        });
-
-        // 如果点击的是日志标签，刷新日志
-        if (tabName === 'logs') {
-          renderLogs();
+    function handleTabClick(e) {
+      const tabName = e.target.getAttribute('data-tab');
+      
+      // 更新按钮状态
+      document.querySelectorAll('.comp-tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
         }
       });
-    });
+
+      // 更新内容
+      const tabData = tabsData[tabName];
+      if (!tabData) return;
+
+      if (tabData.items.length === 0) {
+        container.innerHTML = `<p class="loading">没有 ${tabData.title}</p>`;
+      } else {
+        container.innerHTML = tabData.items.map(item => tabData.template(item)).join('');
+      }
+    }
+
+    // 显示第一个标签页
+    const firstTab = document.querySelector('.comp-tab-btn');
+    if (firstTab) {
+      firstTab.click();
+    }
   }
 
   // Utility functions
   function showMessage(message, type = 'info') {
-    const className = type === 'error' ? 'error-message' : (type === 'warning' ? 'warning-message' : 'success-message');
+    const className = type === 'error' ? 'error-message' : 'success-message';
     messageContainer.innerHTML = `<div class="${className}">${escapeHtml(message).replace(/\n/g, '<br>')}</div>`;
   }
 
@@ -515,11 +322,14 @@ function initSyncModule() {
   }
 }
 
-// 初始化
+// 初始化同步模块
+// 确保 DOM 完全加载后再初始化
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOM fully loaded');
+    console.log('📄 DOM fully loaded, initializing Sync Module');
+    initSyncModule();
   });
 } else {
-  console.log('📄 DOM already loaded');
+  console.log('📄 DOM already loaded, initializing Sync Module');
+  initSyncModule();
 }
