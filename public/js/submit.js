@@ -47,8 +47,8 @@ const confirmEdit = document.getElementById('confirmEdit');
 const cancelAllEdits = document.getElementById('cancelAllEdits');
 const editSubmitterEmail = document.getElementById('editSubmitterEmail');
 
-// Debug button (temporary)
-const debugShowConfirm = document.getElementById('debugShowConfirm');
+// Edit form buttons
+const confirmFieldEdit = document.getElementById('confirmFieldEdit');
 
 // Display elements
 const displayElements = {
@@ -69,6 +69,17 @@ let currentMode = 'new'; // 'new' or 'edit'
 let selectedClub = null;
 let currentEditingField = null;
 let formData = new Map(); // Store edited form data
+
+/**
+ * Update confirm edit actions visibility based on form data
+ */
+function updateConfirmEditVisibility() {
+  if (currentMode === 'edit' && formData.size > 0) {
+    confirmEditActions.style.display = 'block';
+  } else {
+    confirmEditActions.style.display = 'none';
+  }
+}
 
 /**
  * Populate the province dropdown.
@@ -400,7 +411,7 @@ toggleEditMode.addEventListener('click', () => {
     currentMode = 'new';
     clubSearchSection.style.display = 'none';
     editModeInterface.style.display = 'none';
-    confirmEditActions.style.display = 'none';
+    updateConfirmEditVisibility();
     submissionForm.style.display = 'block';
     resetForm();
     selectedClub = null;
@@ -414,7 +425,7 @@ toggleEditMode.addEventListener('click', () => {
     clubSearchSection.style.display = 'block';
     submissionForm.style.display = 'none';
     editModeInterface.style.display = 'none';
-    confirmEditActions.style.display = 'none';
+    updateConfirmEditVisibility();
   }
 });
 
@@ -488,7 +499,7 @@ function selectClub(club) {
   // Hide search section and show edit interface
   clubSearchSection.style.display = 'none';
   editModeInterface.style.display = 'block';
-  confirmEditActions.style.display = 'none';
+  updateConfirmEditVisibility();
   
   // Populate the edit interface with club data
   populateEditInterface(club);
@@ -776,11 +787,7 @@ saveEdit.addEventListener('click', async () => {
     currentEditingField = null;
     
     // Show confirm edit actions if we have changes
-    console.log('Form data size:', formData.size);
-    if (formData.size > 0) {
-      console.log('Showing confirm edit actions');
-      confirmEditActions.style.display = 'block';
-    }
+    updateConfirmEditVisibility();
     
     // Show success message
     showStatus('修改已保存，请点击"确认修改"提交更改', 'success');
@@ -788,6 +795,36 @@ saveEdit.addEventListener('click', async () => {
   } catch (error) {
     console.error('保存编辑失败:', error);
     showStatus('保存失败，请重试', 'error');
+  }
+});
+
+// Handle confirm field edit (same as save but keeps form open)
+confirmFieldEdit.addEventListener('click', async () => {
+  if (!currentEditingField) return;
+  
+  try {
+    const newValue = getEditedValue(currentEditingField);
+    if (!validateEditedValue(currentEditingField, newValue)) return;
+    
+    // Update the form data
+    updateFormData(currentEditingField, newValue);
+    
+    // Update the display
+    updateDisplayValue(currentEditingField, newValue);
+    
+    // Hide edit form
+    editForm.style.display = 'none';
+    currentEditingField = null;
+    
+    // Show confirm edit actions if we have changes
+    updateConfirmEditVisibility();
+    
+    // Show success message
+    showStatus('修改已确认，可以继续编辑其他字段或提交更改', 'success');
+    
+  } catch (error) {
+    console.error('确认编辑失败:', error);
+    showStatus('确认失败，请重试', 'error');
   }
 });
 
@@ -1143,7 +1180,7 @@ confirmEdit.addEventListener('click', async () => {
     
     // Reset edit state
     formData.clear();
-    confirmEditActions.style.display = 'none';
+    updateConfirmEditVisibility();
     editModeInterface.style.display = 'none';
     clubSearchSection.style.display = 'none';
     toggleEditMode.classList.remove('active');
@@ -1172,14 +1209,8 @@ cancelAllEdits.addEventListener('click', () => {
     }
     
     // Hide confirm actions
-    confirmEditActions.style.display = 'none';
+    updateConfirmEditVisibility();
     
     showStatus('已取消所有修改', 'success');
   }
-});
-
-// Debug button handler (temporary)
-debugShowConfirm.addEventListener('click', () => {
-  console.log('Debug: Showing confirm edit actions');
-  confirmEditActions.style.display = 'block';
 });

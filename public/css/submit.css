@@ -713,6 +713,23 @@ body {
   background-color: var(--success-hover);
 }
 
+.confirm-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.confirm-btn:hover {
+  background-color: var(--primary-hover);
+}
+
 .cancel-btn {
   background-color: var(--secondary-color);
   color: var(--text-color);
