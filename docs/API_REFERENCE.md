@@ -36,6 +36,10 @@ GameDevMap 是一个全国高校游戏开发社团地图系统，提供社团信
     - [`GET /api/clubs/:id`](#get-apiclubsid)
     - [`PUT /api/clubs/:id`](#put-apiclubsid)
     - [`DELETE /api/clubs/:id`](#delete-apiclubsid)
+  - [数据同步 API](#数据同步-api)
+    - [`GET /api/sync/compare`](#get-apisynccompare)
+    - [`POST /api/sync/merge`](#post-apisyncmerge)
+    - [`POST /api/sync/replace`](#post-apisiyncreplce)
   - [数据模型](#数据模型)
     - [`Submission` (提交)](#submission-提交)
     - [`Club` (社团)](#club-社团)
@@ -406,6 +410,147 @@ curl -X POST http://localhost:3000/api/upload/logo \
 - **类型：** `Object`
 - **成功情况：** 返回删除成功信息
 - **失败情况：** 返回错误信息
+
+---
+
+## 数据同步 API
+
+**说明：** 管理员专用接口，用于同步 MongoDB 数据库和 clubs.json 文件之间的数据。所有接口需要有效的管理员身份验证。
+
+### `GET /api/sync/compare`
+
+**说明：**  
+对比 MongoDB 数据库和 clubs.json 文件中的数据，显示差异分析。
+
+**认证：** 需要有效的管理员 Token
+
+**请求头：**
+```
+Authorization: Bearer <admin_token>
+```
+
+**返回值：**
+
+**成功响应（HTTP 200）：**
+```json
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "database": {
+        "total": 100,
+        "unique": 100
+      },
+      "json": {
+        "total": 98,
+        "unique": 98
+      },
+      "comparison": {
+        "identical": 95,
+        "different": 2,
+        "dbOnly": 3,
+        "jsonOnly": 0,
+        "conflicts": 0
+      }
+    },
+    "details": {
+      "identical": [...],      // 完全相同的社团
+      "different": [...],      // 存在差异的社团记录
+      "dbOnly": [...],         // 仅在数据库中的社团
+      "jsonOnly": [...],       // 仅在 JSON 中的社团
+      "conflicts": [...]       // 名称相同但 ID 不同的冲突
+    }
+  }
+}
+```
+
+**错误响应：**
+- `401 Unauthorized` - 未授权或 Token 过期
+- `404 Not Found` - clubs.json 文件不存在
+- `500 Internal Server Error` - 服务器错误
+
+---
+
+### `POST /api/sync/merge`
+
+**说明：**  
+执行双向智能合并，同步 MongoDB 和 JSON 数据：
+- 将 JSON 中的修改合并到 MongoDB
+- 将 MongoDB 的新数据添加到 JSON
+- 保留双方独有的记录
+
+**认证：** 需要有效的管理员 Token
+
+**请求头：**
+```
+Authorization: Bearer <admin_token>
+```
+
+**返回值：**
+
+**成功响应（HTTP 200）：**
+```json
+{
+  "success": true,
+  "message": "双向智能合并完成",
+  "data": {
+    "database": {
+      "added": 2,      // JSON 中新增的记录添加到 MongoDB
+      "updated": 3     // JSON 中的数据更新 MongoDB 中的记录
+    },
+    "json": {
+      "added": 1,      // MongoDB 中新增的记录添加到 JSON
+      "updated": 0,
+      "unchanged": 95
+    },
+    "total": {
+      "added": 3,
+      "updated": 3,
+      "unchanged": 95
+    }
+  }
+}
+```
+
+**错误响应：**
+- `401 Unauthorized` - 未授权或 Token 过期
+- `500 Internal Server Error` - 合并失败
+
+---
+
+### `POST /api/sync/replace`
+
+**说明：**  
+执行单向完全替换，用 MongoDB 中的数据完全覆盖 JSON 文件。JSON 中独有的记录将被删除。
+
+**认证：** 需要有效的管理员 Token
+
+**请求头：**
+```
+Authorization: Bearer <admin_token>
+```
+
+**返回值：**
+
+**成功响应（HTTP 200）：**
+```json
+{
+  "success": true,
+  "message": "完全替换完成（MongoDB -> JSON）",
+  "data": {
+    "mode": "replace",
+    "total": 100,
+    "added": 100,
+    "updated": 0,
+    "removed": 0,
+    "unchanged": 0
+  }
+}
+```
+
+**错误响应：**
+- `401 Unauthorized` - 未授权或 Token 过期
+- `500 Internal Server Error` - 替换失败
 
 ---
 

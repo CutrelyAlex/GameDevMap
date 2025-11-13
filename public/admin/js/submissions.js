@@ -27,7 +27,8 @@ const modalFooter = document.getElementById('modalFooter');
 const tabButtons = document.querySelectorAll('.tab-button');
 const tabPanels = {
   submissions: document.getElementById('submissionsPanel'),
-  clubs: document.getElementById('clubsPanel')
+  clubs: document.getElementById('clubsPanel'),
+  sync: document.getElementById('syncPanel')
 };
 
 let currentPage = 1;

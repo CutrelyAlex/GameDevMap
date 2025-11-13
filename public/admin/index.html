@@ -41,6 +41,7 @@
       <div class="tabs">
         <button class="tab-button active" data-tab="submissions">提交审核</button>
         <button class="tab-button" data-tab="clubs">社团管理</button>
+        <button class="tab-button" data-tab="sync">数据同步</button>
       </div>
 
       <!-- 提交审核面板 -->
@@ -125,6 +126,53 @@
         </div>
       </div>
 
+      <!-- 数据同步面板 -->
+      <div id="syncPanel" class="tab-panel">
+        <div class="sync-container">
+          <div class="sync-header">
+            <h2>数据库 ↔ JSON 文件同步</h2>
+            <p class="sync-description">管理 MongoDB 数据库和 JSON 文件之间的数据同步</p>
+          </div>
+
+          <div id="messageContainer" class="status-message" aria-live="polite"></div>
+
+          <div id="statsContainer" class="stats-grid hidden">
+            <div class="stat-box">
+              <h3>数据库中的社团</h3>
+              <p id="dbCount" class="stat-number">--</p>
+            </div>
+            <div class="stat-box">
+              <h3>JSON 文件中的社团</h3>
+              <p id="jsonCount" class="stat-number">--</p>
+            </div>
+            <div class="stat-box">
+              <h3>重复记录</h3>
+              <p id="duplicateCount" class="stat-number">--</p>
+            </div>
+            <div class="stat-box">
+              <h3>差异数量</h3>
+              <p id="differenceCount" class="stat-number">--</p>
+            </div>
+          </div>
+
+          <div class="sync-actions">
+            <button id="compareBtn" class="primary-button">对比数据</button>
+            <button id="mergeBtn" class="secondary-button">智能合并</button>
+            <button id="replaceBtn" class="danger-button">完全替换</button>
+          </div>
+
+          <div id="comparisonContainer" class="comparison-container hidden">
+            <h3>对比结果</h3>
+            <div id="comparisonTabs" class="comparison-tabs">
+              <button class="comp-tab-btn active" data-tab="only-db">仅在数据库</button>
+              <button class="comp-tab-btn" data-tab="only-json">仅在 JSON</button>
+              <button class="comp-tab-btn" data-tab="differences">有差异的记录</button>
+            </div>
+            <div id="comparisonContent" class="comparison-content"></div>
+          </div>
+        </div>
+      </div>
+
     </section>
   </main>
 
@@ -164,5 +212,6 @@
   </template>
 
   <script type="module" src="js/submissions.js"></script>
+  <script type="module" src="js/sync.js"></script>
 </body>
 </html>

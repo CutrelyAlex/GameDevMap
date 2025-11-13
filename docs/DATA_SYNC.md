@@ -98,6 +98,41 @@ npm run sync:addOnly
 ### 智能合并模式 (merge)
 **命令**: `npm run sync:merge` 或 `node server/scripts/syncToJson.js merge`
 
+**行为** (原有 MongoDB → JSON):
+- 保留 JSON 中的所有社团
+- 更新 JSON 中已存在的数据库记录
+- 添加数据库中新增但 JSON 中不存在的记录
+- 保留 JSON 中独有的记录
+
+**新增 API 端点 `/api/sync/merge`（POST）**:
+现在支持**双向智能合并** JSON ↔ MongoDB：
+1. **JSON → MongoDB**:
+   - 将 JSON 中的数据合并到 MongoDB
+   - 添加 JSON 中不存在的新 MongoDB 记录
+   - 更新 MongoDB 中已存在的记录
+
+2. **MongoDB → JSON**:
+   - 将 MongoDB 中的新数据添加到 JSON
+   - 更新 JSON 中已存在的记录
+   - 保留 JSON 中独有的记录
+
+**适用场景**:
+- 开发环境，保留手动修改
+- 离线编辑 JSON 后同步到数据库
+- 数据库新增记录后同步到 JSON
+- 双向数据融合
+
+**统计输出**:
+```
+MongoDB 数据库:
+  - 新增: N 条记录
+  - 更新: N 条记录
+
+JSON 文件:
+  - 新增: N 条记录
+  - 未变: N 条记录
+```
+
 **行为**:
 - 保留 JSON 中可能的手动修改字段
 - 更新数据库中存在的记录的标准字段
@@ -248,30 +283,39 @@ Response: {
 }
 ```
 
-#### 智能合并
+#### 智能合并（双向）
 ```
 POST /api/sync/merge
 Headers: Authorization: Bearer <token>
 Response: {
   success: true,
-  message: "智能合并完成",
+  message: "双向智能合并完成",
   data: {
-    total: 100,
-    added: 2,
-    updated: 3,
-    preserved: 0,
-    unchanged: 95
+    database: {
+      added: 2,      // JSON 中新增的记录添加到 MongoDB
+      updated: 3     // JSON 中的数据更新 MongoDB 中的记录
+    },
+    json: {
+      added: 1,      // MongoDB 中新增的记录添加到 JSON
+      updated: 0,
+      unchanged: 95
+    },
+    total: {
+      added: 3,
+      updated: 3,
+      unchanged: 95
+    }
   }
 }
 ```
 
-#### 完全替换
+#### 完全替换（单向 MongoDB → JSON）
 ```
 POST /api/sync/replace
 Headers: Authorization: Bearer <token>
 Response: {
   success: true,
-  message: "完全替换完成",
+  message: "完全替换完成（MongoDB -> JSON）",
   data: {
     total: 100,
     added: 100,

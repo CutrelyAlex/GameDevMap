@@ -155,16 +155,175 @@ router.get('/compare', authenticate, async (req, res) => {
 
 /**
  * POST /api/sync/merge
- * 执行智能合并
+ * 执行智能合并：MongoDB <-> JSON 双向同步
+ * - 更新 MongoDB 中已存在的 JSON 记录
+ * - 添加 JSON 中不存在的新 MongoDB 记录到 JSON
+ * - 更新 JSON 中不存在的新记录到 MongoDB
+ * - 保留两方独有的记录
  */
 router.post('/merge', authenticate, async (req, res) => {
   try {
-    const result = await syncToJson('merge');
+    // 读取 MongoDB 数据
+    const dbClubs = await Club.find({}).lean();
     
+    // 读取 JSON 文件数据
+    const jsonPath = path.resolve(__dirname, '../../public/data/clubs.json');
+    let jsonClubs = [];
+    try {
+      const jsonData = await fs.readFile(jsonPath, 'utf8');
+      jsonClubs = JSON.parse(jsonData);
+    } catch (error) {
+      jsonClubs = [];
+    }
+
+    // 创建映射表
+    const dbMap = new Map();
+    const jsonMap = new Map();
+    
+    dbClubs.forEach(club => {
+      dbMap.set(club._id.toString(), club);
+    });
+    
+    jsonClubs.forEach(club => {
+      jsonMap.set(club.id, club);
+    });
+
+    let dbAdded = 0;
+    let dbUpdated = 0;
+    let jsonAdded = 0;
+    let jsonUpdated = 0;
+    let unchanged = 0;
+
+    // ========== 第一步：处理 JSON -> MongoDB ==========
+    // 将 JSON 中的数据合并到 MongoDB
+    for (const jsonClub of jsonClubs) {
+      if (dbMap.has(jsonClub.id)) {
+        // JSON 中的记录在数据库中存在，检查是否需要更新
+        const dbClub = dbMap.get(jsonClub.id);
+        const dbStr = JSON.stringify({
+          name: dbClub.name,
+          school: dbClub.school,
+          city: dbClub.city,
+          province: dbClub.province,
+          coordinates: dbClub.coordinates,
+          description: dbClub.description,
+          shortDescription: dbClub.shortDescription,
+          tags: dbClub.tags || [],
+          website: dbClub.website,
+          contact: dbClub.contact || {}
+        });
+        
+        const jsonStr = JSON.stringify({
+          name: jsonClub.name,
+          school: jsonClub.school,
+          city: jsonClub.city,
+          province: jsonClub.province,
+          coordinates: [jsonClub.longitude, jsonClub.latitude],
+          description: jsonClub.long_description,
+          shortDescription: jsonClub.short_description,
+          tags: jsonClub.tags || [],
+          website: jsonClub.website,
+          contact: jsonClub.contact || {}
+        });
+
+        if (dbStr !== jsonStr) {
+          // 更新数据库中的记录（使用 JSON 中的值）
+          await Club.findByIdAndUpdate(
+            jsonClub.id,
+            {
+              name: jsonClub.name,
+              school: jsonClub.school,
+              city: jsonClub.city,
+              province: jsonClub.province,
+              coordinates: [jsonClub.longitude, jsonClub.latitude],
+              description: jsonClub.long_description,
+              shortDescription: jsonClub.short_description,
+              tags: jsonClub.tags || [],
+              website: jsonClub.website,
+              contact: jsonClub.contact || {}
+            },
+            { new: true }
+          );
+          dbUpdated++;
+        } else {
+          unchanged++;
+        }
+      } else {
+        // JSON 中的记录在数据库中不存在，添加到数据库
+        await Club.create({
+          _id: jsonClub.id,
+          name: jsonClub.name,
+          school: jsonClub.school,
+          city: jsonClub.city,
+          province: jsonClub.province,
+          coordinates: [jsonClub.longitude, jsonClub.latitude],
+          description: jsonClub.long_description,
+          shortDescription: jsonClub.short_description,
+          tags: jsonClub.tags || [],
+          website: jsonClub.website,
+          contact: jsonClub.contact || {},
+          logo: jsonClub.img_name || ''
+        });
+        dbAdded++;
+      }
+    }
+
+    // ========== 第二步：处理 MongoDB -> JSON ==========
+    // 将 MongoDB 中的新数据添加到 JSON，并更新现有记录
+    const updatedJsonClubs = [];
+    
+    for (const dbClub of dbClubs) {
+      const id = dbClub._id.toString();
+      const formattedClub = formatClub(dbClub);
+      
+      if (jsonMap.has(id)) {
+        const existing = jsonMap.get(id);
+        // 合并：优先使用 JSON 中的修改，但使用 MongoDB 中的新字段
+        const merged = {
+          ...formattedClub,  // MongoDB 数据作为基础
+          ...existing        // JSON 数据会覆盖重复的字段
+        };
+        updatedJsonClubs.push(merged);
+      } else {
+        // 数据库中存在但 JSON 中不存在的记录，添加到 JSON
+        updatedJsonClubs.push(formattedClub);
+        jsonAdded++;
+      }
+    }
+
+    // 添加 JSON 中独有的记录（在数据库中不存在）
+    for (const jsonClub of jsonClubs) {
+      if (!dbMap.has(jsonClub.id)) {
+        updatedJsonClubs.push(jsonClub);
+      }
+    }
+
+    // 写入更新后的 JSON 文件
+    await fs.writeFile(
+      jsonPath,
+      JSON.stringify(updatedJsonClubs, null, 2),
+      'utf8'
+    );
+
     return res.json({
       success: true,
-      message: '智能合并完成',
-      data: result
+      message: '双向智能合并完成',
+      data: {
+        database: {
+          added: dbAdded,
+          updated: dbUpdated
+        },
+        json: {
+          added: jsonAdded,
+          updated: jsonUpdated,
+          unchanged: unchanged
+        },
+        total: {
+          added: dbAdded + jsonAdded,
+          updated: dbUpdated + jsonUpdated,
+          unchanged: unchanged
+        }
+      }
     });
 
   } catch (error) {
@@ -179,7 +338,9 @@ router.post('/merge', authenticate, async (req, res) => {
 
 /**
  * POST /api/sync/replace
- * 执行完全替换
+ * 执行完全替换：MongoDB -> JSON（单向覆盖）
+ * - 用 MongoDB 中的所有数据完全覆盖 JSON 文件
+ * - JSON 中独有的记录将被删除
  */
 router.post('/replace', authenticate, async (req, res) => {
   try {
@@ -187,7 +348,7 @@ router.post('/replace', authenticate, async (req, res) => {
     
     return res.json({
       success: true,
-      message: '完全替换完成',
+      message: '完全替换完成（MongoDB -> JSON）',
       data: result
     });
 

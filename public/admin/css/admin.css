@@ -496,3 +496,243 @@ dd {
     padding: 24px;
   }
 }
+
+/* Sync Panel Styles */
+.sync-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sync-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.sync-header h2 {
+  margin: 0 0 8px 0;
+  color: var(--text-color);
+  font-size: 20px;
+}
+
+.sync-description {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.stat-box {
+  background: var(--secondary);
+  border: 1px solid var(--secondary-border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-box h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: var(--muted-text);
+  font-weight: 500;
+}
+
+.stat-number {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.sync-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.danger-button {
+  background-color: var(--danger);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.danger-button:hover {
+  background-color: var(--danger-hover);
+}
+
+.danger-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comparison-container {
+  margin-top: 24px;
+}
+
+.comparison-container h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+.comparison-tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.comp-tab-btn {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--muted-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.comp-tab-btn:hover {
+  color: var(--primary);
+}
+
+.comp-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.comparison-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.club-item,
+.diff-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.club-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.club-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.club-school {
+  font-size: 13px;
+  color: var(--muted-text);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.badge.warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.diff-item {
+  padding: 16px;
+}
+
+.diff-field {
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.diff-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.diff-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-text);
+  margin-bottom: 4px;
+}
+
+.diff-value {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.diff-value.db {
+  border-left: 3px solid #4b7bec;
+}
+
+.diff-value.json {
+  border-left: 3px solid #f5a623;
+}
+
+.loading {
+  text-align: center;
+  color: var(--muted-text);
+  padding: 20px;
+  font-style: italic;
+}
+
+.hidden {
+  display: none !important;
+}
+
