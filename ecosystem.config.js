@@ -10,9 +10,9 @@ module.exports = {
       NODE_ENV: 'production',
       PORT: 3001
     },
-    error_file: '/home/www/GameDevMap/logs/error.log',
-    out_file: '/home/www/GameDevMap/logs/out.log',
-    log_file: '/home/www/GameDevMap/logs/combined.log',
+    error_file: '/www/wwwlogs/8.163.12.243.error.log',
+    out_file: '/www/wwwlogs/8.163.12.243.out.log',
+    log_file: '/www/wwwlogs/8.163.12.243.log',
     time: true
   }]
 };
