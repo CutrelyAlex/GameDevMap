@@ -9,7 +9,7 @@
       113.212974,
       23.282807
     ],
-    "logo": "GuangStar.png",
+    "imgName": "GuangStar.png",
     "shortDescription": "光Star游戏工坊",
     "description": "光Star游戏工坊由校内一群热爱游戏创作与开发的学生组成，每一位成员都将自己对电子游戏的热爱倾注在创作与开发工作中，以学习技术、体验创作、实现创意、赋能创业为目标不断努力。",
     "tags": [
@@ -19,7 +19,8 @@
       "GameMaker Studio",
       "Gamejam"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "GuangStar.png"
   },
   {
     "id": "691612007cedb8484a3b9f5f",
@@ -31,13 +32,14 @@
       118.309695,
       24.607377
     ],
-    "logo": "xmu-game-club.png",
+    "imgName": "xmu-game-club.png",
     "shortDescription": "厦门大学游戏开发社团",
     "description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
     "tags": [
       "正式社团"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "xmu-game-club.png"
   },
   {
     "id": "691612007cedb8484a3b9f5d",
@@ -49,7 +51,7 @@
       112.863096,
       27.882942
     ],
-    "logo": "Cutyroom-game-club.png",
+    "imgName": "Cutyroom-game-club.png",
     "shortDescription": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
     "description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
     "tags": [
@@ -68,7 +70,8 @@
         "type": "《新闻学模拟器》",
         "url": "https://www.gcores.com/games/141972"
       }
-    ]
+    ],
+    "logo": "Cutyroom-game-club.png"
   },
   {
     "id": "691612007cedb8484a3b9f5b",
@@ -80,7 +83,7 @@
       125.31427,
       43.83093
     ],
-    "logo": "cust-yougap.png",
+    "imgName": "cust-yougap.png",
     "shortDescription": "拾起那份藏在缝隙中的，对游戏的热爱",
     "description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
     "tags": [
@@ -97,7 +100,8 @@
         "type": "知识库/社群联系方式",
         "url": "https://rcn5t7x1agov.feishu.cn/wiki/O2iZwMmjGiql3skD0khceKx1nRe"
       }
-    ]
+    ],
+    "logo": "cust-yougap.png"
   },
   {
     "id": "691612007cedb8484a3b9f59",
@@ -109,7 +113,7 @@
       103.8848,
       30.7872
     ],
-    "logo": "cdtu-hivest.png",
+    "imgName": "cdtu-hivest.png",
     "shortDescription": "我们是成都工业学院The Hivest Studio--蜂巢工作室",
     "description": "蜂巢工作室成立于2017年。我们汇聚了一群热爱游戏、热衷开发的志同道合者，致力于为成员提供学习、实践与展示的平台，助力每一位怀揣梦想的游戏开发者成长。",
     "tags": [
@@ -126,7 +130,8 @@
         "type": "游戏开发协会首页",
         "url": "https://bqt4a2kph6x.feishu.cn/wiki/GpHpwcLT2iunl2kmFt7cYDbrnhe"
       }
-    ]
+    ],
+    "logo": "cdtu-hivest.png"
   },
   {
     "id": "691612007cedb8484a3b9f57",
@@ -138,7 +143,7 @@
       115.93735,
       28.68366
     ],
-    "logo": "siulight.png",
+    "imgName": "siulight.png",
     "shortDescription": "Anime is trash,and so am I",
     "description": "南昌大学微光漫摄协会是青山湖校区软件学院唯一与动漫、游戏相关的兴趣社团。我们致力于推广动漫、游戏文化，为广大动漫、游戏爱好者提供一个交流、学习和展示的平台。",
     "tags": [
@@ -156,7 +161,8 @@
         "type": "微光漫摄协会官网",
         "url": "https://siulight.com"
       }
-    ]
+    ],
+    "logo": "siulight.png"
   },
   {
     "id": "691612007cedb8484a3b9f55",
@@ -168,7 +174,7 @@
       119.21174,
       26.02564
     ],
-    "logo": "fjnu_icon.png",
+    "imgName": "fjnu_icon.png",
     "shortDescription": "福建师范大学游戏开发社团",
     "description": "为校友提供技术交流与gamejam组队的平台。",
     "tags": [
@@ -180,7 +186,8 @@
       "Gamejam",
       "闲聊"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "fjnu_icon.png"
   },
   {
     "id": "691612007cedb8484a3b9f53",
@@ -192,7 +199,7 @@
       114.931654,
       25.849345
     ],
-    "logo": "GNKY_LMC.png",
+    "imgName": "GNKY_LMC.png",
     "shortDescription": "促进交流与合作、激发创意与灵感、传播游戏文化",
     "description": "一个专注于游戏领域，面向广大游戏开发者和爱好者的社团组织",
     "tags": [
@@ -207,7 +214,8 @@
         "type": "逻机游创飞书主页",
         "url": "https://icnxn3e8k996.feishu.cn/wiki/LuIewhxV7iNYspkhgb9cCM5vnIg?from=from_copylink"
       }
-    ]
+    ],
+    "logo": "GNKY_LMC.png"
   },
   {
     "id": "691612007cedb8484a3b9f51",
@@ -219,7 +227,7 @@
       116.2518,
       39.5928
     ],
-    "logo": "youchuang.png",
+    "imgName": "youchuang.png",
     "shortDescription": "来自联大的初创社团！",
     "description": "活动就是没有活动！",
     "tags": [
@@ -229,7 +237,8 @@
       "编程",
       "美术"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "youchuang.png"
   },
   {
     "id": "691612007cedb8484a3b9f4f",
@@ -241,14 +250,15 @@
       113.970924,
       22.586866
     ],
-    "logo": "20251112_y864go8l_logo2.png",
+    "imgName": "20251112_y864go8l_logo2.png",
     "shortDescription": "哈工深游戏开发社团",
     "description": "艺数盒子ArtTech成立于2024年9月，是哈尔滨工业大学（深圳）的游戏开发者社区。我们致力于打造一个集游戏开发、中国传统文化传承与新兴媒体技术探索于一体的综合性技术社团。",
     "tags": [
       "正式社团",
       "游戏开发"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "20251112_y864go8l_logo2.png"
   },
   {
     "id": "691612007cedb8484a3b9f4d",
@@ -260,12 +270,42 @@
       123.429996,
       41.81
     ],
-    "logo": "20251113_q0kdam1n_logo.png",
+    "imgName": "20251113_q0kdam1n_logo.png",
     "shortDescription": "是游戏制作爱好者的聚集地",
     "description": "是游戏制作爱好者的聚集地",
     "tags": [
       "正式社团"
     ],
-    "externalLinks": []
+    "externalLinks": [],
+    "logo": "20251113_q0kdam1n_logo.png"
+  },
+  {
+    "id": "69161a10f63589ba226448da",
+    "name": "零乘游创社",
+    "school": "普宁市第二中学",
+    "city": "揭阳市",
+    "province": "广东省",
+    "coordinates": [
+      116.13,
+      23.28
+    ],
+    "imgName": "20251113_6c7lv5ez_logo.png",
+    "shortDescription": "广东优秀的中学游戏开发社团，培养游戏开发素养。",
+    "description": "零乘游创社是位于普宁市第二中学的社团，社团包含人机交互部、视觉艺术部、听觉艺术部和映画编制部，四个部门分别教学程序(Gamemaker)、音乐音效(FL)、美术和视频剪辑，同时提供游戏设计通识课教学。社团提供和谐氛围，社友交流密切，是许多从普宁二中走出的游戏人的第一步。",
+    "tags": [
+      "正式社团",
+      "Gamemaker",
+      "美术",
+      "音乐",
+      "策划",
+      "程序",
+      "高中"
+    ],
+    "externalLinks": [
+      {
+        "type": "Bilibili",
+        "url": "https://space.bilibili.com/3493279368743710"
+      }
+    ]
   }
 ]
