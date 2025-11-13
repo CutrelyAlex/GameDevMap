@@ -488,4 +488,121 @@ function removeIds(obj) {
   return cleaned;
 }
 
+/**
+ * ============================================================================
+ * 自动同步管理端点
+ * ============================================================================
+ */
+
+const { getAutoSyncService } = require('../utils/AutoSyncService');
+const { getGitSyncService } = require('../utils/GitSyncService');
+
+/**
+ * GET /api/sync/auto-status
+ * 获取自动同步系统状态
+ */
+router.get('/auto-status', authenticate, async (req, res) => {
+  try {
+    const autoSync = getAutoSyncService();
+    const gitSync = getGitSyncService();
+
+    const status = {
+      autoSync: autoSync.getSyncStatus(),
+      gitSync: gitSync.getSyncStatus(),
+      timestamp: new Date().toISOString()
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: status
+    });
+  } catch (error) {
+    console.error('Failed to get auto-sync status:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'STATUS_CHECK_FAILED',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/sync/auto-trigger
+ * 手动触发自动同步（用于调试或紧急同步）
+ */
+router.post('/auto-trigger', authenticate, async (req, res) => {
+  try {
+    const autoSync = getAutoSyncService();
+
+    // 检查是否已有同步在进行
+    const status = autoSync.getSyncStatus();
+    if (status.inProgress) {
+      return res.status(409).json({
+        success: false,
+        error: 'SYNC_IN_PROGRESS',
+        message: '同步正在进行中，请稍候',
+        syncStatus: status
+      });
+    }
+
+    console.log(`\n🔧 Manual auto-sync triggered by ${req.user.username}`);
+
+    // 异步执行同步
+    const syncPromise = autoSync.triggerManualSync();
+
+    // 立即返回响应，同步在后台进行
+    res.status(202).json({
+      success: true,
+      message: '同步已触发，正在后台执行',
+      timestamp: new Date().toISOString()
+    });
+
+    // 处理异步结果
+    syncPromise.then(result => {
+      if (result.success) {
+        console.log('✅ Manual auto-sync completed');
+      } else {
+        console.error('❌ Manual auto-sync failed:', result.message);
+      }
+    }).catch(err => {
+      console.error('❌ Manual auto-sync error:', err);
+    });
+
+  } catch (error) {
+    console.error('Failed to trigger auto-sync:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'SYNC_TRIGGER_FAILED',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/sync/last-sync-time
+ * 获取上次同步时间
+ */
+router.get('/last-sync-time', authenticate, async (req, res) => {
+  try {
+    const autoSync = getAutoSyncService();
+    const lastSyncTime = autoSync.getLastSyncTime();
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        lastSyncTime: lastSyncTime || null,
+        formatted: lastSyncTime ? lastSyncTime.toISOString() : 'Never synced',
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Failed to get last sync time:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'GET_LAST_SYNC_FAILED',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;

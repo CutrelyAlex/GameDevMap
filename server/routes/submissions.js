@@ -9,6 +9,7 @@ const { authenticate } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
 const { findSimilarClubs } = require('../utils/duplicateCheck');
 const { processApprovedImage } = require('../utils/imageProcessor');
+const { getAutoSyncService } = require('../utils/AutoSyncService');
 const fs = require('fs');
 const path = require('path');
 
@@ -475,11 +476,19 @@ router.put('/:id/approve', authenticate, async (req, res) => {
     submission.rejectionReason = undefined;
     await submission.save();
 
-    // 自动同步到 clubs.json（异步执行，不阻塞响应）
-    // 使用智能合并模式，保留 JSON 中的手动修改
-    syncToJson('merge').catch(err => {
-      console.error('⚠️  Failed to sync clubs.json after approval:', err);
-      // 不影响主流程，仅记录错误
+    // 异步触发自动同步流程（不阻塞响应）
+    // 流程：导出 -> Git提交推送 -> 迁移回MongoDB -> 完整同步
+    const autoSyncService = getAutoSyncService();
+    autoSyncService.performAutoSync(
+      `Approved submission: ${submission.data.name} (${submission.data.school})`
+    ).then(syncResult => {
+      if (syncResult.success) {
+        console.log('✅ Auto-sync completed successfully');
+      } else {
+        console.error('❌ Auto-sync failed:', syncResult.message);
+      }
+    }).catch(err => {
+      console.error('❌ Auto-sync error:', err);
     });
 
     return res.status(200).json({
@@ -488,7 +497,8 @@ router.put('/:id/approve', authenticate, async (req, res) => {
       data: {
         submissionId: submission._id,
         clubId: club._id,
-        isUpdate: !isNewClub
+        isUpdate: !isNewClub,
+        syncStatus: 'queued'
       }
     });
   } catch (error) {
