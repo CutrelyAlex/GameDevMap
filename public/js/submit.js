@@ -10,6 +10,21 @@ const PROVINCES = [
   '香港特别行政区', '澳门特别行政区'
 ];
 
+/**
+ * HTML属性转义函数，防止XSS
+ */
+function escapeHtmlAttr(text) {
+  if (typeof text !== 'string') return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 const form = document.getElementById('submissionForm');
 const provinceSelect = document.getElementById('province');
 const submitButton = document.getElementById('submitButton');
@@ -185,12 +200,17 @@ function collectLinks() {
   const links = [];
 
   linkItems.forEach(item => {
-    const typeInput = item.querySelector('.link-type-input') || item.querySelector('.link-type-select');
-    const type = typeInput.value.trim();
-    const url = item.querySelector('.link-url-input').value.trim();
+    // 尝试多种选择器以支持不同的标签方式
+    const typeInput = item.querySelector('.link-type-input') || item.querySelector('[name="linkType"]') || item.querySelector('.link-type');
+    const urlInput = item.querySelector('.link-url-input') || item.querySelector('[name="linkUrl"]') || item.querySelector('.link-url');
+    
+    if (typeInput && urlInput) {
+      const type = typeInput.value.trim();
+      const url = urlInput.value.trim();
 
-    if (type && url) {
-      links.push({ type, url });
+      if (type && url) {
+        links.push({ type, url });
+      }
     }
   });
 
@@ -218,6 +238,17 @@ function addNewLinkItem() {
 
   linksContainer.appendChild(linkItem);
   updateRemoveButtonVisibility();
+}
+
+/**
+ * Handle link removal for both new and edit modes
+ */
+function handleRemoveLinkClick(e) {
+  const linkItem = e.target.closest('.link-item');
+  if (linkItem) {
+    linkItem.remove();
+    updateRemoveButtonVisibility();
+  }
 }
 
 /**
@@ -366,6 +397,56 @@ addLinkBtn.addEventListener('click', (e) => {
   e.preventDefault();
   addNewLinkItem();
 });
+
+// 为编辑模式添加链接按钮事件处理
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'addEditLinkBtn' || e.target.className === 'add-link-btn') {
+    e.preventDefault();
+    const editContainer = document.getElementById('editLinksContainer');
+    if (editContainer) {
+      // 在编辑表单中添加链接
+      addLinkToContainer(editContainer);
+    } else {
+      // 在主容器中添加链接
+      addNewLinkItem();
+    }
+  }
+});
+
+/**
+ * 添加链接到指定容器
+ */
+function addLinkToContainer(container) {
+  const linkItem = document.createElement('div');
+  linkItem.className = 'link-item';
+  linkItem.innerHTML = `
+    <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (如: 网站, GitHub, 微博等)">
+    <input type="url" name="linkUrl" class="link-url-input" placeholder="输入链接地址或ID">
+    <button type="button" class="remove-link-btn">删除</button>
+  `;
+
+  const removeBtn = linkItem.querySelector('.remove-link-btn');
+  removeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    linkItem.remove();
+    // 更新容器中的删除按钮可见性
+    updateRemoveButtonsInContainer(container);
+  });
+
+  container.appendChild(linkItem);
+  updateRemoveButtonsInContainer(container);
+}
+
+/**
+ * 更新特定容器中的删除按钮可见性
+ */
+function updateRemoveButtonsInContainer(container) {
+  const linkItems = container.querySelectorAll('.link-item');
+  linkItems.forEach((item) => {
+    const removeBtn = item.querySelector('.remove-link-btn');
+    removeBtn.style.display = linkItems.length > 1 ? 'block' : 'none';
+  });
+}
 
 // Set up event listeners for initial remove buttons
 const initialRemoveButtons = linksContainer.querySelectorAll('.remove-link-btn');
@@ -523,11 +604,9 @@ function populateEditInterface(club) {
       const linkItem = document.createElement('div');
       linkItem.className = 'link-item';
       linkItem.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <input type="text" placeholder="链接类型 (例: 官网、微博)" class="link-type" value="${link.type || ''}" />
-          <input type="url" placeholder="https://example.com" class="link-url" value="${link.url || ''}" />
-          <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
-        </div>
+        <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)" value="${escapeHtmlAttr(link.type || '')}">
+        <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com" value="${escapeHtmlAttr(link.url || '')}">
+        <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
       `;
       
       // Add remove button listener
@@ -544,11 +623,9 @@ function populateEditInterface(club) {
     const linkItem = document.createElement('div');
     linkItem.className = 'link-item';
     linkItem.innerHTML = `
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="text" placeholder="链接类型 (例: 官网、微博)" class="link-type" />
-        <input type="url" placeholder="https://example.com" class="link-url" />
-        <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
-      </div>
+      <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)">
+      <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com">
+      <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
     `;
     
     const removeBtn = linkItem.querySelector('.remove-link-btn');

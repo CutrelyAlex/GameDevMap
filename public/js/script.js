@@ -3,6 +3,58 @@ let markers = [];
 let clubsData = [];
 let currentProvinceFilter = null; // 当前选中的省份过滤器
 
+/**
+ * 根据链接类型返回对应的图标
+ */
+function getLinkTypeIcon(type) {
+    const typeMap = {
+        '官网': '🌐',
+        '网站': '🌐',
+        'Website': '🌐',
+        'GitHub': '💻',
+        'github': '💻',
+        '微博': '📱',
+        'Weibo': '📱',
+        '抖音': '🎵',
+        'Douyin': '🎵',
+        'TikTok': '🎵',
+        '快手': '🎥',
+        'Kuaishou': '🎥',
+        'B站': '▶️',
+        'BiliBili': '▶️',
+        'bilibili': '▶️',
+        '小红书': '❤️',
+        'RED': '❤️',
+        'WeChat': '💬',
+        '微信': '💬',
+        'QQ': '💬',
+        'Email': '✉️',
+        '邮箱': '✉️',
+        'Twitter': '𝕏',
+        'X': '𝕏',
+        'Facebook': '👍',
+        'Instagram': '📷',
+        'LinkedIn': '💼',
+        'YouTube': '🎬',
+        'Discord': '💜'
+    };
+    return typeMap[type] || '🔗';
+}
+
+/**
+ * HTML转义函数，防止XSS
+ */
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 function getResourcePath(path) {
     // 如果是本地开发（localhost 或 127.0.0.1），用相对路径
     const isLocalDev = window.location.hostname === 'localhost' || 
@@ -228,15 +280,32 @@ function showClubDetails(club) {
         h3.textContent = '外部链接';
         linksDiv.appendChild(h3);
         
+        // 创建链接容器
+        const linksContainer = document.createElement('div');
+        linksContainer.className = 'external-links-container';
+        
         club.external_links.forEach(link => {
-            const a = document.createElement('a');
-            a.href = link.url;
-            a.target = '_blank';
-            a.className = 'link-item';
-            a.textContent = link.type;
-            a.title = link.url;
-            linksDiv.appendChild(a);
+            if (link.type && link.url) {
+                const linkWrapper = document.createElement('div');
+                linkWrapper.className = 'external-link-wrapper';
+                
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer'; // 安全考虑
+                a.className = 'external-link-item';
+                
+                // 根据类型添加不同的图标或样式
+                const icon = getLinkTypeIcon(link.type);
+                a.innerHTML = `<span class="link-icon">${icon}</span><span class="link-text">${escapeHtml(link.type)}</span>`;
+                a.title = link.url;
+                
+                linkWrapper.appendChild(a);
+                linksContainer.appendChild(linkWrapper);
+            }
         });
+        
+        linksDiv.appendChild(linksContainer);
     } else {
         linksDiv.style.display = 'none';
     }

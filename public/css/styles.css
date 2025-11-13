@@ -355,11 +355,62 @@ body {
 
 .club-links h3 {
     font-size: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     margin-top: 0;
     color: #2c3e50;
+    font-weight: 600;
 }
 
+.external-links-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.external-link-wrapper {
+    display: inline-block;
+}
+
+.external-link-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.external-link-item:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+}
+
+.external-link-item .link-icon {
+    font-size: 16px;
+    display: inline-block;
+}
+
+.external-link-item .link-text {
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 旧的 link-item 样式保留用于向后兼容 */
 .link-item {
     display: inline-block;
     margin-right: 8px;
