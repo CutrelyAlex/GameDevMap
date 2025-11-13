@@ -12,7 +12,7 @@ const syncToJson = require('../scripts/syncToJson');
  * 统一后的格式（驼峰命名）：
  * - id, name, school, city, province
  * - coordinates: [lng, lat]
- * - imgName, shortDescription, description
+ * - logo, shortDescription, description
  * - tags, externalLinks (无 _id)
  */
 function formatClub(club) {
@@ -38,7 +38,7 @@ function formatClub(club) {
     city: club.city || '',
     province: club.province,
     coordinates: club.coordinates || [0, 0],
-    imgName: club.logo || club.imgName || '',
+    logo: club.logo || club.logo || '',
     shortDescription: club.shortDescription || '',
     description: club.description || '',
     tags: club.tags || [],
