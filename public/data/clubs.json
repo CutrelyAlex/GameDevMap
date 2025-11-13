@@ -5,15 +5,17 @@
     "school": "吉林动画学院",
     "city": "长春市",
     "province": "吉林省",
-    "latitude": 41.81,
-    "longitude": 123.429996,
-    "img_name": "20251113_q0kdam1n_logo.png",
-    "short_description": "是游戏制作爱好者的聚集地",
-    "long_description": "是游戏制作爱好者的聚集地",
+    "coordinates": [
+      123.429996,
+      41.81
+    ],
+    "imgName": "20251113_q0kdam1n_logo.png",
+    "shortDescription": "是游戏制作爱好者的聚集地",
+    "description": "是游戏制作爱好者的聚集地",
     "tags": [
       "正式社团"
     ],
-    "external_links": []
+    "externalLinks": []
   },
   {
     "id": "6915ce6811d0e830ac187dd2",
@@ -21,16 +23,18 @@
     "school": "哈尔滨工业大学（深圳）",
     "city": "深圳市",
     "province": "广东省",
-    "latitude": 22.586866,
-    "longitude": 113.970924,
-    "img_name": "20251112_y864go8l_logo2.png",
-    "short_description": "哈工深游戏开发社团",
-    "long_description": "艺数盒子ArtTech成立于2024年9月，是哈尔滨工业大学（深圳）的游戏开发者社区。我们致力于打造一个集游戏开发、中国传统文化传承与新兴媒体技术探索于一体的综合性技术社团。",
+    "coordinates": [
+      113.970924,
+      22.586866
+    ],
+    "imgName": "20251112_y864go8l_logo2.png",
+    "shortDescription": "哈工深游戏开发社团",
+    "description": "艺数盒子ArtTech成立于2024年9月，是哈尔滨工业大学（深圳）的游戏开发者社区。我们致力于打造一个集游戏开发、中国传统文化传承与新兴媒体技术探索于一体的综合性技术社团。",
     "tags": [
       "正式社团",
       "游戏开发"
     ],
-    "external_links": []
+    "externalLinks": []
   },
   {
     "id": "6915ce6811d0e830ac187dd4",
@@ -38,11 +42,13 @@
     "school": "北京联合大学",
     "city": "北京",
     "province": "北京市",
-    "latitude": 39.5928,
-    "longitude": 116.2518,
-    "img_name": "youchuang.png",
-    "short_description": "来自联大的初创社团！",
-    "long_description": "活动就是没有活动！",
+    "coordinates": [
+      116.2518,
+      39.5928
+    ],
+    "imgName": "youchuang.png",
+    "shortDescription": "来自联大的初创社团！",
+    "description": "活动就是没有活动！",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -50,7 +56,7 @@
       "编程",
       "美术"
     ],
-    "external_links": []
+    "externalLinks": []
   },
   {
     "id": "6915ce6811d0e830ac187dd6",
@@ -58,11 +64,13 @@
     "school": "赣南师范大学科技学院",
     "city": "赣州",
     "province": "江西省",
-    "latitude": 25.849345,
-    "longitude": 114.931654,
-    "img_name": "GNKY_LMC.png",
-    "short_description": "促进交流与合作、激发创意与灵感、传播游戏文化",
-    "long_description": "一个专注于游戏领域，面向广大游戏开发者和爱好者的社团组织",
+    "coordinates": [
+      114.931654,
+      25.849345
+    ],
+    "imgName": "GNKY_LMC.png",
+    "shortDescription": "促进交流与合作、激发创意与灵感、传播游戏文化",
+    "description": "一个专注于游戏领域，面向广大游戏开发者和爱好者的社团组织",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -70,11 +78,10 @@
       "竞赛",
       "Gamejam"
     ],
-    "external_links": [
+    "externalLinks": [
       {
         "type": "逻机游创飞书主页",
-        "url": "https://icnxn3e8k996.feishu.cn/wiki/LuIewhxV7iNYspkhgb9cCM5vnIg?from=from_copylink",
-        "_id": "6915d4f7a33d94ac279ca106"
+        "url": "https://icnxn3e8k996.feishu.cn/wiki/LuIewhxV7iNYspkhgb9cCM5vnIg?from=from_copylink"
       }
     ]
   },
@@ -84,11 +91,13 @@
     "school": "福建师范大学",
     "city": "福州",
     "province": "福建省",
-    "latitude": 26.02564,
-    "longitude": 119.21174,
-    "img_name": "fjnu_icon.png",
-    "short_description": "福建师范大学游戏开发社团",
-    "long_description": "为校友提供技术交流与gamejam组队的平台。",
+    "coordinates": [
+      119.21174,
+      26.02564
+    ],
+    "imgName": "fjnu_icon.png",
+    "shortDescription": "福建师范大学游戏开发社团",
+    "description": "为校友提供技术交流与gamejam组队的平台。",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -98,7 +107,7 @@
       "Gamejam",
       "闲聊"
     ],
-    "external_links": []
+    "externalLinks": []
   },
   {
     "id": "6915ce6811d0e830ac187ddb",
@@ -106,11 +115,13 @@
     "school": "南昌大学",
     "city": "南昌",
     "province": "江西省",
-    "latitude": 28.68366,
-    "longitude": 115.93735,
-    "img_name": "siulight.png",
-    "short_description": "Anime is trash,and so am I",
-    "long_description": "南昌大学微光漫摄协会是青山湖校区软件学院唯一与动漫、游戏相关的兴趣社团。我们致力于推广动漫、游戏文化，为广大动漫、游戏爱好者提供一个交流、学习和展示的平台。",
+    "coordinates": [
+      115.93735,
+      28.68366
+    ],
+    "imgName": "siulight.png",
+    "shortDescription": "Anime is trash,and so am I",
+    "description": "南昌大学微光漫摄协会是青山湖校区软件学院唯一与动漫、游戏相关的兴趣社团。我们致力于推广动漫、游戏文化，为广大动漫、游戏爱好者提供一个交流、学习和展示的平台。",
     "tags": [
       "正式社团",
       "动画",
@@ -121,11 +132,10 @@
       "Game派对",
       "闲聊"
     ],
-    "external_links": [
+    "externalLinks": [
       {
         "type": "微光漫摄协会官网",
-        "url": "https://siulight.com",
-        "_id": "6915d4f7a33d94ac279ca10c"
+        "url": "https://siulight.com"
       }
     ]
   },
@@ -135,11 +145,13 @@
     "school": "成都工业学院",
     "city": "成都",
     "province": "四川省",
-    "latitude": 30.7872,
-    "longitude": 103.8848,
-    "img_name": "cdtu-hivest.png",
-    "short_description": "我们是成都工业学院The Hivest Studio--蜂巢工作室",
-    "long_description": "蜂巢工作室成立于2017年。我们汇聚了一群热爱游戏、热衷开发的志同道合者，致力于为成员提供学习、实践与展示的平台，助力每一位怀揣梦想的游戏开发者成长。",
+    "coordinates": [
+      103.8848,
+      30.7872
+    ],
+    "imgName": "cdtu-hivest.png",
+    "shortDescription": "我们是成都工业学院The Hivest Studio--蜂巢工作室",
+    "description": "蜂巢工作室成立于2017年。我们汇聚了一群热爱游戏、热衷开发的志同道合者，致力于为成员提供学习、实践与展示的平台，助力每一位怀揣梦想的游戏开发者成长。",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -149,11 +161,10 @@
       "Gamejam",
       "闲聊"
     ],
-    "external_links": [
+    "externalLinks": [
       {
         "type": "游戏开发协会首页",
-        "url": "https://bqt4a2kph6x.feishu.cn/wiki/GpHpwcLT2iunl2kmFt7cYDbrnhe",
-        "_id": "6915d4f7a33d94ac279ca112"
+        "url": "https://bqt4a2kph6x.feishu.cn/wiki/GpHpwcLT2iunl2kmFt7cYDbrnhe"
       }
     ]
   },
@@ -163,11 +174,13 @@
     "school": "长春理工大学",
     "city": "长春",
     "province": "吉林省",
-    "latitude": 43.83093,
-    "longitude": 125.31427,
-    "img_name": "cust-yougap.png",
-    "short_description": "拾起那份藏在缝隙中的，对游戏的热爱",
-    "long_description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
+    "coordinates": [
+      125.31427,
+      43.83093
+    ],
+    "imgName": "cust-yougap.png",
+    "shortDescription": "拾起那份藏在缝隙中的，对游戏的热爱",
+    "description": "坐落于吉林省长春市的神秘游戏开发社团\n主要以策划、程序、美术、独游制作人四个方向进行培养分流\n使用Unreal/Unity/Godot等游戏引擎，不限特定引擎\n不定期参加Gamejam/游戏沙龙/技术分享等活动\n支持社团成员跨校合作，开展长期项目等\n游隙拾光工作室正式成立于2025年，前身为长春理工大学游戏开发创作联盟（2022年）",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -177,11 +190,10 @@
       "Godot",
       "Gamejam"
     ],
-    "external_links": [
+    "externalLinks": [
       {
         "type": "知识库/社群联系方式",
-        "url": "https://rcn5t7x1agov.feishu.cn/wiki/O2iZwMmjGiql3skD0khceKx1nRe",
-        "_id": "6915d4f7a33d94ac279ca117"
+        "url": "https://rcn5t7x1agov.feishu.cn/wiki/O2iZwMmjGiql3skD0khceKx1nRe"
       }
     ]
   },
@@ -191,11 +203,13 @@
     "school": "湘潭大学",
     "city": "湘潭",
     "province": "湖南省",
-    "latitude": 27.882942,
-    "longitude": 112.863096,
-    "img_name": "Cutyroom-game-club.png",
-    "short_description": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
-    "long_description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
+    "coordinates": [
+      112.863096,
+      27.882942
+    ],
+    "imgName": "Cutyroom-game-club.png",
+    "shortDescription": "湘潭大学的游戏开发组织Cutyroom Studio欢迎大家",
+    "description": "欢迎了解Cutyroom，我们大致分为程序，策划，美术三个方向，主打unity引擎的游戏开发，热衷于参加各类gamejam，定期举办分享会等活动，有多部游戏现已登录平台,官方的网站正在制作中",
     "tags": [
       "正式社团",
       "游戏开发",
@@ -203,16 +217,14 @@
       "策划",
       "2d与3d美术"
     ],
-    "external_links": [
+    "externalLinks": [
       {
         "type": "《烛光：灵魂边境》",
-        "url": "https://www.taptap.cn/app/726467?os=pc",
-        "_id": "6915d4f7a33d94ac279ca11d"
+        "url": "https://www.taptap.cn/app/726467?os=pc"
       },
       {
         "type": "《新闻学模拟器》",
-        "url": "https://www.gcores.com/games/141972",
-        "_id": "6915d4f7a33d94ac279ca11e"
+        "url": "https://www.gcores.com/games/141972"
       }
     ]
   },
@@ -222,15 +234,17 @@
     "school": "厦门大学",
     "city": "厦门",
     "province": "福建省",
-    "latitude": 24.607377,
-    "longitude": 118.309695,
-    "img_name": "xmu-game-club.png",
-    "short_description": "厦门大学游戏开发社团",
-    "long_description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
+    "coordinates": [
+      118.309695,
+      24.607377
+    ],
+    "imgName": "xmu-game-club.png",
+    "shortDescription": "厦门大学游戏开发社团",
+    "description": "厦大唯一指定游戏开发社团，涵盖三个校区，社团宗旨为缔结震撼人心的艺术品",
     "tags": [
       "正式社团"
     ],
-    "external_links": []
+    "externalLinks": []
   },
   {
     "id": "6915ce6811d0e830ac187dea",
@@ -238,11 +252,13 @@
     "school": "广东技术师范大学",
     "city": "广州",
     "province": "广东省",
-    "latitude": 23.282807,
-    "longitude": 113.212974,
-    "img_name": "GuangStar.png",
-    "short_description": "光Star游戏工坊",
-    "long_description": "光Star游戏工坊由校内一群热爱游戏创作与开发的学生组成，每一位成员都将自己对电子游戏的热爱倾注在创作与开发工作中，以学习技术、体验创作、实现创意、赋能创业为目标不断努力。",
+    "coordinates": [
+      113.212974,
+      23.282807
+    ],
+    "imgName": "GuangStar.png",
+    "shortDescription": "光Star游戏工坊",
+    "description": "光Star游戏工坊由校内一群热爱游戏创作与开发的学生组成，每一位成员都将自己对电子游戏的热爱倾注在创作与开发工作中，以学习技术、体验创作、实现创意、赋能创业为目标不断努力。",
     "tags": [
       "非正式社团",
       "游戏开发",
@@ -250,6 +266,6 @@
       "GameMaker Studio",
       "Gamejam"
     ],
-    "external_links": []
+    "externalLinks": []
   }
 ]
