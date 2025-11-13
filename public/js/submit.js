@@ -1098,6 +1098,9 @@ confirmEdit.addEventListener('click', async () => {
       }
     }
 
+    // Collect external links from the form (same as new submission mode)
+    const externalLinks = collectLinks();
+
     // Build submission data with correct field names
     // Start with the base structure that matches validation schema
     let submissionData = {
@@ -1117,7 +1120,7 @@ confirmEdit.addEventListener('click', async () => {
       long_description: selectedClub.long_description || '',
       tags: selectedClub.tags || [],
       logo: logoPath,
-      external_links: selectedClub.external_links || []
+      external_links: externalLinks
     };
 
     // Apply edited fields with correct field name mappings
