@@ -37,12 +37,24 @@ async function migrateClubs() {
     console.log('\n📥 Importing from clubs.json...');
     for (const club of clubs) {
       try {
+        // 支持两种坐标格式
+        let coordinates;
+        if (club.coordinates && Array.isArray(club.coordinates) && club.coordinates.length === 2) {
+          // 使用 coordinates 数组 [lng, lat]
+          coordinates = club.coordinates;
+        } else if (club.longitude !== undefined && club.latitude !== undefined) {
+          // 使用 longitude/latitude 字段 [lng, lat]
+          coordinates = [club.longitude, club.latitude];
+        } else {
+          throw new Error('Missing coordinates data');
+        }
+
         const clubData = {
           name: club.name,
           school: club.school,
           province: club.province,
           city: club.city || '',
-          coordinates: [club.longitude, club.latitude], // [lng, lat]
+          coordinates: coordinates, // [lng, lat]
           description: club.description || club.shortDescription || '',
           shortDescription: club.shortDescription || '',
           tags: club.tags || [],
