@@ -360,8 +360,8 @@ form.addEventListener('submit', async (event) => {
           latitude,
           longitude
         },
-        short_description: formData.get('short_description') || selectedClub.short_description || '',
-        long_description: formData.get('long_description') || selectedClub.long_description || '',
+        shortDescription: formData.get('shortDescription') || selectedClub.shortDescription || '',
+        description: formData.get('description') || selectedClub.description || '',
         tags,
         externalLinks: links,
         submitterEmail: submitterEmail
@@ -385,8 +385,8 @@ form.addEventListener('submit', async (event) => {
           latitude,
           longitude
         },
-        short_description: shortDescriptionInput.value.trim(),
-        long_description: longDescriptionInput.value.trim(),
+        shortDescription: shortDescriptionInput.value.trim(),
+        description: longDescriptionInput.value.trim(),
         tags,
         externalLinks: links,
         submitterEmail: document.getElementById('submitterEmail').value.trim()
@@ -399,7 +399,7 @@ form.addEventListener('submit', async (event) => {
       payload.logo = logoPath;
     } else if (currentMode === 'edit') {
       // In edit mode, preserve the original logo if no new logo is uploaded
-      payload.logo = selectedClub.img_name || formData.get('logo') || '';
+      payload.logo = selectedClub.logo || formData.get('logo') || '';
     }
 
     const response = await fetch('/api/submissions', {
@@ -618,16 +618,26 @@ function populateEditInterface(club) {
   formData.set('name', club.name || '');
   formData.set('school', club.school || '');
   formData.set('location', club.city ? `${club.city}, ${club.province}` : club.province || '');
-  formData.set('coordinates', club.latitude && club.longitude ? `${club.latitude}, ${club.longitude}` : '');
-  formData.set('short_description', club.short_description || '');
-  formData.set('long_description', club.long_description || '');
+  
+  // Support both new format (coordinates array) and old format (separate lat/lon)
+  let coordsText = '';
+  if (club.coordinates && Array.isArray(club.coordinates)) {
+    coordsText = `${club.coordinates[1]}, ${club.coordinates[0]}`;
+  } else if (club.latitude && club.longitude) {
+    coordsText = `${club.latitude}, ${club.longitude}`;
+  }
+  formData.set('coordinates', coordsText);
+  
+  formData.set('shortDescription', club.shortDescription || club.short_description || '');
+  formData.set('description', club.description || club.long_description || '');
   // Store tags as JSON string for consistency with updateFormData
   formData.set('tags', JSON.stringify(club.tags && club.tags.length > 0 ? club.tags : []));
-  formData.set('logo', club.img_name || '');
+  formData.set('logo', club.logo || club.img_name || '');
 
   // Set logo
-  if (club.img_name) {
-    displayElements.logo.src = `/assets/compressedLogos/${club.img_name}`;
+  const logoToUse = club.logo || club.img_name;
+  if (logoToUse) {
+    displayElements.logo.src = `/assets/compressedLogos/${logoToUse}`;
     displayElements.logo.style.display = 'block';
     displayElements.logoPlaceholder.style.display = 'none';
   } else {
@@ -639,10 +649,17 @@ function populateEditInterface(club) {
   displayElements.name.textContent = club.name || '-';
   displayElements.school.textContent = club.school || '-';
   displayElements.location.textContent = club.city ? `${club.city}, ${club.province}` : club.province || '-';
-  displayElements.coordinates.textContent = club.latitude && club.longitude ? 
-    `${club.latitude}, ${club.longitude}` : '-';
-  displayElements.shortDescription.textContent = club.short_description || '-';
-  displayElements.longDescription.textContent = club.long_description || '-';
+  
+  let coordDisplay = '-';
+  if (club.coordinates && Array.isArray(club.coordinates)) {
+    coordDisplay = `${club.coordinates[1]}, ${club.coordinates[0]}`;
+  } else if (club.latitude && club.longitude) {
+    coordDisplay = `${club.latitude}, ${club.longitude}`;
+  }
+  displayElements.coordinates.textContent = coordDisplay;
+  
+  displayElements.shortDescription.textContent = club.shortDescription || club.short_description || '-';
+  displayElements.longDescription.textContent = club.description || club.long_description || '-';
   displayElements.tags.textContent = club.tags && club.tags.length > 0 ? club.tags.join(', ') : '-';
   
   // Display external links
@@ -910,12 +927,18 @@ function getCurrentFieldValue(field) {
     case 'name': return selectedClub.name || '';
     case 'school': return selectedClub.school || '';
     case 'location': return selectedClub.city ? `${selectedClub.city}, ${selectedClub.province}` : selectedClub.province || '';
-    case 'coordinates': return selectedClub.latitude && selectedClub.longitude ? `${selectedClub.latitude}, ${selectedClub.longitude}` : '';
-    case 'shortDescription': return selectedClub.short_description || '';
-    case 'longDescription': return selectedClub.long_description || '';
+    case 'coordinates': 
+      if (selectedClub.coordinates && Array.isArray(selectedClub.coordinates)) {
+        return `${selectedClub.coordinates[1]}, ${selectedClub.coordinates[0]}`;
+      } else if (selectedClub.latitude && selectedClub.longitude) {
+        return `${selectedClub.latitude}, ${selectedClub.longitude}`;
+      }
+      return '';
+    case 'shortDescription': return selectedClub.shortDescription || selectedClub.short_description || '';
+    case 'longDescription': return selectedClub.description || selectedClub.long_description || '';
     case 'tags': return selectedClub.tags && selectedClub.tags.length > 0 ? selectedClub.tags.join(', ') : '';
     case 'externalLinks': return selectedClub.externalLinks || [];
-    case 'logo': return selectedClub.img_name || '';
+    case 'logo': return selectedClub.logo || selectedClub.img_name || '';
     default: return '';
   }
 }
@@ -1129,11 +1152,11 @@ function updateFormData(field, value) {
       break;
     
     case 'shortDescription':
-      formData.set('short_description', value);
+      formData.set('shortDescription', value);
       break;
     
     case 'longDescription':
-      formData.set('long_description', value);
+      formData.set('description', value);
       break;
     
     case 'tags':
@@ -1239,7 +1262,7 @@ confirmEdit.addEventListener('click', async () => {
     confirmEdit.textContent = '提交中...';
 
     // Handle logo upload first if changed
-    let logoPath = selectedClub.img_name || '';
+    let logoPath = selectedClub.logo || selectedClub.img_name || '';
     if (formData.has('logo')) {
       const logoFile = formData.get('logo');
       if (logoFile instanceof File) {
@@ -1265,11 +1288,11 @@ confirmEdit.addEventListener('click', async () => {
       province: selectedClub.province,
       city: selectedClub.city,
       coordinates: {
-        latitude: selectedClub.latitude,
-        longitude: selectedClub.longitude
+        latitude: selectedClub.coordinates?.[1] || selectedClub.latitude || 0,
+        longitude: selectedClub.coordinates?.[0] || selectedClub.longitude || 0
       },
-      short_description: selectedClub.short_description || '',
-      long_description: selectedClub.long_description || '',
+      shortDescription: selectedClub.shortDescription || selectedClub.short_description || '',
+      description: selectedClub.description || selectedClub.long_description || '',
       tags: selectedClub.tags || [],
       logo: logoPath,
       externalLinks: externalLinks
@@ -1303,11 +1326,11 @@ confirmEdit.addEventListener('click', async () => {
             longitude: parseFloat(lng)
           };
           break;
-        case 'short_description':
-          submissionData.short_description = value;
+        case 'shortDescription':
+          submissionData.shortDescription = value;
           break;
-        case 'long_description':
-          submissionData.long_description = value;
+        case 'description':
+          submissionData.description = value;
           break;
         case 'tags':
           // Handle tags - could be either JSON array string or comma-separated string
@@ -1337,8 +1360,8 @@ confirmEdit.addEventListener('click', async () => {
 
     // DEBUG: 打印发送的数据
     console.log('📤 【编辑模式提交】发送的完整 payload:', JSON.stringify(submissionData, null, 2));
-    console.log('📤 long_description 值:', submissionData.long_description);
-    console.log('📤 short_description 值:', submissionData.short_description);
+    console.log('📤 description 值:', submissionData.description);
+    console.log('📤 shortDescription 值:', submissionData.shortDescription);
 
     const result = await response.json().catch(() => null);
 
