@@ -1,7 +1,23 @@
 import { checkAuth, logout, authFetch } from './auth.js';
 
-// Check authentication on page load
-checkAuth();
+// Check authentication on page load and initialize accordingly
+async function initializePage() {
+  try {
+    const isAuthenticated = await checkAuth();
+
+    if (isAuthenticated) {
+      // 用户已认证，初始化同步功能
+      initSyncModule();
+    } else {
+      // 用户未认证，显示登录提示或等待状态
+      console.log('User not authenticated, sync module not initialized');
+    }
+  } catch (error) {
+    console.error('Auth check failed:', error);
+  }
+}
+
+initializePage();
 
 // 当在 admin index 中时初始化同步功能
 function initSyncModule() {

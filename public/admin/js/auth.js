@@ -202,14 +202,15 @@ export function getAuthHeaders() {
 export async function checkAuth() {
   const storedUser = getStoredUser();
   if (!storedUser) {
-    // 没有存储的用户信息，重定向到登录页面
-    window.location.href = '/admin/';
-    return;
+    // 没有存储的用户信息，不重定向
+    console.log('No stored user, waiting for login...');
+    return false;
   }
 
   try {
     // 验证 token 是否仍然有效
     await verifyToken();
+    return true;
   } catch (error) {
     console.warn('认证检查失败：', error.message);
 
@@ -217,11 +218,12 @@ export async function checkAuth() {
     if (error.message === 'SERVICE_UNAVAILABLE') {
       console.warn('数据库连接暂时不可用，显示等待状态...');
       showServiceUnavailableMessage();
-      return;
+      return false;
     }
 
+    // Token 无效或已过期，清除会话
     clearSession();
-    window.location.href = '/admin/';
+    return false;
   }
 }
 
