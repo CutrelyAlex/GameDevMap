@@ -101,15 +101,15 @@ const CONFIG = {
 
 /**
  * 解析 Logo 图片路径
- * @param {string} imgName - 图片文件名或完整路径
+ * @param {string} logo - 图片文件名或完整路径
  * @returns {string} 完整的图片路径
  */
-function resolveLogoPath(imgName) {
-    if (!imgName || typeof imgName !== 'string' || imgName.trim() === '') {
+function resolveLogoPath(logo) {
+    if (!logo || typeof logo !== 'string' || logo.trim() === '') {
         return CONFIG.PLACEHOLDER;
     }
 
-    const trimmed = imgName.trim();
+    const trimmed = logo.trim();
 
     // 如果是完整路径（以 / 开头），转换为文件名
     let filename = trimmed;

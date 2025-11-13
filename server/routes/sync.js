@@ -440,6 +440,152 @@ router.post('/replace', authenticate, async (req, res) => {
 });
 
 /**
+ * POST /api/sync/jsonToDB
+ * 执行 JSON -> DB 替换：用 JSON 文件完全覆盖 MongoDB 数据库
+ * - 用 JSON 文件中的所有数据完全覆盖 MongoDB
+ * - MongoDB 中独有的记录将被删除
+ */
+router.post('/jsonToDB', authenticate, async (req, res) => {
+  try {
+    // 读取 JSON 文件
+    const jsonPath = path.resolve(__dirname, '../../public/data/clubs.json');
+    let jsonClubs = [];
+    try {
+      const jsonData = await fs.readFile(jsonPath, 'utf8');
+      jsonClubs = JSON.parse(jsonData);
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        error: 'JSON_NOT_FOUND',
+        message: 'clubs.json 文件不存在'
+      });
+    }
+
+    // 清空数据库
+    await Club.deleteMany({});
+
+    // 插入 JSON 数据到数据库
+    let insertedCount = 0;
+    for (const club of jsonClubs) {
+      try {
+        const clubData = {
+          name: club.name,
+          school: club.school,
+          province: club.province,
+          city: club.city || '',
+          coordinates: club.coordinates || [0, 0],
+          description: club.description || '',
+          shortDescription: club.shortDescription || '',
+          tags: club.tags || [],
+          logo: club.logo || '',
+          externalLinks: (club.externalLinks || []).map(link => ({
+            type: link.type,
+            url: link.url
+          }))
+        };
+
+        // 如果 JSON 中有 ID，使用该 ID
+        if (club.id) {
+          clubData._id = club.id;
+        }
+
+        await Club.create(clubData);
+        insertedCount++;
+      } catch (error) {
+        console.warn(`⚠️ Failed to insert club: ${club.name}`, error.message);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'JSON -> DB 替换完成',
+      data: {
+        total: insertedCount,
+        fromFile: jsonClubs.length
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ JSON to DB failed:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'JSON_TO_DB_FAILED',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/sync/gitQuick
+ * 快速 Git 操作：git add . -> git commit -> git pull -> git push
+ */
+router.post('/gitQuick', authenticate, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message || message.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'INVALID_MESSAGE',
+        message: '提交信息不能为空'
+      });
+    }
+
+    const { exec } = require('child_process');
+    const { promisify } = require('util');
+    const execAsync = promisify(exec);
+    const projectRoot = path.resolve(__dirname, '../../');
+
+    try {
+      // 1. git add .
+      console.log('🔄 Running: git add .');
+      await execAsync('git add .', { cwd: projectRoot });
+      
+      // 2. git commit -m "message"
+      console.log(`🔄 Running: git commit -m "${message}"`);
+      await execAsync(`git commit -m "${message.replace(/"/g, '\\"')}"`, { cwd: projectRoot });
+      
+      // 3. git pull
+      console.log('🔄 Running: git pull');
+      await execAsync('git pull', { cwd: projectRoot });
+      
+      // 4. git push
+      console.log('🔄 Running: git push');
+      await execAsync('git push', { cwd: projectRoot });
+
+      return res.json({
+        success: true,
+        message: 'Git 操作完成',
+        data: {
+          steps: ['git add .', `git commit -m "${message}"`, 'git pull', 'git push']
+        }
+      });
+
+    } catch (error) {
+      // 某些 git 操作可能返回 "no changes" 之类的警告但不是真正的错误
+      if (error.code === 1 && (error.stderr.includes('nothing to commit') || error.stdout.includes('nothing to commit'))) {
+        return res.json({
+          success: true,
+          message: 'Git 操作完成（无变更）',
+          data: {
+            steps: ['git add .', 'git commit (nothing to commit)', 'git pull', 'git push (nothing to push)']
+          }
+        });
+      }
+
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('❌ Git quick failed:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'GIT_FAILED',
+      message: error.message || 'Git 操作失败'
+    });
+  }
+});
+
+/**
  * 查找两个对象之间的差异
  */
 function findDifferences(obj1, obj2) {
