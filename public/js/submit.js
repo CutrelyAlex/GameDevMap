@@ -389,11 +389,24 @@ form.addEventListener('submit', async (event) => {
     const result = await response.json().catch(() => null);
 
     if (!response.ok || !result?.success) {
-      if (result?.errors?.length) {
+      // 提供更详细的错误信息
+      let errorMessage = result?.message || '提交失败，请稍后再试';
+      
+      if (response.status === 503 || result?.error === 'SERVICE_UNAVAILABLE') {
+        errorMessage = '数据库连接暂时不可用，请稍后再试';
+      } else if (result?.errors?.length) {
         const details = result.errors.map(err => `• ${err.message}`).join('\n');
-        throw new Error(`${result.message || '提交失败'}\n${details}`);
+        errorMessage = `${result.message || '提交失败'}\n${details}`;
       }
-      throw new Error(result?.message || '提交失败，请稍后再试');
+      
+      console.error('Submission failed:', {
+        status: response.status,
+        error: result?.error,
+        message: result?.message,
+        errors: result?.errors
+      });
+      
+      throw new Error(errorMessage);
     }
 
     resetForm();
@@ -1283,7 +1296,23 @@ confirmEdit.addEventListener('click', async () => {
     const result = await response.json().catch(() => null);
 
     if (!response.ok || !result?.success) {
-      throw new Error(result?.message || '修改失败，请稍后再试');
+      // 提供更详细的错误信息
+      let errorMessage = result?.message || '修改失败，请稍后再试';
+      
+      if (response.status === 503 || result?.error === 'SERVICE_UNAVAILABLE') {
+        errorMessage = '数据库连接暂时不可用，请稍后再试';
+      } else if (response.status === 400 && result?.errors) {
+        errorMessage = `验证失败：${result.errors.map(e => e.message).join(', ')}`;
+      }
+      
+      console.error('Submission failed:', {
+        status: response.status,
+        error: result?.error,
+        message: result?.message,
+        errors: result?.errors
+      });
+      
+      throw new Error(errorMessage);
     }
 
     // Success

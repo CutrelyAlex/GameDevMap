@@ -46,6 +46,16 @@ router.post('/',
   validateSubmission,
   async (req, res) => {
     try {
+      // 检查数据库连接状态
+      if (mongoose.connection.readyState !== 1) {
+        console.error('❌ Database not connected, readyState:', mongoose.connection.readyState);
+        return res.status(503).json({
+          success: false,
+          error: 'SERVICE_UNAVAILABLE',
+          message: '数据库连接暂时不可用，请稍后再试'
+        });
+      }
+
       // 提取客户端信息
       const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
       const userAgent = req.headers['user-agent'];
@@ -160,7 +170,8 @@ router.post('/',
         }
       });
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('❌ Submission error:', error);
+      console.error('Error stack:', error.stack);
       
       // 记录失败的提交数据以便恢复
       console.error('Failed submission data:', JSON.stringify({
@@ -179,7 +190,16 @@ router.post('/',
         }
       }, null, 2));
       
-      // 处理数据库错误
+      // 处理 MongoDB 连接错误
+      if (error.name === 'MongooseError' || error.message?.includes('MongoDB') || error.message?.includes('ECONNREFUSED')) {
+        return res.status(503).json({
+          success: false,
+          error: 'SERVICE_UNAVAILABLE',
+          message: '数据库连接暂时不可用，请稍后再试'
+        });
+      }
+
+      // 处理数据库验证错误
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
@@ -192,6 +212,7 @@ router.post('/',
         });
       }
 
+      // 通用服务器错误
       res.status(500).json({
         success: false,
         error: 'SERVER_ERROR',
