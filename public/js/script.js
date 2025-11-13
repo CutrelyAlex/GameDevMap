@@ -4,6 +4,21 @@ let clubsData = [];
 let currentProvinceFilter = null; // 当前选中的省份过滤器
 
 /**
+ * 转义HTML特殊字符，防止XSS攻击
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, char => map[char]);
+}
+
+/**
  * 根据链接类型返回对应的图标
  */
 function getLinkTypeIcon(type) {
