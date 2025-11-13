@@ -7,7 +7,9 @@ const { authenticate } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
 
 /**
- * 格式化 Club 对象为标准格式
+ * 格式化 Club 对象为 JSON 导出格式
+ * 
+ * 此函数用于生成 MongoDB -> JSON 的数据
  */
 function formatClub(club) {
   return {
@@ -156,10 +158,16 @@ router.get('/compare', authenticate, async (req, res) => {
 /**
  * POST /api/sync/merge
  * 执行智能合并：MongoDB <-> JSON 双向同步
- * - 更新 MongoDB 中已存在的 JSON 记录
- * - 添加 JSON 中不存在的新 MongoDB 记录到 JSON
- * - 更新 JSON 中不存在的新记录到 MongoDB
- * - 保留两方独有的记录
+ * 
+ * 关键设计：
+ * - JSON 中的 ID 永远被保留和优先使用
+ * - 通过名称+学校字段进行智能匹配
+ * - 避免 ID 格式变更导致的数据混乱
+ * 
+ * 处理流程：
+ * 1. JSON -> MongoDB: 将 JSON 中的新数据添加或更新到数据库
+ * 2. MongoDB -> JSON: 更新 JSON 中的字段内容，但保留原始 ID
+ * 3. 保留两方独有的记录（未被对方匹配的记录）
  */
 router.post('/merge', authenticate, async (req, res) => {
   try {
@@ -277,23 +285,42 @@ router.post('/merge', authenticate, async (req, res) => {
       const formattedClub = formatClub(dbClub);
       
       if (jsonMap.has(id)) {
+        // 数据库 ID 在 JSON 中存在
         const existing = jsonMap.get(id);
-        // 合并：优先使用 JSON 中的修改，但使用 MongoDB 中的新字段
         const merged = {
-          ...formattedClub,  // MongoDB 数据作为基础
-          ...existing        // JSON 数据会覆盖重复的字段
+          ...formattedClub,
+          id: existing.id,  // 使用 JSON 中的原始 ID
+          ...existing
         };
         updatedJsonClubs.push(merged);
       } else {
-        // 数据库中存在但 JSON 中不存在的记录，添加到 JSON
-        updatedJsonClubs.push(formattedClub);
-        jsonAdded++;
+        // 数据库 ID 在 JSON 中不存在，尝试通过名称+学校匹配
+        const nameMatch = jsonClubs.find(
+          j => j.name === formattedClub.name && 
+               j.school === formattedClub.school &&
+               !updatedJsonClubs.some(u => u.id === j.id)
+        );
+        
+        if (nameMatch) {
+          // 找到名称匹配的记录，保留原始 ID 并更新内容
+          const merged = {
+            ...formattedClub,
+            id: nameMatch.id,  // 保留原始 ID
+            ...nameMatch
+          };
+          updatedJsonClubs.push(merged);
+        } else {
+          // 完全新增的记录：仅在两边都不存在时才添加
+          updatedJsonClubs.push(formattedClub);
+          jsonAdded++;
+        }
       }
     }
 
-    // 添加 JSON 中独有的记录（在数据库中不存在）
+    // 添加 JSON 中独有的记录（在数据库中不存在且未被处理过）
     for (const jsonClub of jsonClubs) {
-      if (!dbMap.has(jsonClub.id)) {
+      const isProcessed = updatedJsonClubs.some(u => u.id === jsonClub.id);
+      if (!isProcessed && !dbMap.has(jsonClub.id)) {
         updatedJsonClubs.push(jsonClub);
       }
     }
