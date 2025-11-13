@@ -42,6 +42,7 @@ app.use('/api/submissions', require('./routes/submissions'));
 app.use('/api/clubs', require('./routes/clubs'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/sync', require('./routes/sync'));
+app.use('/api/tools', require('./routes/tools'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统工具 - 管理后台</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .tools-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .tools-section {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .tools-section h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #2d3436;
+      border-bottom: 2px solid #6c5ce7;
+      padding-bottom: 0.5rem;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tool-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tool-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .tool-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .tool-btn.primary {
+      background: #6c5ce7;
+      color: white;
+    }
+
+    .tool-btn.primary:hover {
+      background: #5f4fd8;
+    }
+
+    .tool-btn.success {
+      background: #00b894;
+      color: white;
+    }
+
+    .tool-btn.success:hover {
+      background: #00a383;
+    }
+
+    .tool-btn.danger {
+      background: #d63031;
+      color: white;
+    }
+
+    .tool-btn.danger:hover {
+      background: #c92829;
+    }
+
+    .tool-btn.warning {
+      background: #fdcb6e;
+      color: #2d3436;
+    }
+
+    .tool-btn.warning:hover {
+      background: #ffc048;
+    }
+
+    .tool-btn-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .tool-btn-desc {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .message-box {
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .message-box.show {
+      display: block;
+    }
+
+    .message-box.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .message-box.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .message-box.info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .log-container {
+      max-height: 500px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border-radius: 0.375rem;
+      padding: 1rem;
+    }
+
+    .log-entry {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: white;
+      border-left: 3px solid #6c5ce7;
+      border-radius: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .log-entry.success {
+      border-left-color: #00b894;
+    }
+
+    .log-entry.error {
+      border-left-color: #d63031;
+    }
+
+    .log-entry-time {
+      font-size: 0.8rem;
+      color: #999;
+      margin-bottom: 0.25rem;
+    }
+
+    .log-entry-action {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .log-entry-details {
+      color: #666;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>系统工具</h1>
+      <nav class="admin-nav">
+        <a href="index.html">管理后台</a>
+        <a href="sync.html">数据同步</a>
+        <a href="tools.html" class="active">系统工具</a>
+        <button id="logoutBtn" class="logout-btn">退出登录</button>
+      </nav>
+    </header>
+
+    <main class="tools-container">
+      <div id="messageContainer" class="message-box"></div>
+
+      <!-- 说明卡片 -->
+      <div style="background: #e8f4fd; border-left: 4px solid #2196f3; padding: 1rem; margin-bottom: 2rem; border-radius: 0.375rem;">
+        <strong>💡 使用说明</strong>
+        <p style="margin: 0.5rem 0 0 0; color: #555;">
+          这里提供了各种系统管理工具。执行操作前请确认理解其作用，部分操作不可逆。
+          <br>日常数据同步请使用 <a href="sync.html" style="color: #2196f3;">数据同步页面</a>。
+        </p>
+      </div>
+
+      <!-- 数据迁移工具 -->
+      <div class="tools-section">
+        <h2>📦 数据迁移工具</h2>
+        <p style="color: #666; margin-bottom: 1rem;">用于数据导入和迁移的工具</p>
+        <div class="tools-grid">
+          <button id="jsonToDBBtn" class="tool-btn primary">
+            <span class="tool-btn-title">JSON → 数据库</span>
+            <span class="tool-btn-desc">将 JSON 文件数据导入/更新到 MongoDB</span>
+          </button>
+          <button id="migrateClubsBtn" class="tool-btn primary">
+            <span class="tool-btn-title">执行数据迁移</span>
+            <span class="tool-btn-desc">运行完整的数据库迁移脚本</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 维护工具 -->
+      <div class="tools-section">
+        <h2>🔧 维护工具</h2>
+        <p style="color: #666; margin-bottom: 1rem;">系统维护和清理工具</p>
+        <div class="tools-grid">
+          <button id="cleanupLogosBtn" class="tool-btn warning">
+            <span class="tool-btn-title">清理孤立图片</span>
+            <span class="tool-btn-desc">删除未被任何社团引用的 Logo 文件</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Git 工具 -->
+      <div class="tools-section">
+        <h2>🔀 Git 版本控制</h2>
+        <p style="color: #666; margin-bottom: 1rem;">快速执行 Git 操作</p>
+        <div class="tools-grid">
+          <button id="gitQuickBtn" class="tool-btn success">
+            <span class="tool-btn-title">快速提交 & 推送</span>
+            <span class="tool-btn-desc">一键执行：add → commit → pull → push</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 操作日志 -->
+      <div class="tools-section">
+        <h2>📋 操作日志</h2>
+        <div class="log-container" id="logContainer">
+          <p style="text-align: center; color: #999;">暂无操作记录</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/tools.js"></script>
+</body>
+</html>
