@@ -354,30 +354,63 @@ router.put('/:id/approve', authenticate, async (req, res) => {
       }
     }
 
-    const club = new Club({
-      name: submission.data.name,
-      school: submission.data.school,
-      province: submission.data.province,
-      city: submission.data.city,
-      coordinates,
-      description: submission.data.description,
-      shortDescription: submission.data.shortDescription || '',
-      tags: submission.data.tags,
-      logo: processedLogoFilename, // 使用处理后的文件名
-      external_links: submission.data.external_links || [],
-      sourceSubmission: submission._id,
-      verifiedBy: req.user.username
-    });
+    let club;
+    let isNewClub = true;
 
-    await club.save();
+    // 检查是否是编辑提交
+    if (submission.submissionType === 'edit' && submission.editingClubId) {
+      // 编辑模式：更新现有社团
+      club = await Club.findOne({ id: submission.editingClubId });
+      
+      if (club) {
+        // 更新现有社团数据
+        club.name = submission.data.name;
+        club.school = submission.data.school;
+        club.province = submission.data.province;
+        club.city = submission.data.city;
+        club.coordinates = coordinates;
+        club.description = submission.data.description;
+        club.shortDescription = submission.data.shortDescription || '';
+        club.tags = submission.data.tags;
+        club.logo = processedLogoFilename;
+        club.external_links = submission.data.external_links || [];
+        club.verifiedBy = req.user.username; // 记录最后审核人
+        // updatedAt will be set automatically by the pre-save hook
+        
+        await club.save();
+        isNewClub = false;
+        console.log(`✅ Updated existing club ${club.id} from submission ${id}`);
+      } else {
+        console.warn(`⚠️  Club ${submission.editingClubId} not found, creating new club instead`);
+      }
+    }
+
+    // 新建模式：创建新社团（或编辑模式下找不到原社团）
+    if (!club) {
+      club = new Club({
+        name: submission.data.name,
+        school: submission.data.school,
+        province: submission.data.province,
+        city: submission.data.city,
+        coordinates,
+        description: submission.data.description,
+        shortDescription: submission.data.shortDescription || '',
+        tags: submission.data.tags,
+        logo: processedLogoFilename,
+        external_links: submission.data.external_links || [],
+        sourceSubmission: submission._id,
+        verifiedBy: req.user.username
+      });
+
+      await club.save();
+      console.log(`✅ Created new club ${club._id} from submission ${id}`);
+    }
 
     submission.status = 'approved';
     submission.reviewedAt = new Date();
     submission.reviewedBy = req.user.username;
     submission.rejectionReason = undefined;
     await submission.save();
-
-    console.log(`✅ Approved submission ${id}, created club ${club._id}`);
 
     // 自动同步到 clubs.json（异步执行，不阻塞响应）
     syncToJson().catch(err => {
@@ -387,10 +420,11 @@ router.put('/:id/approve', authenticate, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: '提交已批准并生成社团记录',
+      message: isNewClub ? '提交已批准并生成社团记录' : '提交已批准并更新社团信息',
       data: {
         submissionId: submission._id,
-        clubId: club._id
+        clubId: club._id,
+        isUpdate: !isNewClub
       }
     });
   } catch (error) {
