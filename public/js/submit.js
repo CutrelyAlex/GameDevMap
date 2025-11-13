@@ -1285,10 +1285,15 @@ confirmEdit.addEventListener('click', async () => {
         case 'school':
           submissionData.school = value;
           break;
-        case 'location':
-          const [city, province] = value.split(', ');
-          submissionData.province = province;
-          if (city) submissionData.city = city;
+        case 'province':
+          submissionData.province = value;
+          break;
+        case 'city':
+          submissionData.city = value;
+          break;
+        case 'latitude':
+        case 'longitude':
+          // These are handled in the coordinates case below
           break;
         case 'coordinates':
           const [lat, lng] = value.split(', ');
@@ -1297,14 +1302,14 @@ confirmEdit.addEventListener('click', async () => {
             longitude: parseFloat(lng)
           };
           break;
-        case 'shortDescription':
+        case 'short_description':
           submissionData.short_description = value;
           break;
-        case 'longDescription':
+        case 'long_description':
           submissionData.long_description = value;
           break;
         case 'tags':
-          submissionData.tags = parseTags(value);
+          submissionData.tags = JSON.parse(value);
           break;
       }
     }
@@ -1316,6 +1321,11 @@ confirmEdit.addEventListener('click', async () => {
       },
       body: JSON.stringify(submissionData)
     });
+
+    // DEBUG: 打印发送的数据
+    console.log('📤 【编辑模式提交】发送的完整 payload:', JSON.stringify(submissionData, null, 2));
+    console.log('📤 long_description 值:', submissionData.long_description);
+    console.log('📤 short_description 值:', submissionData.short_description);
 
     const result = await response.json().catch(() => null);
 
