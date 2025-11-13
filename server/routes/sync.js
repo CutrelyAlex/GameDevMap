@@ -47,6 +47,113 @@ function formatClub(club) {
 }
 
 /**
+ * POST /api/sync/migrate-json-to-db
+ * 将 JSON 文件数据迁移到数据库（清空数据库后导入）
+ * 类似于 migrateClubs.js 脚本的功能
+ */
+router.post('/migrate-json-to-db', authenticate, async (req, res) => {
+  try {
+    // 读取 clubs.json
+    const jsonPath = path.resolve(__dirname, '../../public/data/clubs.json');
+    let clubs = [];
+    try {
+      const jsonData = await fs.readFile(jsonPath, 'utf8');
+      clubs = JSON.parse(jsonData);
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        error: 'JSON_NOT_FOUND',
+        message: 'clubs.json 文件不存在'
+      });
+    }
+
+    console.log(`📄 Found ${clubs.length} clubs in clubs.json`);
+
+    // 第一步：完全删除数据库中的所有 Club 记录
+    console.log('\n🗑️  Clearing database...');
+    const deleteResult = await Club.deleteMany({});
+    console.log(`  Deleted ${deleteResult.deletedCount} existing clubs`);
+
+    let imported = 0;
+    let skipped = 0;
+
+    // 第二步：从 clubs.json 中导入所有数据
+    console.log('\n📥 Importing from clubs.json...');
+    for (const club of clubs) {
+      try {
+        // 支持两种坐标格式
+        let coordinates;
+        if (club.coordinates && Array.isArray(club.coordinates) && club.coordinates.length === 2) {
+          // 使用 coordinates 数组 [lng, lat]
+          coordinates = club.coordinates;
+        } else if (club.longitude !== undefined && club.latitude !== undefined) {
+          // 使用 longitude/latitude 字段 [lng, lat]
+          coordinates = [club.longitude, club.latitude];
+        } else {
+          throw new Error('Missing coordinates data');
+        }
+
+        const clubData = {
+          name: club.name,
+          school: club.school,
+          province: club.province,
+          city: club.city || '',
+          coordinates: coordinates, // [lng, lat]
+          description: club.description || club.shortDescription || '',
+          shortDescription: club.shortDescription || '',
+          tags: club.tags || [],
+          logo: club.logo || '',
+          externalLinks: club.externalLinks || [],
+          verifiedBy: 'system',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        // 创建新记录
+        const newClub = new Club(clubData);
+        await newClub.save();
+        imported++;
+        const linkInfo = clubData.externalLinks?.length > 0 ? ` (${clubData.externalLinks.length} links)` : '';
+        console.log(`  ✓ Imported: ${club.name} (${club.school})${linkInfo}`);
+      } catch (error) {
+        console.error(`  ✗ Failed to import ${club.name}:`, error.message);
+        skipped++;
+      }
+    }
+
+    // 获取最终数据库统计
+    const finalCount = await Club.countDocuments();
+
+    console.log('\n' + '='.repeat(60));
+    console.log('Migration Summary:');
+    console.log(`  ✓ Imported: ${imported}`);
+    console.log(`  ✗ Skipped: ${skipped}`);
+    console.log(`  📄 Total in JSON: ${clubs.length}`);
+    console.log(`  💾 Total in DB: ${finalCount} (after migration)`);
+    console.log('='.repeat(60));
+
+    return res.json({
+      success: true,
+      message: 'JSON → Database 迁移完成',
+      data: {
+        imported,
+        skipped,
+        totalInJson: clubs.length,
+        totalInDb: finalCount
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'MIGRATION_FAILED',
+      message: error.message
+    });
+  }
+});
+
+/**
  * GET /api/sync/compare
  * 对比数据库和JSON文件中的数据
  */
@@ -97,8 +204,13 @@ router.get('/compare', authenticate, async (req, res) => {
       different: [],      // 存在差异
       dbOnly: [],        // 仅在数据库中
       jsonOnly: [],      // 仅在JSON中
-      conflicts: []      // 名称相同但ID不同（可能的冲突）
+      conflicts: [],      // 名称相同但ID不同（可能的冲突）
+      duplicates: []     // 重复记录
     };
+
+    // 检测重复记录
+    const duplicateGroups = detectDuplicates(dbClubs, jsonClubs);
+    result.duplicates = duplicateGroups;
 
     // 按名称比对
     for (const [key, data] of nameMap) {
@@ -151,7 +263,8 @@ router.get('/compare', authenticate, async (req, res) => {
         different: result.different.length,
         dbOnly: result.dbOnly.length,
         jsonOnly: result.jsonOnly.length,
-        conflicts: result.conflicts.length
+        conflicts: result.conflicts.length,
+        duplicates: result.duplicates.length
       }
     };
 
@@ -486,6 +599,167 @@ function removeIds(obj) {
   }
   
   return cleaned;
+}
+
+/**
+ * 检测重复记录
+ * 根据不同的判断依据检测数据库和 JSON 中的重复记录
+ */
+function detectDuplicates(dbClubs, jsonClubs) {
+  const duplicateGroups = [];
+  
+  // 1. 按名称+学校检测重复（最严格）
+  const nameSchoolMap = new Map();
+  
+  // 收集数据库中的记录
+  dbClubs.forEach(club => {
+    const key = `${club.name.toLowerCase().trim()}-${club.school.toLowerCase().trim()}`;
+    if (!nameSchoolMap.has(key)) {
+      nameSchoolMap.set(key, []);
+    }
+    nameSchoolMap.get(key).push({
+      id: club._id.toString(),
+      name: club.name,
+      school: club.school,
+      source: 'database'
+    });
+  });
+  
+  // 收集 JSON 中的记录
+  jsonClubs.forEach(club => {
+    const key = `${club.name.toLowerCase().trim()}-${club.school.toLowerCase().trim()}`;
+    if (!nameSchoolMap.has(key)) {
+      nameSchoolMap.set(key, []);
+    }
+    nameSchoolMap.get(key).push({
+      id: club.id,
+      name: club.name,
+      school: club.school,
+      source: 'json'
+    });
+  });
+  
+  // 找出有重复的组
+  for (const [key, records] of nameSchoolMap) {
+    if (records.length > 1) {
+      // 检查是否真的是重复（可能同一个记录在两个地方都有）
+      const uniqueIds = new Set(records.map(r => r.id));
+      
+      // 如果有多个不同的 ID，或者同一个 ID 在不同来源出现多次
+      if (uniqueIds.size > 1 || records.length > uniqueIds.size) {
+        duplicateGroups.push({
+          criteria: '名称 + 学校',
+          key: key,
+          records: records
+        });
+      }
+    }
+  }
+  
+  // 2. 按名称检测重复（可能是同一社团在不同学校）
+  const nameMap = new Map();
+  
+  dbClubs.forEach(club => {
+    const key = club.name.toLowerCase().trim();
+    if (!nameMap.has(key)) {
+      nameMap.set(key, []);
+    }
+    nameMap.get(key).push({
+      id: club._id.toString(),
+      name: club.name,
+      school: club.school,
+      source: 'database'
+    });
+  });
+  
+  jsonClubs.forEach(club => {
+    const key = club.name.toLowerCase().trim();
+    if (!nameMap.has(key)) {
+      nameMap.set(key, []);
+    }
+    nameMap.get(key).push({
+      id: club.id,
+      name: club.name,
+      school: club.school,
+      source: 'json'
+    });
+  });
+  
+  for (const [key, records] of nameMap) {
+    // 只有当有多个不同学校时才算
+    const schools = new Set(records.map(r => r.school.toLowerCase().trim()));
+    if (schools.size > 1 && records.length >= 2) {
+      // 检查是否已经在名称+学校组中
+      const alreadyReported = duplicateGroups.some(group => 
+        group.criteria === '名称 + 学校' && 
+        records.every(r => group.records.some(gr => gr.id === r.id))
+      );
+      
+      if (!alreadyReported) {
+        duplicateGroups.push({
+          criteria: '名称相同（不同学校）',
+          key: key,
+          records: records
+        });
+      }
+    }
+  }
+  
+  // 3. 按坐标检测重复（位置相同）
+  const coordMap = new Map();
+  
+  dbClubs.forEach(club => {
+    if (club.coordinates && club.coordinates.length === 2) {
+      const key = `${club.coordinates[0].toFixed(6)},${club.coordinates[1].toFixed(6)}`;
+      if (!coordMap.has(key)) {
+        coordMap.set(key, []);
+      }
+      coordMap.get(key).push({
+        id: club._id.toString(),
+        name: club.name,
+        school: club.school,
+        source: 'database'
+      });
+    }
+  });
+  
+  jsonClubs.forEach(club => {
+    let coords;
+    if (club.coordinates && club.coordinates.length === 2) {
+      coords = club.coordinates;
+    } else if (club.longitude !== undefined && club.latitude !== undefined) {
+      coords = [club.longitude, club.latitude];
+    }
+    
+    if (coords) {
+      const key = `${coords[0].toFixed(6)},${coords[1].toFixed(6)}`;
+      if (!coordMap.has(key)) {
+        coordMap.set(key, []);
+      }
+      coordMap.get(key).push({
+        id: club.id,
+        name: club.name,
+        school: club.school,
+        source: 'json'
+      });
+    }
+  });
+  
+  for (const [key, records] of coordMap) {
+    if (records.length > 1) {
+      // 检查是否是不同的社团
+      const uniqueNames = new Set(records.map(r => `${r.name}-${r.school}`));
+      if (uniqueNames.size > 1) {
+        duplicateGroups.push({
+          criteria: '坐标相同',
+          key: `坐标: ${key}`,
+          records: records
+        });
+      }
+    }
+  }
+  
+  return duplicateGroups;
 }
 
 module.exports = router;

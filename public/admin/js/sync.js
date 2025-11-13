@@ -32,12 +32,14 @@ function initSyncModule() {
 
   // 检查必要的 DOM 元素
   const compareBtn = document.getElementById('compareBtn');
+  const migrateJsonToDbBtn = document.getElementById('migrateJsonToDbBtn');
   const mergeBtn = document.getElementById('mergeBtn');
   const replaceBtn = document.getElementById('replaceBtn');
   
-  if (!compareBtn || !mergeBtn || !replaceBtn) {
+  if (!compareBtn || !migrateJsonToDbBtn || !mergeBtn || !replaceBtn) {
     console.warn('⚠️  Sync buttons not found in DOM:', {
       compareBtn: !!compareBtn,
+      migrateJsonToDbBtn: !!migrateJsonToDbBtn,
       mergeBtn: !!mergeBtn,
       replaceBtn: !!replaceBtn
     });
@@ -86,6 +88,53 @@ function initSyncModule() {
     } finally {
       compareBtn.disabled = false;
       compareBtn.textContent = '对比数据';
+    }
+  });
+
+  // Migrate JSON to Database
+  migrateJsonToDbBtn.addEventListener('click', async () => {
+    if (!confirm('⚠️ 警告：JSON → Database 迁移\n\n此操作将：\n1. 清空数据库中的所有记录\n2. 从 clubs.json 导入所有数据到数据库\n\n数据库中的现有数据将被完全删除！\n\n确定要继续吗？')) {
+      return;
+    }
+
+    try {
+      migrateJsonToDbBtn.disabled = true;
+      migrateJsonToDbBtn.textContent = '迁移中...';
+      clearMessage();
+
+      const response = await authFetch('/api/sync/migrate-json-to-db', {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || '迁移失败');
+      }
+
+      const data = result.data;
+      showMessage(
+        `JSON → Database 迁移完成！\n\n` +
+        `✓ 导入: ${data.imported} 个社团\n` +
+        `✗ 跳过: ${data.skipped} 个社团\n` +
+        `📄 JSON 总数: ${data.totalInJson}\n` +
+        `💾 数据库总数: ${data.totalInDb}`,
+        'success'
+      );
+
+      // Refresh comparison
+      compareBtn.click();
+
+    } catch (error) {
+      console.error('Migration error:', error);
+      if (error.message === 'SERVICE_UNAVAILABLE') {
+        showMessage('数据库连接暂时不可用，请稍后再试', 'warning');
+      } else {
+        showMessage(error.message || '迁移失败，请重试', 'error');
+      }
+    } finally {
+      migrateJsonToDbBtn.disabled = false;
+      migrateJsonToDbBtn.textContent = 'JSON → Database';
     }
   });
 
@@ -253,6 +302,40 @@ function initSyncModule() {
                 </div>
               </div>
             `).join('')}
+          </div>
+        `
+      },
+      'duplicates': {
+        title: '重复记录',
+        items: details.duplicates || [],
+        template: (item) => `
+          <div class="diff-item">
+            <div class="club-header">
+              <div>
+                <div class="club-name">🔄 重复检测</div>
+                <div class="club-school">判断依据: ${escapeHtml(item.criteria)}</div>
+              </div>
+              <span class="badge warning">${item.records.length} 条重复</span>
+            </div>
+            <div style="margin-top: 1rem;">
+              <div class="diff-label">重复记录列表：</div>
+              ${item.records.map((record, idx) => `
+                <div class="club-item" style="margin-top: 0.5rem; padding: 0.75rem; background: ${idx % 2 === 0 ? '#f9f9f9' : '#fff'}; border-left: 3px solid ${record.source === 'database' ? '#3b82f6' : '#f59e0b'};">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                      <div class="club-name" style="font-size: 0.9rem;">${escapeHtml(record.name)}</div>
+                      <div class="club-school" style="font-size: 0.85rem;">${escapeHtml(record.school)}</div>
+                      <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                        ID: ${escapeHtml(record.id)}
+                      </div>
+                    </div>
+                    <span class="badge ${record.source === 'database' ? 'info' : 'warning'}" style="font-size: 0.75rem;">
+                      ${record.source === 'database' ? '数据库' : 'JSON'}
+                    </span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `
       }

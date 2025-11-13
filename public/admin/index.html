@@ -157,6 +157,7 @@
 
           <div class="sync-actions">
             <button id="compareBtn" class="primary-button">对比数据</button>
+            <button id="migrateJsonToDbBtn" class="secondary-button">JSON → Database</button>
             <button id="mergeBtn" class="secondary-button">智能合并</button>
             <button id="replaceBtn" class="danger-button">完全替换</button>
           </div>
@@ -167,6 +168,7 @@
               <button class="comp-tab-btn active" data-tab="only-db">仅在数据库</button>
               <button class="comp-tab-btn" data-tab="only-json">仅在 JSON</button>
               <button class="comp-tab-btn" data-tab="differences">有差异的记录</button>
+              <button class="comp-tab-btn" data-tab="duplicates">重复记录</button>
             </div>
             <div id="comparisonContent" class="comparison-content"></div>
           </div>
@@ -211,7 +213,7 @@
     </tr>
   </template>
 
-  <script type="module" src="js/submissions.js"></script>
-  <script type="module" src="js/sync.js"></script>
+  <script type="module" src="js/submissions.js?v=1.0.0"></script>
+  <script type="module" src="js/sync.js?v=1.0.0"></script>
 </body>
 </html>
