@@ -10,7 +10,9 @@
     "img_name": "20251113_q0kdam1n_logo.png",
     "short_description": "是游戏制作爱好者的聚集地",
     "long_description": "",
-    "tags": [],
+    "tags": [
+      "正式社团"
+    ],
     "external_links": []
   },
   {
@@ -25,6 +27,7 @@
     "short_description": "哈工深游戏开发社团",
     "long_description": "艺数盒子ArtTech成立于2024年9月，是哈尔滨工业大学（深圳）的游戏开发者社区。我们致力于打造一个集游戏开发、中国传统文化传承与新兴媒体技术探索于一体的综合性技术社团。",
     "tags": [
+      "正式社团",
       "游戏开发"
     ],
     "external_links": []
@@ -41,6 +44,7 @@
     "short_description": "来自联大的初创社团",
     "long_description": "活动就是没有活动",
     "tags": [
+      "正式社团",
       "游戏开发",
       "游戏设计",
       "编程",
