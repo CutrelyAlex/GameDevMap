@@ -319,12 +319,21 @@
     "shortDescription": "光Star游戏工坊",
     "description": "光Star游戏工坊由校内一群热爱游戏创作与开发的学生组成，每一位成员都将自己对电子游戏的热爱倾注在创作与开发工作中，以学习技术、体验创作、实现创意、赋能创业为目标不断努力。",
     "tags": [
-      "非正式社团",
+      "正式社团",
       "游戏开发",
       "Unity",
       "GameMaker Studio",
       "Gamejam"
     ],
-    "externalLinks": []
+    "externalLinks": [
+      {
+        "type": "《噬莱姆实验室》",
+        "url": "https://www.xiaoheihe.cn/app/topic/game/pc/3263880"
+      },
+      {
+        "type": "Bilibili",
+        "url": "https://b23.tv/4Xbx0Fr"
+      }
+    ]
   }
 ]
