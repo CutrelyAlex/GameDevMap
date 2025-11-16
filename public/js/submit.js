@@ -944,20 +944,54 @@ function getCurrentFieldValue(field) {
   if (!selectedClub) return '';
   
   switch (field) {
-    case 'name': return selectedClub.name || '';
-    case 'school': return selectedClub.school || '';
-    case 'location': return selectedClub.city ? `${selectedClub.city}, ${selectedClub.province}` : selectedClub.province || '';
+    case 'name': 
+      return formData.get('name') || selectedClub.name || '';
+    case 'school': 
+      return formData.get('school') || selectedClub.school || '';
+    case 'location': 
+      if (formData.has('city') || formData.has('province')) {
+        const city = formData.get('city') || selectedClub.city || '';
+        const province = formData.get('province') || selectedClub.province || '';
+        return city ? `${city}, ${province}` : province;
+      }
+      return selectedClub.city ? `${selectedClub.city}, ${selectedClub.province}` : selectedClub.province || '';
     case 'coordinates': 
+      // First check if user has edited coordinates
+      if (formData.has('latitude') && formData.has('longitude')) {
+        const lat = formData.get('latitude');
+        const lng = formData.get('longitude');
+        return `${lat}, ${lng}`;
+      }
+      // Otherwise use original coordinates
       if (selectedClub.coordinates && Array.isArray(selectedClub.coordinates)) {
         return `${selectedClub.coordinates[1]}, ${selectedClub.coordinates[0]}`;
       } else if (selectedClub.latitude && selectedClub.longitude) {
         return `${selectedClub.latitude}, ${selectedClub.longitude}`;
       }
       return '';
-    case 'shortDescription': return selectedClub.shortDescription || '';
-    case 'longDescription': return selectedClub.description || '';
-    case 'tags': return selectedClub.tags && selectedClub.tags.length > 0 ? selectedClub.tags.join(', ') : '';
-    case 'externalLinks': return selectedClub.externalLinks || [];
+    case 'shortDescription': 
+      return formData.get('shortDescription') || selectedClub.shortDescription || '';
+    case 'longDescription': 
+      return formData.get('description') || selectedClub.description || '';
+    case 'tags': 
+      if (formData.has('tags')) {
+        try {
+          const tagsArray = JSON.parse(formData.get('tags'));
+          return Array.isArray(tagsArray) ? tagsArray.join(', ') : formData.get('tags');
+        } catch (e) {
+          return formData.get('tags');
+        }
+      }
+      return selectedClub.tags && selectedClub.tags.length > 0 ? selectedClub.tags.join(', ') : '';
+    case 'externalLinks': 
+      if (formData.has('externalLinks')) {
+        try {
+          return JSON.parse(formData.get('externalLinks')) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+      return selectedClub.externalLinks || [];
     case 'logo': return selectedClub.logo || '';
     default: return '';
   }
