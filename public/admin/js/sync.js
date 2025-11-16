@@ -35,14 +35,18 @@ function initSyncModule() {
   const migrateJsonToDbBtn = document.getElementById('migrateJsonToDbBtn');
   const migrateDbToJsonBtn = document.getElementById('migrateDbToJsonBtn');
   const mergeBtn = document.getElementById('mergeBtn');
+  const gitPullBtn = document.getElementById('gitPullBtn');
+  const gitPushBtn = document.getElementById('gitPushBtn');
   const replaceBtn = document.getElementById('replaceBtn');
   
-  if (!compareBtn || !migrateJsonToDbBtn || !mergeBtn || !replaceBtn) {
+  if (!compareBtn || !migrateJsonToDbBtn || !mergeBtn || !replaceBtn || !gitPullBtn || !gitPushBtn) {
     console.warn('⚠️  Sync buttons not found in DOM:', {
       compareBtn: !!compareBtn,
       migrateJsonToDbBtn: !!migrateJsonToDbBtn,
       migrateDbToJsonBtn: !!migrateDbToJsonBtn,
       mergeBtn: !!mergeBtn,
+      gitPullBtn: !!gitPullBtn,
+      gitPushBtn: !!gitPushBtn,
       replaceBtn: !!replaceBtn
     });
     return;
@@ -261,6 +265,76 @@ function initSyncModule() {
     } finally {
       replaceBtn.disabled = false;
       replaceBtn.textContent = '单向替换';
+    }
+  });
+
+  // Git Pull
+  gitPullBtn.addEventListener('click', async () => {
+    if (!confirm('确定要执行 Git Pull 吗？\n\n这将从远程仓库拉取最新代码并合并到本地分支。')) {
+      return;
+    }
+
+    try {
+      gitPullBtn.disabled = true;
+      gitPullBtn.textContent = 'Pull 中...';
+      clearMessage();
+
+      const response = await authFetch('/api/sync/git-pull', {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Git Pull 失败');
+      }
+
+      showMessage(
+        `Git Pull 完成！\n${result.data.message || ''}`,
+        'success'
+      );
+
+    } catch (error) {
+      console.error('Git pull error:', error);
+      showMessage(error.message || 'Git Pull 失败，请重试', 'error');
+    } finally {
+      gitPullBtn.disabled = false;
+      gitPullBtn.textContent = 'Git Pull';
+    }
+  });
+
+  // Git Push (add -> commit -> push)
+  gitPushBtn.addEventListener('click', async () => {
+    if (!confirm('确定要执行 Git 提交吗？\n\n这将自动执行以下操作：\n1. 添加所有更改（git add .）\n2. 提交更改（git commit）\n3. 推送到远程仓库（git push）\n\n如果遭遇冲突，将停止并显示错误。')) {
+      return;
+    }
+
+    try {
+      gitPushBtn.disabled = true;
+      gitPushBtn.textContent = '提交中...';
+      clearMessage();
+
+      const response = await authFetch('/api/sync/git-push', {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Git 提交失败');
+      }
+
+      showMessage(
+        `Git 提交完成！\n${result.data.message || ''}`,
+        'success'
+      );
+
+    } catch (error) {
+      console.error('Git push error:', error);
+      showMessage(error.message || 'Git 提交失败，请检查冲突后重试', 'error');
+    } finally {
+      gitPushBtn.disabled = false;
+      gitPushBtn.textContent = 'Git 提交';
     }
   });
 

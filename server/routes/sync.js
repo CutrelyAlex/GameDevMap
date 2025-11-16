@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
 const Club = require('../models/Club');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, authenticateGitOperations } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
 
 /**
@@ -941,6 +941,130 @@ router.post('/overwrite-json', authenticate, async (req, res) => {
       success: false,
       error: 'OVERWRITE_FAILED',
       message: error.message || '覆盖失败'
+    });
+  }
+});
+
+/**
+ * POST /api/sync/git-pull
+ * 执行 git pull 操作
+ * 需要管理员权限和启用的 Git 操作
+ */
+router.post('/git-pull', authenticateGitOperations, async (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    const { promisify } = require('util');
+    const execAsync = promisify(exec);
+
+    const projectRoot = path.resolve(__dirname, '../../');
+
+    console.log(`📥 [Git Pull] 用户 ${req.user.username} 执行 Git Pull`);
+    const { stdout, stderr } = await execAsync('git pull', { cwd: projectRoot });
+
+    // 检查是否有冲突
+    if (stderr && stderr.includes('conflict')) {
+      console.warn(`⚠️ [Git Pull] 冲突: ${stderr}`);
+      return res.status(409).json({
+        success: false,
+        error: 'GIT_CONFLICT',
+        message: `Git Pull 遭遇冲突：${stderr}`
+      });
+    }
+
+    console.log(`✅ [Git Pull] 成功: ${stdout.trim()}`);
+    return res.status(200).json({
+      success: true,
+      message: 'Git Pull 完成',
+      data: {
+        message: stdout.trim() || 'Already up to date'
+      }
+    });
+
+  } catch (error) {
+    console.error(`❌ [Git Pull] 错误: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      error: 'GIT_PULL_FAILED',
+      message: error.message || 'Git Pull 失败'
+    });
+  }
+});
+
+/**
+ * POST /api/sync/git-push
+ * 执行 git add -> commit -> push 操作
+ * 需要管理员权限和启用的 Git 操作
+ */
+router.post('/git-push', authenticateGitOperations, async (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    const { promisify } = require('util');
+    const execAsync = promisify(exec);
+
+    const projectRoot = path.resolve(__dirname, '../../');
+
+    console.log(`📥 [Git Push] 用户 ${req.user.username} 执行 Git Add`);
+    await execAsync('git add .', { cwd: projectRoot });
+
+    // 检查是否有更改
+    const { stdout: statusStdout } = await execAsync('git status --porcelain', { cwd: projectRoot });
+    
+    if (!statusStdout.trim()) {
+      console.log('ℹ️  [Git Push] 没有更改可提交');
+      return res.status(200).json({
+        success: true,
+        message: '没有更改可提交',
+        data: {
+          message: 'Working directory is clean'
+        }
+      });
+    }
+
+    console.log(`💾 [Git Push] 执行 Commit`);
+    const commitDate = new Date().toISOString();
+    const { stdout: commitStdout } = await execAsync(
+      `git commit -m "Auto commit: ${commitDate}"`,
+      { cwd: projectRoot }
+    );
+
+    console.log(`🚀 [Git Push] 执行 Push`);
+    const { stdout: pushStdout, stderr: pushStderr } = await execAsync('git push', { cwd: projectRoot });
+
+    // 检查是否有冲突
+    if (pushStderr && (pushStderr.includes('conflict') || pushStderr.includes('rejected'))) {
+      console.warn(`⚠️ [Git Push] 被拒绝: ${pushStderr}`);
+      return res.status(409).json({
+        success: false,
+        error: 'GIT_CONFLICT',
+        message: `Git Push 失败，请先拉取最新代码：${pushStderr}`
+      });
+    }
+
+    console.log(`✅ [Git Push] 成功: ${pushStdout.trim()}`);
+    return res.status(200).json({
+      success: true,
+      message: 'Git 提交成功',
+      data: {
+        message: pushStdout.trim() || 'Pushed successfully'
+      }
+    });
+
+  } catch (error) {
+    console.error(`❌ [Git Push] 错误: ${error.message}`);
+    
+    // 检查是否是冲突错误
+    if (error.message && (error.message.includes('conflict') || error.message.includes('rejected'))) {
+      return res.status(409).json({
+        success: false,
+        error: 'GIT_CONFLICT',
+        message: `遭遇 Git 冲突，请手动解决：${error.message}`
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'GIT_PUSH_FAILED',
+      message: error.message || 'Git 提交失败'
     });
   }
 });
