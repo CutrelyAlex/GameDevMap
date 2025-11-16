@@ -589,12 +589,10 @@ function detectDuplicates(dbClubs, jsonClubs) {
   // 找出有重复的组
   for (const [key, records] of nameSchoolMap) {
     if (records.length > 1) {
-      // 检查是否真的是重复（可能同一个记录在两个地方都有）
+      // 不同来源的记录不算重复
       const sourceSet = new Set(records.map(r => r.source));
       
-      // 如果同一记录在两个不同来源都存在，这是正常的同步
-      // 只有当有多个不同来源的记录时才算重复
-      if (sourceSet.size > 1) {
+      if (sourceSet.size === 1 && records.length > 1) {
         duplicateGroups.push({
           criteria: '名称 + 学校',
           key: key,
