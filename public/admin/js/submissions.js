@@ -450,17 +450,24 @@ function renderEditComparison(submission) {
   ];
 
   // Helper function to format coordinates
-  const formatCoordinates = (data) => {
-    if (!data) return '未提供';
-    if (data.coordinates && typeof data.coordinates === 'object') {
-      // New format: coordinates object
-      const lat = data.coordinates.latitude;
-      const lng = data.coordinates.longitude;
-      return `经度：${lng}，纬度：${lat}`;
-    } else if (data.latitude && data.longitude) {
-      // Old format: separate latitude/longitude fields
-      return `经度：${data.longitude}，纬度：${data.latitude}`;
+  const formatCoordinates = (coordData) => {
+    if (!coordData) return '未提供';
+    
+    // Handle array format [longitude, latitude]
+    if (Array.isArray(coordData)) {
+      if (coordData.length === 2) {
+        return `经度：${coordData[0]}，纬度：${coordData[1]}`;
+      }
+      return '未提供';
     }
+    
+    // Handle object format { longitude, latitude }
+    if (typeof coordData === 'object') {
+      if (coordData.longitude !== undefined && coordData.latitude !== undefined) {
+        return `经度：${coordData.longitude}，纬度：${coordData.latitude}`;
+      }
+    }
+    
     return '未提供';
   };
 
@@ -468,8 +475,8 @@ function renderEditComparison(submission) {
     let oldValue, newValue;
     
     if (field.key === 'coordinates') {
-      oldValue = formatCoordinates(original);
-      newValue = formatCoordinates(updated);
+      oldValue = formatCoordinates(original.coordinates);
+      newValue = formatCoordinates(updated.coordinates);
     } else if (field.key === 'tags' && Array.isArray(original[field.key])) {
       oldValue = original[field.key].join(', ');
     } else if (field.key === 'externalLinks' && Array.isArray(original[field.key])) {
