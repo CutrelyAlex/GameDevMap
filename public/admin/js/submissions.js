@@ -390,7 +390,7 @@ function renderDetail(submission) {
     ['标签', submission.data?.tags?.join(', ') || '无'],
     ['短简介', submission.data?.shortDescription || '未提供'],
     ['长简介', submission.data?.description || '未提供'],
-    ['Logo', submission.data?.logo || '未上传'],
+    ['Logo', submission.data?.logo ? `<img src="${submission.data.logo}" alt="Logo" style="max-width: 100px; max-height: 100px;">` : '未上传'],
     ['外部链接', formatExternalLinks(submission.data?.externalLinks)]
   );
 
@@ -481,6 +481,8 @@ function renderEditComparison(submission) {
       oldValue = original[field.key].join(', ');
     } else if (field.key === 'externalLinks' && Array.isArray(original[field.key])) {
       oldValue = formatExternalLinks(original[field.key]);
+    } else if (field.key === 'logo') {
+      oldValue = original[field.key] ? `<img src="${original[field.key]}" style="max-width: 50px; max-height: 50px;">` : '未提供';
     } else {
       oldValue = original[field.key] || '未提供';
     }
@@ -489,6 +491,8 @@ function renderEditComparison(submission) {
       newValue = updated[field.key].join(', ');
     } else if (field.key === 'externalLinks' && Array.isArray(updated[field.key])) {
       newValue = formatExternalLinks(updated[field.key]);
+    } else if (field.key === 'logo') {
+      newValue = updated[field.key] ? `<img src="${updated[field.key]}" style="max-width: 50px; max-height: 50px;">` : '未提供';
     } else if (field.key !== 'coordinates') {
       newValue = updated[field.key] || '未提供';
     }
