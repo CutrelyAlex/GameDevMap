@@ -30,13 +30,20 @@ function getIdentifier(name, school) {
  * 注意：不包含 id 和 index 字段
  */
 function formatClubForJson(club) {
-  // 处理外部链接，移除 _id 字段
+  // 处理外部链接，移除 _id 字段，保留 qrcode
   let externalLinks = [];
   if (club.externalLinks && Array.isArray(club.externalLinks)) {
-    externalLinks = club.externalLinks.map(link => ({
-      type: link.type,
-      url: link.url
-    }));
+    externalLinks = club.externalLinks.map(link => {
+      const formattedLink = {
+        type: link.type,
+        url: link.url
+      };
+      // Include qrcode if it exists
+      if (link.qrcode) {
+        formattedLink.qrcode = link.qrcode;
+      }
+      return formattedLink;
+    });
   }
 
   return {

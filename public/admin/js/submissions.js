@@ -367,7 +367,16 @@ function formatExternalLinks(links) {
   if (!links || !Array.isArray(links) || links.length === 0) {
     return '未提供';
   }
-  return links.map(link => `${link.type}: ${link.url}`).join(' | ');
+  return links.map(link => {
+    let html = `<div style="margin-bottom: 8px;"><strong>${link.type}:</strong> ${link.url}`;
+    // Add QR code preview if available
+    if (link.qrcode) {
+      const qrcodePath = link.qrcode.startsWith('/') ? link.qrcode : `/assets/submissions/${link.qrcode}`;
+      html += `<br><img src="${qrcodePath}" alt="二维码" style="max-width: 80px; max-height: 80px; margin-top: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
+    }
+    html += '</div>';
+    return html;
+  }).join('');
 }
 
 function renderDetail(submission) {

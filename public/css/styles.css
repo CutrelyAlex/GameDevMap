@@ -368,7 +368,122 @@ body {
 }
 
 .external-link-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* QR Code Display */
+.qrcode-display {
+    margin-top: 4px;
+}
+
+.qrcode-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.qrcode-thumbnail:hover {
+    transform: scale(1.05);
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.qrcode-placeholder {
     display: inline-block;
+    width: 60px;
+    height: 60px;
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #999;
+}
+
+/* QR Code Modal */
+.qrcode-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.qrcode-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+.qrcode-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 90%;
+    max-height: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.qrcode-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.qrcode-modal-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.qrcode-modal-title {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.qrcode-modal-image {
+    max-width: 400px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
 
 .external-link-item {

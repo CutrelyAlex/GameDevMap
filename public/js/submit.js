@@ -194,14 +194,46 @@ async function uploadLogo(file) {
 }
 
 /**
- * Collect links from the dynamic links container.
+ * Upload QR code image to server
+ * @param {File} file - QR code image file
+ * @returns {Promise<string>} - Uploaded file path
  */
-function collectLinks() {
-  const linkItems = linksContainer.querySelectorAll('.link-item');
+async function uploadQRCode(file) {
+  if (!file) {
+    return '';
+  }
+
+  const formData = new FormData();
+  formData.append('qrcode', file);
+
+  const response = await fetch('/api/upload/qrcode', {
+    method: 'POST',
+    body: formData
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok || !result?.success) {
+    throw new Error(result?.message || '二维码上传失败，请稍后再试');
+  }
+
+  return result.data.path;
+}
+
+/**
+ * Collect links from the dynamic links container.
+ * @param {HTMLElement} container - 链接容器元素，默认为linksContainer
+ * @returns {Array} 链接数组
+ */
+function collectLinks(container = linksContainer) {
+  const linkItems = container.querySelectorAll('.link-item');
   const links = [];
 
-  linkItems.forEach(item => {
-    // 尝试多种选择器以支持不同的标签方式
+  addDebugLog(`🔍 开始收集链接，找到 ${linkItems.length} 个链接项`);
+
+  linkItems.forEach((item, index) => {
+    addDebugLog(`  [链接${index + 1}] 开始处理...`);
+    
     const typeInput = item.querySelector('.link-type-input') || 
                       item.querySelector('[name="linkType"]') || 
                       item.querySelector('.link-type');
@@ -210,23 +242,51 @@ function collectLinks() {
                      item.querySelector('[name="linkUrl"]') || 
                      item.querySelector('.link-url');
     
-    // 安全检查：确保两个输入都存在且有值
-    if (typeInput && urlInput) {
+    if (typeInput) {
       try {
         const type = (typeInput.value || '').trim();
-        const url = (urlInput.value || '').trim();
+        const url = urlInput ? (urlInput.value || '').trim() : '';
+        const qrcode = item.dataset.qrcodePath || '';
 
-        // 只有当两个字段都有值时才添加
-        if (type && url) {
-          links.push({ type, url });
+        addDebugLog(`  [链接${index + 1}] type="${type}", url="${url}", qrcode="${qrcode}"`);
+
+        if (type && (url || qrcode)) {
+          const link = { type };
+          
+          if (url) {
+            // 如果URL不包含协议前缀，自动添加https://
+            let processedUrl = url;
+            if (url && !url.includes('://')) {
+              processedUrl = 'https://' + url;
+              addDebugLog(`  🔗 [链接${index + 1}] 自动添加https://前缀: "${url}" -> "${processedUrl}"`);
+            }
+            link.url = processedUrl;
+          }
+          
+          if (qrcode) {
+            // 提取QR码文件名（去除路径前缀）
+            let qrcodeFilename = qrcode;
+            if (qrcode.includes('/')) {
+              qrcodeFilename = qrcode.split('/').pop();
+            }
+            link.qrcode = qrcodeFilename;
+            addDebugLog(`  📷 [链接${index + 1}] QR码文件名: "${qrcode}" -> "${qrcodeFilename}"`);
+          }
+          
+          addDebugLog(`  ✅ [链接${index + 1}] 添加成功: ${JSON.stringify(link)}`);
+          links.push(link);
+        } else {
+          addDebugLog(`  ❌ [链接${index + 1}] 不满足条件 (需要 type 和 (url 或 qrcode))`);
         }
       } catch (error) {
-        console.warn('链接收集错误:', error, item);
-        // 继续处理其他链接
+        addDebugLog(`  ❌ [链接${index + 1}] 错误: ${error.message}`);
       }
+    } else {
+      addDebugLog(`  ❌ [链接${index + 1}] 找不到 typeInput`);
     }
   });
 
+  addDebugLog(`🎯 链接收集完毕，共 ${links.length} 个`);
   return links;
 }
 
@@ -239,7 +299,16 @@ function addNewLinkItem() {
   linkItem.innerHTML = `
     <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (如: 网站, GitHub, 微博等)">
     <input type="url" name="linkUrl" class="link-url-input" placeholder="输入链接地址或ID">
+    <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
     <button type="button" class="remove-link-btn">删除</button>
+    <div class="qrcode-section" style="display: none;">
+      <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+      <button type="button" class="upload-qrcode-btn">上传二维码</button>
+      <div class="qrcode-preview" style="display: none;">
+        <img src="" alt="二维码预览">
+        <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+      </div>
+    </div>
   `;
 
   const removeBtn = linkItem.querySelector('.remove-link-btn');
@@ -249,8 +318,121 @@ function addNewLinkItem() {
     updateRemoveButtonVisibility();
   });
 
+  // Attach QR code handlers to the new link item
+  attachQrcodeHandlersToItem(linkItem);
+
   linksContainer.appendChild(linkItem);
   updateRemoveButtonVisibility();
+}
+
+/**
+ * Attach QR code event handlers to a link item
+ * @param {HTMLElement} linkItem - The link item element
+ */
+function attachQrcodeHandlersToItem(linkItem) {
+  const toggleBtn = linkItem.querySelector('.toggle-qrcode-btn');
+  const qrcodeSection = linkItem.querySelector('.qrcode-section');
+  const uploadBtn = linkItem.querySelector('.upload-qrcode-btn');
+  const qrcodeInput = linkItem.querySelector('.qrcode-input');
+  const qrcodePreview = linkItem.querySelector('.qrcode-preview');
+  const removeQrcodeBtn = linkItem.querySelector('.remove-qrcode-btn');
+  const urlInput = linkItem.querySelector('.link-url-input');
+
+  // Toggle QR code section visibility and disable/enable URL input
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isVisible = qrcodeSection.style.display !== 'none';
+    qrcodeSection.style.display = isVisible ? 'none' : 'block';
+    toggleBtn.classList.toggle('active', !isVisible);
+    
+    // 禁用URL输入当QR码部分显示时
+    urlInput.disabled = !isVisible;
+    if (!isVisible) {
+      urlInput.value = ''; // 清空URL值
+    }
+  });
+
+  // Trigger file input when upload button is clicked
+  uploadBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    qrcodeInput.click();
+  });
+
+  // 处理文件选择和预览
+  qrcodeInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        // Show loading state
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = '上传中...';
+        
+        addDebugLog(`⬆️ 开始上传二维码: ${file.name} (${(file.size / 1024).toFixed(2)}KB)`);
+        
+        // Upload the QR code
+        const qrcodePath = await uploadQRCode(file);
+        
+        addDebugLog(`✅ 二维码上传成功: ${qrcodePath}`);
+        
+        // Store the uploaded path in a data attribute
+        linkItem.dataset.qrcodePath = qrcodePath;
+        
+        addDebugLog(`💾 保存到 linkItem.dataset.qrcodePath: ${linkItem.dataset.qrcodePath}`);
+        
+        // Show preview
+        previewQrcode(file, qrcodePreview, uploadBtn);
+        
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '上传二维码';
+      } catch (error) {
+        console.error('QR code upload failed:', error);
+        addDebugLog(`❌ 二维码上传失败: ${error.message}`);
+        alert(error.message || '二维码上传失败，请重试');
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '上传二维码';
+        qrcodeInput.value = '';
+      }
+    }
+  });
+
+  // Remove QR code preview
+  removeQrcodeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    qrcodeInput.value = '';
+    qrcodePreview.style.display = 'none';
+    uploadBtn.style.display = 'block';
+    delete linkItem.dataset.qrcodePath; // Clear stored path
+    
+    // 隐藏QR码部分并重新启用URL输入
+    qrcodeSection.style.display = 'none';
+    toggleBtn.classList.remove('active');
+    urlInput.disabled = false;
+  });
+}
+
+/**
+ * Preview QR code image
+ * @param {File} file - QR code image file
+ * @param {HTMLElement} previewContainer - Preview container element
+ * @param {HTMLElement} uploadBtn - Upload button to hide after preview
+ */
+function previewQrcode(file, previewContainer, uploadBtn) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = previewContainer.querySelector('img');
+    img.src = e.target.result;
+    previewContainer.style.display = 'flex';
+    uploadBtn.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * Attach QR code handlers to all existing link items
+ */
+function attachQrcodeHandlers() {
+  const linkItems = linksContainer.querySelectorAll('.link-item');
+  linkItems.forEach(item => attachQrcodeHandlersToItem(item));
 }
 
 /**
@@ -290,13 +472,8 @@ function resetForm() {
     logoInput.value = '';
   }
   // 清空链接容器，只保留一个空的
-  linksContainer.innerHTML = `
-    <div class="link-item">
-      <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (如: 网站, GitHub, 微博等)">
-      <input type="url" name="linkUrl" class="link-url-input" placeholder="输入链接地址或ID">
-      <button type="button" class="remove-link-btn" style="display: none;">删除</button>
-    </div>
-  `;
+  linksContainer.innerHTML = ``;
+  addNewLinkItem(); // 使用 addNewLinkItem 来创建初始项，确保绑定了事件处理器
   updateRemoveButtonVisibility();
 }
 
@@ -309,11 +486,29 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
+  // 验证链接完整性：如果有URL或二维码，必须填写类型
+  const linkItems = linksContainer.querySelectorAll('.link-item');
+  for (const item of linkItems) {
+    const typeInput = item.querySelector('.link-type-input');
+    const urlInput = item.querySelector('.link-url-input');
+    const hasQrcode = !!item.dataset.qrcodePath;
+    const hasUrl = urlInput ? !!urlInput.value.trim() : false;
+    const hasType = typeInput ? !!typeInput.value.trim() : false;
+
+    if ((hasQrcode || hasUrl) && !hasType) {
+      showStatus('请为所有链接填写"链接类型"（如：微信群、官网等）', 'error');
+      if (typeInput) typeInput.focus();
+      return;
+    }
+  }
+
   toggleLoading(true);
 
   try {
     // Use formData values if in edit mode, otherwise use form inputs
     let latitude, longitude, tags, links, payload;
+    
+    addDebugLog('📋 === 开始收集表单数据 ===');
     
     if (currentMode === 'edit') {
       // In edit mode, start with original club data and override with edited fields
@@ -408,6 +603,8 @@ form.addEventListener('submit', async (event) => {
         externalLinks: links,
         submitterEmail: document.getElementById('submitterEmail').value.trim()
       };
+      
+      addDebugLog(`📤 externalLinks 最终有 ${payload.externalLinks.length} 个`);
     }
 
     const logoFile = logoInput.files?.[0];
@@ -465,6 +662,14 @@ addLinkBtn.addEventListener('click', (e) => {
   addNewLinkItem();
 });
 
+// Initialize QR code handlers for existing link items on page load
+// attachQrcodeHandlers(); // No longer needed as we create items dynamically
+
+// Initialize the first link item
+if (linksContainer.children.length === 0) {
+  addNewLinkItem();
+}
+
 // 为编辑模式添加链接按钮事件处理
 document.addEventListener('click', (e) => {
   if (e.target.id === 'addEditLinkBtn' || e.target.className === 'add-link-btn') {
@@ -489,7 +694,16 @@ function addLinkToContainer(container) {
   linkItem.innerHTML = `
     <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (如: 网站, GitHub, 微博等)">
     <input type="url" name="linkUrl" class="link-url-input" placeholder="输入链接地址或ID">
+    <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
     <button type="button" class="remove-link-btn">删除</button>
+    <div class="qrcode-section" style="display: none;">
+      <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+      <button type="button" class="upload-qrcode-btn">上传二维码</button>
+      <div class="qrcode-preview" style="display: none;">
+        <img src="" alt="二维码预览">
+        <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+      </div>
+    </div>
   `;
 
   const removeBtn = linkItem.querySelector('.remove-link-btn');
@@ -499,6 +713,9 @@ function addLinkToContainer(container) {
     // 更新容器中的删除按钮可见性
     updateRemoveButtonsInContainer(container);
   });
+
+  // 附加QR码处理器
+  attachQrcodeHandlersToItem(linkItem);
 
   container.appendChild(linkItem);
   updateRemoveButtonsInContainer(container);
@@ -654,21 +871,37 @@ function populateEditInterface(club) {
   // Set logo
   const logoToUse = club.logo;
   if (logoToUse) {
-    const logoBase = logoToUse.split('.')[0]; // Remove extension to be format-agnostic
-    
-    // Try compressed version first (converted to PNG by compress script)
-    displayElements.logo.src = `/assets/compressedLogos/${logoBase}.png`;
-    
-    // Add fallback mechanism: if compressed version fails, try original
-    displayElements.logo.onerror = function() {
-      // Try original logo
-      displayElements.logo.src = `/assets/logos/${logoToUse}`;
+    // 检查是否是完整路径（包含 /assets/）
+    if (logoToUse.includes('/assets/')) {
+      // 直接使用完整路径
+      displayElements.logo.src = logoToUse;
+      addDebugLog(`使用完整路径加载logo: ${logoToUse}`);
+    } else {
+      // 只有文件名，需要查找
+      const logoBase = logoToUse.split('.')[0]; // Remove extension to be format-agnostic
+      
+      // Try compressed version first (converted to PNG by compress script)
+      displayElements.logo.src = `/assets/compressedLogos/${logoBase}.png`;
+      addDebugLog(`尝试加载压缩logo: /assets/compressedLogos/${logoBase}.png`);
+      
+      // Add fallback mechanism: if compressed version fails, try original
       displayElements.logo.onerror = function() {
-        // If both fail, hide and show placeholder
-        displayElements.logo.style.display = 'none';
-        displayElements.logoPlaceholder.style.display = 'flex';
+        // Try original logo
+        displayElements.logo.src = `/assets/logos/${logoToUse}`;
+        addDebugLog(`压缩logo不存在，尝试原始logo: /assets/logos/${logoToUse}`);
+        displayElements.logo.onerror = function() {
+          // Try submissions directory as last resort
+          displayElements.logo.src = `/assets/submissions/${logoToUse}`;
+          addDebugLog(`原始logo不存在，尝试submissions目录: /assets/submissions/${logoToUse}`);
+          displayElements.logo.onerror = function() {
+            // If all fail, hide and show placeholder
+            addDebugLog(`所有logo加载方式都失败`);
+            displayElements.logo.style.display = 'none';
+            displayElements.logoPlaceholder.style.display = 'flex';
+          };
+        };
       };
-    };
+    }
     
     displayElements.logo.style.display = 'block';
     displayElements.logoPlaceholder.style.display = 'none';
@@ -715,8 +948,40 @@ function populateEditInterface(club) {
       linkItem.innerHTML = `
         <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)" value="${escapeHtmlAttr(link.type || '')}">
         <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com" value="${escapeHtmlAttr(link.url || '')}">
+        <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
         <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
+        <div class="qrcode-section" style="display: none;">
+          <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+          <button type="button" class="upload-qrcode-btn">上传二维码</button>
+          <div class="qrcode-preview" style="display: none;">
+            <img src="" alt="二维码预览">
+            <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+          </div>
+        </div>
       `;
+      
+      // 存储已有的QR码路径，并自动展开
+      if (link.qrcode) {
+        linkItem.dataset.qrcodePath = link.qrcode;
+        // 显示已有的二维码预览，并自动展开QR码部分
+        const qrcodeSection = linkItem.querySelector('.qrcode-section');
+        const qrcodePreview = linkItem.querySelector('.qrcode-preview');
+        const qrcodeImg = qrcodePreview.querySelector('img');
+        const uploadBtn = linkItem.querySelector('.upload-qrcode-btn');
+        const toggleBtn = linkItem.querySelector('.toggle-qrcode-btn');
+        
+        qrcodeImg.src = `/assets/qrcodes/${link.qrcode}`;
+        qrcodePreview.style.display = 'flex';
+        uploadBtn.style.display = 'none';
+        
+        // 自动展开QR码部分
+        qrcodeSection.style.display = 'block';
+        toggleBtn.classList.add('active');
+        
+        // 禁用URL输入框
+        const urlInput = linkItem.querySelector('.link-url-input');
+        urlInput.disabled = true;
+      }
       
       // Add remove button listener
       const removeBtn = linkItem.querySelector('.remove-link-btn');
@@ -724,6 +989,9 @@ function populateEditInterface(club) {
         e.preventDefault();
         handleRemoveLinkClick(e);
       });
+      
+      // 附加QR码处理器
+      attachQrcodeHandlersToItem(linkItem);
       
       linksContainer.appendChild(linkItem);
     });
@@ -734,7 +1002,16 @@ function populateEditInterface(club) {
     linkItem.innerHTML = `
       <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)">
       <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com">
+      <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
       <button type="button" class="remove-link-btn" style="padding: 5px 10px;">删除</button>
+      <div class="qrcode-section" style="display: none;">
+        <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+        <button type="button" class="upload-qrcode-btn">上传二维码</button>
+        <div class="qrcode-preview" style="display: none;">
+          <img src="" alt="二维码预览">
+          <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+        </div>
+      </div>
     `;
     
     const removeBtn = linkItem.querySelector('.remove-link-btn');
@@ -742,6 +1019,9 @@ function populateEditInterface(club) {
       e.preventDefault();
       handleRemoveLinkClick(e);
     });
+    
+    // 附加QR码处理器
+    attachQrcodeHandlersToItem(linkItem);
     
     linksContainer.appendChild(linkItem);
   }
@@ -794,8 +1074,46 @@ function populateEditLinksForm() {
       linkItem.innerHTML = `
         <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)" value="${escapeHtmlAttr(link.type || '')}">
         <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com" value="${escapeHtmlAttr(link.url || '')}">
+        <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
         <button type="button" class="remove-link-btn">删除</button>
+        <div class="qrcode-section" style="display: none;">
+          <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+          <button type="button" class="upload-qrcode-btn">上传二维码</button>
+          <div class="qrcode-preview" style="display: none;">
+            <img src="" alt="二维码预览">
+            <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+          </div>
+        </div>
       `;
+      
+      // 存储已有的QR码路径，并自动展开
+      if (link.qrcode) {
+        // 只有在还没有上传新QR码时才使用旧的
+        if (!linkItem.dataset.qrcodePath) {
+          linkItem.dataset.qrcodePath = link.qrcode;
+        }
+        
+        // 显示已有的二维码预览，并自动展开QR码部分
+        const qrcodeSection = linkItem.querySelector('.qrcode-section');
+        const qrcodePreview = linkItem.querySelector('.qrcode-preview');
+        const qrcodeImg = qrcodePreview.querySelector('img');
+        const uploadBtn = linkItem.querySelector('.upload-qrcode-btn');
+        const toggleBtn = linkItem.querySelector('.toggle-qrcode-btn');
+        
+        // 使用dataset中的路径（优先使用新上传的），否则使用旧的
+        const qrcodePath = linkItem.dataset.qrcodePath || link.qrcode;
+        qrcodeImg.src = `/assets/qrcodes/${qrcodePath.split('/').pop()}`; // 提取文件名
+        qrcodePreview.style.display = 'flex';
+        uploadBtn.style.display = 'none';
+        
+        // 自动展开QR码部分
+        qrcodeSection.style.display = 'block';
+        toggleBtn.classList.add('active');
+        
+        // 禁用URL输入框
+        const urlInput = linkItem.querySelector('.link-url-input');
+        urlInput.disabled = true;
+      }
       
       const removeBtn = linkItem.querySelector('.remove-link-btn');
       removeBtn.addEventListener('click', (e) => {
@@ -803,6 +1121,9 @@ function populateEditLinksForm() {
         linkItem.remove();
         updateRemoveButtonsInContainer(editLinksContainer);
       });
+      
+      // 附加QR码处理器
+      attachQrcodeHandlersToItem(linkItem);
       
       editLinksContainer.appendChild(linkItem);
     });
@@ -813,7 +1134,16 @@ function populateEditLinksForm() {
     linkItem.innerHTML = `
       <input type="text" name="linkType" class="link-type-input" placeholder="链接类型 (例: 官网、微博)">
       <input type="url" name="linkUrl" class="link-url-input" placeholder="https://example.com">
+      <button type="button" class="toggle-qrcode-btn" title="添加二维码">二维码</button>
       <button type="button" class="remove-link-btn">删除</button>
+      <div class="qrcode-section" style="display: none;">
+        <input type="file" name="qrcode" accept="image/*" class="qrcode-input" style="display: none;">
+        <button type="button" class="upload-qrcode-btn">上传二维码</button>
+        <div class="qrcode-preview" style="display: none;">
+          <img src="" alt="二维码预览">
+          <button type="button" class="remove-qrcode-btn" title="移除二维码">✕</button>
+        </div>
+      </div>
     `;
     
     const removeBtn = linkItem.querySelector('.remove-link-btn');
@@ -822,6 +1152,9 @@ function populateEditLinksForm() {
       linkItem.remove();
       updateRemoveButtonsInContainer(editLinksContainer);
     });
+    
+    // 附加QR码处理器
+    attachQrcodeHandlersToItem(linkItem);
     
     editLinksContainer.appendChild(linkItem);
   }
@@ -1104,21 +1437,10 @@ function getEditedValue(field) {
       return document.getElementById('editTags').value.trim();
     
     case 'externalLinks':
-      // Collect external links from the edit form
+      // 使用统一的collectLinks函数收集外部链接（包括QR码）
       const editLinksContainer = document.getElementById('editLinksContainer');
       if (!editLinksContainer) return [];
-      const linkItems = editLinksContainer.querySelectorAll('.link-item');
-      const links = [];
-      linkItems.forEach(item => {
-        const typeInput = item.querySelector('.link-type-input') || item.querySelector('.link-type');
-        const urlInput = item.querySelector('.link-url-input') || item.querySelector('.link-url');
-        const type = typeInput?.value.trim();
-        const url = urlInput?.value.trim();
-        if (type && url) {
-          links.push({ type, url });
-        }
-      });
-      return links;
+      return collectLinks(editLinksContainer);
     
     case 'logo':
       return document.getElementById('editLogo').files[0];
@@ -1327,8 +1649,9 @@ confirmEdit.addEventListener('click', async () => {
       }
     }
 
-    // Collect external links from the form (same as new submission mode)
-    const externalLinks = collectLinks();
+    // Collect external links from the form (use editLinksContainer for edit mode)
+    const editLinksContainer = document.getElementById('editLinksContainer');
+    const externalLinks = editLinksContainer ? collectLinks(editLinksContainer) : [];
 
     // Build submission data with correct field names
     // Start with the base structure that matches validation schema

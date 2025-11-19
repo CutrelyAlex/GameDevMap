@@ -2,8 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// 存放上传文件的目录
-const uploadDir = path.join(__dirname, '../../public/assets/submissions');
+// 存放上传文件的目录 - 移动到 data/submissions
+const uploadDir = path.join(__dirname, '../../data/submissions');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -14,24 +14,26 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // 生成文件名: YYYYMMDD_随机ID_原始名称
-    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const randomId = Math.random().toString(36).substring(2, 10);
+    // 生成文件名: YYYY_MMDD_随机ID_类型.ext
+    // 例如: 2025_1119_abc123_qrcode.png
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dateStr = `${year}_${month}${day}`;
+    
+    const randomId = Math.random().toString(36).substring(2, 8);
     const ext = path.extname(file.originalname);
     
-    // 清理文件名: 保留字母、数字、中文，替换其他字符为下划线
-    let basename = path.basename(file.originalname, ext)
-      .replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_') // 清理特殊字符
-      .replace(/_+/g, '_') // 合并连续下划线
-      .replace(/^_|_$/g, '') // 去除首尾下划线
-      .substring(0, 50); // 限制长度
-    
-    // 如果清理后为空，使用默认名称
-    if (!basename || basename.length === 0) {
-      basename = 'logo';
+    // 根据字段名确定类型后缀
+    let typeSuffix = 'file';
+    if (file.fieldname === 'qrcode') {
+      typeSuffix = 'qrcode';
+    } else if (file.fieldname === 'logo') {
+      typeSuffix = 'logo';
     }
     
-    const filename = `${date}_${randomId}_${basename}${ext}`;
+    const filename = `${dateStr}_${randomId}_${typeSuffix}${ext}`;
     cb(null, filename);
   }
 });
@@ -54,13 +56,23 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// 创建 multer 实例
+// 创建 multer 实例 - 支持单个 logo 文件
 const upload = multer({
   storage,
   fileFilter,
   limits: {
     fileSize: 20 * 1024 * 1024, // 20MB
     files: 1 // 一次只能上传一个文件
+  }
+});
+
+// 创建 multer 实例 - 支持多个文件 (logo + QR codes)
+const uploadMultiple = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB per file
+    files: 20 // Allow multiple files (1 logo + up to 19 QR codes)
   }
 });
 
@@ -97,5 +109,6 @@ const handleUploadError = (err, req, res, next) => {
 
 module.exports = {
   upload,
+  uploadMultiple,
   handleUploadError
 };

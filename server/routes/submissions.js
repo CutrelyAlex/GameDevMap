@@ -9,6 +9,7 @@ const { authenticate } = require('../middleware/auth');
 const syncToJson = require('../scripts/syncToJson');
 const { findSimilarClubs } = require('../utils/duplicateCheck');
 const { processApprovedImage } = require('../utils/imageProcessor');
+const { processApprovedSubmissionFiles, cleanupSubmissionFiles } = require('../utils/fileProcessor');
 const fs = require('fs');
 const path = require('path');
 
@@ -30,6 +31,34 @@ async function deleteSubmissionLogoFiles(logoFilename) {
     // 文件不存在或删除失败，静默处理
     if (error.code !== 'ENOENT') {
       console.warn(`⚠️  Failed to delete submission logo file ${logoPath}:`, error.message);
+    }
+  }
+}
+
+/**
+ * 删除提交相关的二维码文件
+ * @param {Array} externalLinks - 外部链接数组
+ */
+async function deleteSubmissionQrcodeFiles(externalLinks) {
+  if (!externalLinks || !Array.isArray(externalLinks)) return;
+
+  const projectRoot = path.resolve(__dirname, '../..');
+  
+  for (const link of externalLinks) {
+    if (link.qrcode) {
+      // Extract filename from path like '/assets/submissions/filename.png'
+      const filename = link.qrcode.replace(/^\/assets\/submissions\//, '');
+      const qrcodePath = path.join(projectRoot, 'data', 'submissions', filename);
+      
+      try {
+        await fs.promises.access(qrcodePath);
+        await fs.promises.unlink(qrcodePath);
+        console.log(`🗑️  Deleted submission QR code file: ${qrcodePath}`);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          console.warn(`⚠️  Failed to delete submission QR code file ${qrcodePath}:`, error.message);
+        }
+      }
     }
   }
 }
@@ -140,6 +169,8 @@ router.post('/',
           }
         }
       };
+
+
 
       // Add editing club ID and original data if in edit mode
       if (req.validatedData.submissionType === 'edit' && req.validatedData.editingClubId) {
@@ -372,26 +403,23 @@ router.put('/:id/approve', authenticate, async (req, res) => {
           Number(submission.data.coordinates?.latitude) || 0
         ];
 
-    // 处理图片：移动到 logos 目录并压缩
-    let processedLogoFilename = submission.data.logo;
+    // 处理图片和QR Code：移动到相应assets目录并压缩
+    let processedClubData = JSON.parse(JSON.stringify(submission.data)); // 深复制
+    const projectRoot = path.resolve(__dirname, '../..');
     
-    // 判断是否需要处理图片
-    // 对于编辑提交，检查图片是否来自新上传（在 submissions 目录）
-    const needsImageProcessing = submission.data.logo && 
-      (submission.submissionType !== 'edit' || 
-       submission.data.logo.startsWith('/assets/submissions/'));
-    
-    if (needsImageProcessing) {
-      try {
-        processedLogoFilename = await processApprovedImage(submission.data.logo);
-        console.log(`Processed logo: ${submission.data.logo} -> ${processedLogoFilename}`);
-      } catch (imageError) {
-        console.error('⚠️  Image processing failed, using original path:', imageError.message);
-        // 继续流程，使用原始路径
-      }
-    } else if (submission.data.logo) {
-      console.log(`Skipping image processing for existing logo: ${submission.data.logo}`);
+    try {
+      console.log(`\n🔄 === 开始处理提交的文件 (${submission.data.name}) ===`);
+      processedClubData = await processApprovedSubmissionFiles(processedClubData, projectRoot);
+      console.log(`✅ === 文件处理完成 ===\n`);
+    } catch (fileError) {
+      console.error(`❌ 文件处理失败: ${fileError.message}`);
+      // 注意：这是一个关键错误，不应该忽略
+      throw new Error(`无法处理提交文件: ${fileError.message}`);
     }
+    
+    // 提取处理后的logo和externalLinks
+    const processedLogoFilename = processedClubData.logo || submission.data.logo;
+    const processedExternalLinks = processedClubData.externalLinks || submission.data.externalLinks || [];
 
     let club;
     let isNewClub = true;
@@ -436,7 +464,7 @@ router.put('/:id/approve', authenticate, async (req, res) => {
         club.shortDescription = submission.data.shortDescription || '';
         club.tags = submission.data.tags;
         club.logo = processedLogoFilename;
-        club.externalLinks = submission.data.externalLinks || [];
+        club.externalLinks = processedExternalLinks.length > 0 ? processedExternalLinks : (submission.data.externalLinks || []);
         club.verifiedBy = req.user.username; // 记录最后审核人
         // updatedAt will be set automatically by the pre-save hook
         
@@ -460,7 +488,7 @@ router.put('/:id/approve', authenticate, async (req, res) => {
         shortDescription: submission.data.shortDescription || '',
         tags: submission.data.tags,
         logo: processedLogoFilename,
-        externalLinks: submission.data.externalLinks || [],
+        externalLinks: processedExternalLinks.length > 0 ? processedExternalLinks : (submission.data.externalLinks || []),
         sourceSubmission: submission._id,
         verifiedBy: req.user.username
       });
@@ -555,6 +583,11 @@ router.put('/:id/reject', authenticate, async (req, res) => {
     // 删除相关的Logo文件
     if (submission.data && submission.data.logo) {
       await deleteSubmissionLogoFiles(submission.data.logo);
+    }
+    
+    // 删除相关的二维码文件
+    if (submission.data && submission.data.externalLinks) {
+      await deleteSubmissionQrcodeFiles(submission.data.externalLinks);
     }
 
     return res.status(200).json({

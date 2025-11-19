@@ -104,7 +104,8 @@ const submissionSchema = new mongoose.Schema({
       type: [{
         _id: false,  // 禁用自动添加的 _id
         type: { type: String },
-        url: { type: String }
+        url: { type: String },
+        qrcode: { type: String }  // QR code image filename (optional)
       }],
       default: []
     }

@@ -129,8 +129,97 @@ body {
 
 .link-item {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  align-items: flex-end;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* QR Code Toggle Button */
+.toggle-qrcode-btn {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.toggle-qrcode-btn:hover {
+  background: #e0e0e0;
+  border-color: var(--primary-color);
+}
+
+.toggle-qrcode-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* QR Code Section */
+.qrcode-section {
+  flex: 1 1 100%;
+  padding: 12px;
+  background: #f9f9f9;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+.upload-qrcode-btn {
+  padding: 8px 16px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.upload-qrcode-btn:hover {
+  background: var(--primary-hover);
+}
+
+.upload-qrcode-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* QR Code Preview */
+.qrcode-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.qrcode-preview img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+}
+
+.remove-qrcode-btn {
+  padding: 6px 12px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+.remove-qrcode-btn:hover {
+  background: #ff5252;
 }
 
 .link-type-select {
@@ -152,6 +241,7 @@ body {
 
 .link-type-input {
   flex: 0 0 140px;
+  min-width: 120px;
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -167,7 +257,8 @@ body {
 }
 
 .link-url-input {
-  flex: 1;
+  flex: 1 1 200px;
+  min-width: 150px;
   padding: 12px 14px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -180,6 +271,13 @@ body {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+
+.link-url-input:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ddd;
 }
 
 .remove-link-btn {

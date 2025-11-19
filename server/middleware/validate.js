@@ -120,15 +120,6 @@ const submissionSchema = Joi.object({
       'string.max': '短介绍最多 200 个字符'
     }),
 
-  description: Joi.string()
-    .max(1000)
-    .optional()
-    .allow('')
-    .messages({
-      'string.base': '长介绍必须是文本',
-      'string.max': '长介绍最多 1000 个字符'
-    }),
-
   tags: Joi.array()
     .items(Joi.string().max(20))
     .max(10)
@@ -151,12 +142,24 @@ const submissionSchema = Joi.object({
         }),
       url: Joi.string()
         .max(300)
-        .required()
+        .optional()
+        .allow('')
         .messages({
           'string.base': '链接内容必须是文本',
-          'string.max': '链接内容最多 300 个字符',
-          'any.required': '链接内容是必填项'
+          'string.max': '链接内容最多 300 个字符'
+        }),
+      qrcode: Joi.string()
+        .uri({ relativeOnly: true })
+        .optional()
+        .allow('')
+        .messages({
+          'string.base': '二维码路径必须是文本',
+          'string.uri': '二维码路径格式不正确'
         })
+    })
+    .or('url', 'qrcode') // url 或 qrcode 至少提供一个
+    .messages({
+      'object.missing': '链接地址和二维码至少需要提供一项'
     }))
     .optional()
     .messages({

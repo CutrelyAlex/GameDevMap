@@ -343,34 +343,72 @@ function showClubDetails(club) {
         
         let hasValidLinks = false;
         club.externalLinks.forEach((link, index) => {
-            if (link.type && link.url) {
+            // 检查是否有有效的链接内容：URL 或 QR码
+            if (link.type && (link.url || link.qrcode)) {
                 hasValidLinks = true;
                 const linkWrapper = document.createElement('div');
                 linkWrapper.className = 'external-link-wrapper';
                 
-                if (isValidUrl(link.url)) {
-                    // 如果是URL，显示链接样式
-                    const a = document.createElement('a');
-                    a.href = link.url;
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer'; // 安全考虑
-                    a.className = 'external-link-item';
+                // 只在有URL时显示链接
+                if (link.url) {
+                    if (isValidUrl(link.url)) {
+                        // 如果是URL，显示链接样式和Type
+                        const a = document.createElement('a');
+                        a.href = link.url;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        a.className = 'external-link-item';
+                        
+                        const icon = getLinkTypeIcon(link.type);
+                        a.innerHTML = `<span class="link-icon">${icon}</span><span class="link-text">${escapeHtml(link.type)}</span>`;
+                        a.title = link.url;
+                        
+                        linkWrapper.appendChild(a);
+                    } else {
+                        // 如果不是URL，显示文本样式
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'external-link-item external-link-text';
+                        
+                        const icon = getLinkTypeIcon(link.type);
+                        textDiv.innerHTML = `<span class="link-icon">${icon}</span><span class="link-text">${escapeHtml(link.type)}: ${escapeHtml(link.url)}</span>`;
+                        
+                        linkWrapper.appendChild(textDiv);
+                    }
+                }
+                
+                // Add QR code if available - 不显示Type，直接显示QR码
+                if (link.qrcode) {
+                    const qrcodeDiv = document.createElement('div');
+                    qrcodeDiv.className = 'qrcode-display';
                     
-                    // 根据类型添加不同的图标或样式
-                    const icon = getLinkTypeIcon(link.type);
-                    a.innerHTML = `<span class="link-icon">${icon}</span><span class="link-text">${escapeHtml(link.type)}</span>`;
-                    a.title = link.url;
+                    const qrcodeImg = document.createElement('img');
+                    qrcodeImg.src = `/assets/qrcodes/${link.qrcode}`;
+                    qrcodeImg.alt = `${link.type} 二维码`;
+                    qrcodeImg.className = 'qrcode-thumbnail';
+                    qrcodeImg.title = '点击查看大图';
                     
-                    linkWrapper.appendChild(a);
-                } else {
-                    // 如果不是URL，显示文本样式
-                    const textDiv = document.createElement('div');
-                    textDiv.className = 'external-link-item external-link-text';
+                    // Click to show full size
+                    qrcodeImg.onclick = (e) => {
+                        e.stopPropagation();
+                        showQRCodeModal(qrcodeImg.src, link.type);
+                    };
                     
-                    const icon = getLinkTypeIcon(link.type);
-                    textDiv.innerHTML = `<span class="link-icon">${icon}</span><span class="link-text">${escapeHtml(link.type)}: ${escapeHtml(link.url)}</span>`;
+                    // Handle load error
+                    qrcodeImg.onerror = () => {
+                        qrcodeDiv.innerHTML = '<span class="qrcode-placeholder" title="二维码加载失败">📷</span>';
+                    };
                     
-                    linkWrapper.appendChild(textDiv);
+                    qrcodeDiv.appendChild(qrcodeImg);
+                    linkWrapper.appendChild(qrcodeDiv);
+                    
+                    // 添加提示文字
+                    if (!link.url) {
+                        const tipDiv = document.createElement('div');
+                        tipDiv.className = 'qrcode-tip';
+                        tipDiv.textContent = '点击二维码查看详细信息';
+                        tipDiv.style.cssText = 'font-size: 12px; color: #999; margin-top: 4px;';
+                        linkWrapper.appendChild(tipDiv);
+                    }
                 }
                 
                 linksContainer.appendChild(linkWrapper);
@@ -486,6 +524,50 @@ function selectSearchResult(clubIdentifier) {
         document.getElementById('searchInput').value = '';
         document.getElementById('searchResults').innerHTML = '';
     }
+}
+
+/**
+ * Show QR code in a modal dialog
+ * @param {string} imageSrc - QR code image source
+ * @param {string} title - Link type/title
+ */
+function showQRCodeModal(imageSrc, title) {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('qrcodeModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'qrcodeModal';
+        modal.className = 'qrcode-modal';
+        modal.innerHTML = `
+            <div class="qrcode-modal-backdrop"></div>
+            <div class="qrcode-modal-content">
+                <button class="qrcode-modal-close" aria-label="关闭">&times;</button>
+                <h3 class="qrcode-modal-title"></h3>
+                <img class="qrcode-modal-image" src="" alt="二维码">
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close on backdrop or button click
+        modal.querySelector('.qrcode-modal-backdrop').onclick = () => {
+            modal.style.display = 'none';
+        };
+        modal.querySelector('.qrcode-modal-close').onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Update content and show
+    modal.querySelector('.qrcode-modal-title').textContent = `${title} 二维码`;
+    modal.querySelector('.qrcode-modal-image').src = imageSrc;
+    modal.style.display = 'flex';
 }
 
 // 侧边栏控制

@@ -32,8 +32,8 @@ app.use(express.static(path.join(__dirname, '../public'), {
   }
 }));
 
-// Serve uploaded submissions (stored outside public) under the same public path
-// This keeps URLs unchanged while moving storage to data/submissions for safety.
+// Serve uploaded submissions (stored in data/submissions)
+// This maps /assets/submissions URL to the physical data/submissions directory
 app.use('/assets/submissions', express.static(path.join(__dirname, '../data/submissions')));
 
 // API Routes
