@@ -517,6 +517,63 @@ function initSyncModule() {
       }
     }
 
+    // 有差异记录原子化合并处理函数
+    async function handleAtomicMerge(e) {
+      const action = e.target.getAttribute('data-action');
+      const index = parseInt(e.target.getAttribute('data-index'));
+      const item = tabsData['differences'].items[index];
+      
+      if (!item) return;
+
+      const identifier = `${item.db.name}|${item.db.school}`;
+      
+      const confirmMsg = action === 'db-to-json' 
+        ? `确定要将 Database 中的 "${item.db.name}" 覆盖 JSON 中的记录吗？`
+        : `确定要将 JSON 中的 "${item.db.name}" 覆盖 Database 中的记录吗？`;
+
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      try {
+        e.target.disabled = true;
+        const originalText = e.target.textContent;
+        e.target.textContent = '处理中...';
+        clearMessage();
+
+        const endpoint = action === 'db-to-json' 
+          ? '/api/sync/atomic-merge-db-to-json'
+          : '/api/sync/atomic-merge-json-to-db';
+
+        const response = await authFetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || '合并失败');
+        }
+
+        showMessage(
+          `原子化合并成功！\n\n社团: ${item.db.name}\n方向: ${action === 'db-to-json' ? 'Database → JSON' : 'JSON → Database'}`,
+          'success'
+        );
+
+        // 自动刷新对比结果
+        setTimeout(() => compareBtn.click(), 1000);
+
+      } catch (error) {
+        console.error('Atomic merge error:', error);
+        showMessage(error.message || '原子化合并失败，请重试', 'error');
+      } finally {
+        e.target.disabled = false;
+        e.target.textContent = originalText;
+      }
+    }
+
     // 单条记录原子化合并处理函数
     async function handleAtomicMergeSingle(e) {
       const action = e.target.getAttribute('data-action');
