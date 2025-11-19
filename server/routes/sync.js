@@ -475,18 +475,100 @@ router.post('/merge', authenticate, async (req, res) => {
 
 /**
  * POST /api/sync/replace
- * 执行完全替换：MongoDB -> JSON（单向覆盖）
- * - 用 MongoDB 中的所有数据完全覆盖 JSON 文件
- * - JSON 中独有的记录将被删除
+ * 执行完全替换：JSON -> Database（单向覆盖）
+ * - 删除 Database 中的所有数据
+ * - 从 JSON 文件中导入所有社团
+ * - JSON 中独有的记录将保留在 Database 中
  */
 router.post('/replace', authenticate, async (req, res) => {
   try {
-    const result = await syncToJson('replace');
-    
+    // 读取 clubs.json
+    const jsonPath = path.resolve(__dirname, '../../public/data/clubs.json');
+    let clubs = [];
+    try {
+      const jsonData = await fs.readFile(jsonPath, 'utf8');
+      clubs = JSON.parse(jsonData);
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        error: 'JSON_NOT_FOUND',
+        message: 'clubs.json 文件不存在'
+      });
+    }
+
+    console.log(`📄 Found ${clubs.length} clubs in clubs.json`);
+
+    // 第一步：完全删除数据库中的所有 Club 记录
+    console.log('\n🗑️  Clearing database...');
+    const deleteResult = await Club.deleteMany({});
+    console.log(`  Deleted ${deleteResult.deletedCount} existing clubs`);
+
+    let imported = 0;
+    let skipped = 0;
+
+    // 第二步：从 clubs.json 中导入所有数据
+    console.log('\n📥 Importing from clubs.json...');
+    for (const club of clubs) {
+      try {
+        // 支持两种坐标格式
+        let coordinates;
+        if (club.coordinates && Array.isArray(club.coordinates) && club.coordinates.length === 2) {
+          // 使用 coordinates 数组 [lng, lat]
+          coordinates = club.coordinates;
+        } else if (club.longitude !== undefined && club.latitude !== undefined) {
+          // 使用 longitude/latitude 字段 [lng, lat]
+          coordinates = [club.longitude, club.latitude];
+        } else {
+          throw new Error('Missing coordinates data');
+        }
+
+        const clubData = {
+          name: club.name,
+          school: club.school,
+          province: club.province,
+          city: club.city || '',
+          coordinates: coordinates, // [lng, lat]
+          description: club.description || club.shortDescription || '',
+          shortDescription: club.shortDescription || '',
+          tags: club.tags || [],
+          logo: club.logo || '',
+          externalLinks: club.externalLinks || [],
+          verifiedBy: 'system',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        // 创建新记录
+        const newClub = new Club(clubData);
+        await newClub.save();
+        imported++;
+        const linkInfo = clubData.externalLinks?.length > 0 ? ` (${clubData.externalLinks.length} links)` : '';
+        console.log(`  ✓ Imported: ${club.name} (${club.school})${linkInfo}`);
+      } catch (error) {
+        console.error(`  ✗ Failed to import ${club.name}:`, error.message);
+        skipped++;
+      }
+    }
+
+    // 获取最终数据库统计
+    const finalCount = await Club.countDocuments();
+
+    console.log('\n' + '='.repeat(60));
+    console.log('✅ Replace completed (JSON -> Database)');
+    console.log(`  ✓ Imported: ${imported}`);
+    console.log(`  ✗ Skipped: ${skipped}`);
+    console.log(`  📄 Total in JSON: ${clubs.length}`);
+    console.log(`  💾 Total in DB: ${finalCount}`);
+    console.log('='.repeat(60));
+
     return res.json({
       success: true,
-      message: '完全替换完成（MongoDB -> JSON）',
-      data: result
+      message: '用 JSON 覆盖 Database 完成',
+      data: {
+        total: finalCount,
+        imported,
+        skipped
+      }
     });
 
   } catch (error) {
