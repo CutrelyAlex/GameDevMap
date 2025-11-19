@@ -535,9 +535,10 @@ function initSyncModule() {
         return;
       }
 
+      const originalText = e.target.textContent;
+
       try {
         e.target.disabled = true;
-        const originalText = e.target.textContent;
         e.target.textContent = '处理中...';
         clearMessage();
 
@@ -587,9 +588,10 @@ function initSyncModule() {
         return;
       }
 
+      const originalText = e.target.textContent;
+
       try {
         e.target.disabled = true;
-        const originalText = e.target.textContent;
         e.target.textContent = '处理中...';
         clearMessage();
 
