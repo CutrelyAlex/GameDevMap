@@ -227,11 +227,15 @@ function stopAutoRefresh() {
 
 function fillList(listElement, entries) {
   listElement.innerHTML = '';
-  entries.forEach(([term, value]) => {
+  entries.forEach(([term, value, isHtml]) => {
     const dt = document.createElement('dt');
     dt.textContent = term;
     const dd = document.createElement('dd');
-    dd.textContent = value ?? '-';
+    if (isHtml) {
+      dd.innerHTML = value ?? '-';
+    } else {
+      dd.textContent = value ?? '-';
+    }
     listElement.append(dt, dd);
   });
 }
@@ -374,7 +378,7 @@ function renderDetail(submission) {
   
   // Basic club info
   const clubInfo = [
-    ['提交类型', isEdit ? '<span style="color: #f39c12; font-weight: bold;">✏️ 编辑现有社团</span>' : '<span style="color: #27ae60; font-weight: bold;">➕ 新增社团</span>']
+    ['提交类型', isEdit ? '<span style="color: #f39c12; font-weight: bold;">✏️ 编辑现有社团</span>' : '<span style="color: #27ae60; font-weight: bold;">➕ 新增社团</span>', true]
   ];
 
   if (isEdit && submission.editingClubId) {
@@ -390,7 +394,7 @@ function renderDetail(submission) {
     ['标签', submission.data?.tags?.join(', ') || '无'],
     ['短简介', submission.data?.shortDescription || '未提供'],
     ['长简介', submission.data?.description || '未提供'],
-    ['Logo', submission.data?.logo ? `<img src="${submission.data.logo}" alt="Logo" style="max-width: 100px; max-height: 100px;">` : '未上传'],
+    ['Logo', submission.data?.logo ? `<img src="${submission.data.logo}" alt="Logo" style="max-width: 100px; max-height: 100px;">` : '未上传', true],
     ['外部链接', formatExternalLinks(submission.data?.externalLinks)]
   );
 
