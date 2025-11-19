@@ -1,22 +1,5 @@
 [
   {
-    "name": "测试",
-    "school": "测试",
-    "city": "测试",
-    "province": "广东省",
-    "coordinates": [
-      32,
-      32
-    ],
-    "logo": "20251119_s4p2inh4_1K5_ZD2V3KHD3G3C0KT_H.jpg",
-    "shortDescription": "",
-    "description": "",
-    "tags": [
-      "321"
-    ],
-    "externalLinks": []
-  },
-  {
     "name": "NAGO社团",
     "school": "深圳大学",
     "city": "深圳",
