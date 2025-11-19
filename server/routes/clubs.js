@@ -66,6 +66,8 @@ router.get('/', async (req, res) => {
 
     // 转换为前端期望的格式（不含id字段）
     const formattedClubs = clubs.map(club => ({
+      id: club._id,
+      index: club.index,
       name: club.name,
       school: club.school,
       city: club.city || '',
