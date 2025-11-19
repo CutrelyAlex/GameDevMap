@@ -1,5 +1,24 @@
 [
   {
+    "name": "NAGO社团",
+    "school": "深圳大学",
+    "city": "深圳",
+    "province": "广东省",
+    "coordinates": [
+      113.94,
+      22.54
+    ],
+    "logo": "20251116_194o2oxt_NAGO_logo.png",
+    "shortDescription": "一个由深大学生组成的游戏爱好者社团",
+    "description": "我们产出游戏比赛，游戏评测，游戏开发比赛。近期我们以游戏开发为核心对外合作。",
+    "tags": [
+      "游戏开发",
+      "编程",
+      "美术"
+    ],
+    "externalLinks": []
+  },
+  {
     "name": "GAMERS游戏制作社",
     "school": "吉林动画学院",
     "city": "长春市",
