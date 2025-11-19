@@ -66,7 +66,6 @@ router.get('/', async (req, res) => {
 
     // 转换为前端期望的格式（不含id字段）
     const formattedClubs = clubs.map(club => ({
-      id: club._id,
       index: club.index,
       name: club.name,
       school: club.school,
@@ -159,19 +158,26 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * PUT /api/clubs/:id
+ * PUT /api/clubs
  * 管理员端点 - 编辑社团信息
+ * 通过 originalName 和 originalSchool 查找社团
  * 
- * @param {string} id - 社团ID
- * @body {Object} 更新数据（支持：name, school, province, city, coordinates, description, shortDescription, tags, externalLinks）
+ * @body {Object} 更新数据
  * @returns {Object} 更新结果
  */
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/', authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData = req.body || {};
+    const { originalName, originalSchool, ...updateData } = req.body;
 
-    const club = await Club.findById(id);
+    if (!originalName || !originalSchool) {
+      return res.status(400).json({
+        success: false,
+        error: 'BAD_REQUEST',
+        message: '缺少原始社团名称或学校信息'
+      });
+    }
+
+    const club = await Club.findOne({ name: originalName, school: originalSchool });
 
     if (!club) {
       return res.status(404).json({
@@ -183,9 +189,9 @@ router.put('/:id', authenticate, async (req, res) => {
 
     // 允许更新的字段
     const allowedFields = [
-      'name', 'school', 'province', 'city', 
+      'index', 'name', 'school', 'province', 'city', 
       'description', 'shortDescription', 
-      'tags', 'externalLinks', 'coordinates'
+      'tags', 'externalLinks', 'coordinates', 'logo'
     ];
 
     // 更新允许的字段
@@ -208,7 +214,6 @@ router.put('/:id', authenticate, async (req, res) => {
       success: true,
       message: '社团已更新',
       data: {
-        id: club._id.toString(),
         name: club.name,
         school: club.school,
         updatedAt: club.updatedAt
@@ -225,17 +230,27 @@ router.put('/:id', authenticate, async (req, res) => {
 });
 
 /**
- * DELETE /api/clubs/:id
+ * DELETE /api/clubs
  * 管理员端点 - 删除社团
+ * 通过 name 和 school 查找社团
  * 
- * @param {string} id - 社团ID
+ * @query {string} name - 社团名称
+ * @query {string} school - 学校名称
  * @returns {Object} 删除结果
  */
-router.delete('/:id', authenticate, async (req, res) => {
+router.delete('/', authenticate, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { name, school } = req.query;
 
-    const club = await Club.findById(id);
+    if (!name || !school) {
+      return res.status(400).json({
+        success: false,
+        error: 'BAD_REQUEST',
+        message: '缺少社团名称或学校信息'
+      });
+    }
+
+    const club = await Club.findOne({ name, school });
 
     if (!club) {
       return res.status(404).json({
@@ -254,7 +269,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     }
 
     // 删除社团
-    await Club.findByIdAndDelete(id);
+    await Club.findOneAndDelete({ name, school });
 
     console.log(`🗑️  Deleted club: ${clubInfo} by ${req.user.username}`);
 
@@ -267,7 +282,6 @@ router.delete('/:id', authenticate, async (req, res) => {
       success: true,
       message: '社团已删除',
       data: {
-        id,
         name: clubInfo
       }
     });

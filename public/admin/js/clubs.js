@@ -106,10 +106,10 @@ function renderClubsTable() {
       <td>${escapeHTML(club.city || '-')}</td>
       <td>${formatDate(club.createdAt || '')}</td>
       <td>
-        <button class="action-button" data-club-id="${club.id}" data-action="edit">
+        <button class="action-button" data-name="${escapeHTML(club.name)}" data-school="${escapeHTML(club.school)}" data-action="edit">
           编辑
         </button>
-        <button class="action-button action-button--danger" data-club-id="${club.id}" data-action="delete">
+        <button class="action-button action-button--danger" data-name="${escapeHTML(club.name)}" data-school="${escapeHTML(club.school)}" data-action="delete">
           删除
         </button>
       </td>
@@ -132,12 +132,16 @@ function renderClubsTable() {
  * 打开编辑模态框
  */
 function handleEditClub(e) {
-  const clubId = e.target.dataset.clubId;
-  const club = clubsData.find(c => c.id === clubId);
+  const clubName = e.target.dataset.name;
+  const clubSchool = e.target.dataset.school;
+  const club = clubsData.find(c => c.name === clubName && c.school === clubSchool);
   
   if (!club) return;
 
-  document.getElementById('editClubId').value = club.id;
+  // 存储原始标识信息
+  document.getElementById('editOriginalName').value = club.name;
+  document.getElementById('editOriginalSchool').value = club.school;
+
   document.getElementById('editClubIndex').value = club.index || 0;
   document.getElementById('editClubName').value = club.name;
   document.getElementById('editClubSchool').value = club.school;
@@ -161,11 +165,14 @@ function handleEditClub(e) {
 async function handleEditSubmit(e) {
   e.preventDefault();
   
-  const clubId = document.getElementById('editClubId').value;
+  const originalName = document.getElementById('editOriginalName').value;
+  const originalSchool = document.getElementById('editOriginalSchool').value;
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const originalText = submitBtn.textContent;
 
   const formData = {
+    originalName,
+    originalSchool,
     index: parseInt(document.getElementById('editClubIndex').value) || 0,
     name: document.getElementById('editClubName').value,
     school: document.getElementById('editClubSchool').value,
@@ -178,7 +185,7 @@ async function handleEditSubmit(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = '保存中...';
 
-    const response = await authFetch(`/api/clubs/${clubId}`, {
+    const response = await authFetch('/api/clubs', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -211,10 +218,8 @@ async function handleEditSubmit(e) {
  * 删除社团
  */
 async function handleDeleteClub(e) {
-  const clubId = e.target.dataset.clubId;
-  const clubRow = e.target.closest('tr');
-  const clubName = clubRow.querySelector('td:first-child').textContent;
-  const clubSchool = clubRow.querySelector('td:nth-child(2)').textContent;
+  const clubName = e.target.dataset.name;
+  const clubSchool = e.target.dataset.school;
 
   const confirmed = confirm(`确定要删除社团 "${clubName}" (${clubSchool}) 吗？\n\n此操作不可恢复，将同时更新数据库和 clubs.json 文件。`);
   
@@ -226,7 +231,7 @@ async function handleDeleteClub(e) {
     e.target.disabled = true;
     e.target.textContent = '删除中...';
 
-    const response = await authFetch(`/api/clubs/${clubId}`, {
+    const response = await authFetch(`/api/clubs?name=${encodeURIComponent(clubName)}&school=${encodeURIComponent(clubSchool)}`, {
       method: 'DELETE'
     });
     const result = await response.json();
@@ -238,8 +243,8 @@ async function handleDeleteClub(e) {
     setClubsListStatus(`已删除: ${clubName}`, 'success');
     
     // 从本地数据中移除
-    clubsData = clubsData.filter(c => c.id !== clubId);
-    filteredClubs = filteredClubs.filter(c => c.id !== clubId);
+    clubsData = clubsData.filter(c => !(c.name === clubName && c.school === clubSchool));
+    filteredClubs = filteredClubs.filter(c => !(c.name === clubName && c.school === clubSchool));
     
     // 重新渲染
     renderClubsTable();
