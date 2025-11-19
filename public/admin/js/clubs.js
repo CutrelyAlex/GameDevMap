@@ -4,6 +4,8 @@ let clubsTableBody;
 let clubSearchInput;
 let refreshClubsButton;
 let clubsListStatus;
+let clubEditModal;
+let clubEditForm;
 
 let clubsData = [];
 let filteredClubs = [];
@@ -17,6 +19,22 @@ function initElements() {
     clubSearchInput = document.getElementById('clubSearchInput');
     refreshClubsButton = document.getElementById('refreshClubsButton');
     clubsListStatus = document.getElementById('clubsListStatus');
+    clubEditModal = document.getElementById('clubEditModal');
+    clubEditForm = document.getElementById('clubEditForm');
+
+    // 绑定模态框关闭事件
+    if (clubEditModal) {
+      clubEditModal.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+          clubEditModal.classList.add('hidden');
+        });
+      });
+    }
+
+    // 绑定表单提交事件
+    if (clubEditForm) {
+      clubEditForm.addEventListener('submit', handleEditSubmit);
+    }
   }
 }
 
@@ -81,12 +99,16 @@ function renderClubsTable() {
     const row = document.createElement('tr');
     
     row.innerHTML = `
+      <td>${club.index !== undefined ? club.index : '-'}</td>
       <td>${escapeHTML(club.name)}</td>
       <td>${escapeHTML(club.school)}</td>
       <td>${escapeHTML(club.province)}</td>
       <td>${escapeHTML(club.city || '-')}</td>
       <td>${formatDate(club.createdAt || '')}</td>
       <td>
+        <button class="action-button" data-club-id="${club.id}" data-action="edit">
+          编辑
+        </button>
         <button class="action-button action-button--danger" data-club-id="${club.id}" data-action="delete">
           删除
         </button>
@@ -96,32 +118,93 @@ function renderClubsTable() {
     clubsTableBody.appendChild(row);
   });
 
-  // 绑定删除按钮事件
+  // 绑定按钮事件
   clubsTableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
     btn.addEventListener('click', handleDeleteClub);
+  });
+  
+  clubsTableBody.querySelectorAll('[data-action="edit"]').forEach(btn => {
+    btn.addEventListener('click', handleEditClub);
   });
 }
 
 /**
- * 搜索过滤
+ * 打开编辑模态框
  */
-function filterClubs() {
-  const searchTerm = clubSearchInput.value.trim().toLowerCase();
+function handleEditClub(e) {
+  const clubId = e.target.dataset.clubId;
+  const club = clubsData.find(c => c.id === clubId);
   
-  if (!searchTerm) {
-    filteredClubs = [...clubsData];
+  if (!club) return;
+
+  document.getElementById('editClubId').value = club.id;
+  document.getElementById('editClubIndex').value = club.index || 0;
+  document.getElementById('editClubName').value = club.name;
+  document.getElementById('editClubSchool').value = club.school;
+  document.getElementById('editClubProvince').value = club.province;
+  document.getElementById('editClubCity').value = club.city || '';
+  document.getElementById('editClubLogo').value = club.logo || '';
+
+  const preview = document.getElementById('editClubLogoPreview');
+  if (club.logo) {
+    preview.innerHTML = `<img src="${club.logo}" alt="Logo Preview" style="max-width: 100%; height: auto;">`;
   } else {
-    filteredClubs = clubsData.filter(club => 
-      club.name.toLowerCase().includes(searchTerm) ||
-      club.school.toLowerCase().includes(searchTerm) ||
-      club.province.toLowerCase().includes(searchTerm) ||
-      (club.city && club.city.toLowerCase().includes(searchTerm)) ||
-      (club.tags && club.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
-    );
+    preview.innerHTML = '';
   }
 
-  renderClubsTable();
-  setClubsListStatus(`找到 ${filteredClubs.length} 个社团`, '');
+  clubEditModal.classList.remove('hidden');
+}
+
+/**
+ * 处理编辑提交
+ */
+async function handleEditSubmit(e) {
+  e.preventDefault();
+  
+  const clubId = document.getElementById('editClubId').value;
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
+
+  const formData = {
+    index: parseInt(document.getElementById('editClubIndex').value) || 0,
+    name: document.getElementById('editClubName').value,
+    school: document.getElementById('editClubSchool').value,
+    province: document.getElementById('editClubProvince').value,
+    city: document.getElementById('editClubCity').value,
+    logo: document.getElementById('editClubLogo').value
+  };
+
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '保存中...';
+
+    const response = await authFetch(`/api/clubs/${clubId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result?.message || '更新失败');
+    }
+
+    setClubsListStatus(`社团 "${formData.name}" 更新成功`, 'success');
+    clubEditModal.classList.add('hidden');
+    
+    // 重新加载列表
+    loadClubs();
+
+  } catch (error) {
+    console.error('Update club failed:', error);
+    alert(`更新失败: ${error.message}`);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
 }
 
 /**

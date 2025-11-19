@@ -112,6 +112,7 @@
           <table aria-label="社团列表">
             <thead>
               <tr>
+                <th scope="col">Index</th>
                 <th scope="col">社团名称</th>
                 <th scope="col">学校</th>
                 <th scope="col">省份</th>
@@ -178,6 +179,57 @@
         </div>
       </div>
 
+      <!-- 社团编辑框 -->
+      <div id="clubEditModal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>编辑社团信息</h2>
+            <button class="close-modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="clubEditForm">
+              <input type="hidden" id="editClubId">
+              
+              <div class="form-group">
+                <label for="editClubIndex">排序索引 (Index)</label>
+                <input type="number" id="editClubIndex" required>
+                <small class="help-text">用于列表排序，数字越小越靠前</small>
+              </div>
+
+              <div class="form-group">
+                <label for="editClubName">社团名称</label>
+                <input type="text" id="editClubName" required>
+              </div>
+
+              <div class="form-group">
+                <label for="editClubSchool">学校</label>
+                <input type="text" id="editClubSchool" required>
+              </div>
+
+              <div class="form-group">
+                <label for="editClubProvince">省份</label>
+                <input type="text" id="editClubProvince" required>
+              </div>
+
+              <div class="form-group">
+                <label for="editClubCity">城市</label>
+                <input type="text" id="editClubCity">
+              </div>
+
+              <div class="form-group">
+                <label for="editClubLogo">Logo URL</label>
+                <input type="text" id="editClubLogo">
+                <div id="editClubLogoPreview" style="margin-top: 10px; max-width: 100px;"></div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="secondary-button close-modal">取消</button>
+                <button type="submit" class="primary-button">保存修改</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
