@@ -4,7 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const Club = require('../models/Club');
 const { authenticate } = require('../middleware/auth');
-const syncToJson = require('../scripts/syncToJson');
+const syncToJson = require('../scripts/sync-to-json');
 
 /**
  * 删除社团相关的Logo文件
