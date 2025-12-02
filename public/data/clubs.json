@@ -1,27 +1,49 @@
 [
   {
+    "name": "Reality游戏开发爱好者协会",
+    "school": "广东工业大学",
+    "city": "广州市",
+    "province": "广东省",
+    "coordinates": [
+      113.3992,
+      23.0358
+    ],
+    "logo": "2025_1202_c9s66x_logo.jpg",
+    "shortDescription": "Reality is Broken",
+    "description": "我们是Reality游戏开发爱好者协会，一群来自五湖四海、热爱游戏的学子们组件的游戏开发社团\n在这里——\n你既能和伙伴围坐畅聊新游攻略、组队联机打副本\n也能深入探讨游戏设计逻辑、代码优化技巧；\n既能组队参加全国性游戏开发赛事，也能自由实验小众游戏玩法\n我们欢迎每一位热爱游戏，热爱游戏开发的同学加入！",
+    "tags": [
+      "Reality",
+      "游戏开发"
+    ],
+    "externalLinks": [
+      {
+        "type": "R社游戏展示链接",
+        "url": "https://reality-game.itch.io/"
+      }
+    ]
+  },
+  {
     "name": "南昌大学家园工作室",
     "school": "南昌大学",
     "city": "南昌市",
     "province": "江西省",
     "coordinates": [
-      115.812374,
-      28.665176
+      115.80911808857991,
+      28.664846982752007
     ],
-    "logo": "",
+    "logo": "2025_1202_7u5o9z_logo.jpg",
     "shortDescription": "",
     "description": "家园工作室成立于 2001 年，是南昌大学一个互联网的学生社团组织。以服务师生为目标，以改变世界为愿景。发布上线了数款互联网产品，培养了许多优秀的互联网从业者。",
     "tags": [
       "游戏开发",
       "编程",
-      "美术"
+      "美术",
+      "正式社团",
+      "研发",
+      "产品设计",
+      "Unity"
     ],
-    "externalLinks": [
-      {
-        "type": "网站",
-        "url": "https://home.ncu.edu.cn/"
-      }
-    ]
+    "externalLinks": []
   },
   {
     "name": ".LINE",
