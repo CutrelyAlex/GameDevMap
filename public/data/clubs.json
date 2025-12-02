@@ -1,5 +1,63 @@
 [
   {
+    "name": "南昌大学家园工作室",
+    "school": "南昌大学",
+    "city": "南昌市",
+    "province": "江西省",
+    "coordinates": [
+      115.812374,
+      28.665176
+    ],
+    "logo": "",
+    "shortDescription": "",
+    "description": "家园工作室成立于 2001 年，是南昌大学一个互联网的学生社团组织。以服务师生为目标，以改变世界为愿景。发布上线了数款互联网产品，培养了许多优秀的互联网从业者。",
+    "tags": [
+      "游戏开发",
+      "编程",
+      "美术"
+    ],
+    "externalLinks": [
+      {
+        "type": "网站",
+        "url": "https://home.ncu.edu.cn/"
+      }
+    ]
+  },
+  {
+    "name": ".LINE",
+    "school": "西南交通大学",
+    "city": "成都市",
+    "province": "四川省",
+    "coordinates": [
+      103.986241,
+      30.764382
+    ],
+    "logo": "2025_1125_b9qqfz_logo.png",
+    "shortDescription": "是根植于成都本地高校的游戏开发社群，成立于2024年。核心活动涵盖技术培训、赛事参与、产学合作及原创项目孵化等，已与多个组织展开过多次合作。",
+    "description": "logo整体为.LINE的字体形变，N字的斜杠化为灵活多变的线条，呼应line的中文含义，L与N形成交错倒映的门扉，象征着游戏是虚拟与现实的共生体。门扉之中的星辰为点的化身，也是灵感的灵光乍现，线条化为飞鸟，象征着自由的想法，社团氛围的开放，鼓励思维的发散，门扉也代表路径，社团提供技术帮助与协作，从想法到实现想法，也是从点到线再到面的重要过程。最右侧e字的形变代表书籍的剪影，由知识构筑基础，游戏是综合体，不同领域的知识想法互相碰撞才能产生不一样的火花。",
+    "tags": [
+      "游戏开发",
+      "美术",
+      "程序",
+      "策划",
+      "知识库"
+    ],
+    "externalLinks": [
+      {
+        "type": "知识库",
+        "url": "https://qcn8s4kljs4x.feishu.cn/wiki/KZe0wQch5ikDYnkg9DwcMnXdnMg"
+      },
+      {
+        "type": "Bilibili",
+        "url": "https://space.bilibili.com/3632312205970038"
+      },
+      {
+        "type": "小红书",
+        "url": "https://www.xiaohongshu.com/user/profile/62d4a62c0000000015015645"
+      }
+    ]
+  },
+  {
     "name": "水龙果创意",
     "school": "深圳大学",
     "city": "深圳",
