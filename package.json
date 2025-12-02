@@ -8,6 +8,8 @@
     "dev": "nodemon server/index.js",
     "test": "mocha tests/**/*.test.js --timeout 5000",
     "test:unit": "mocha tests/unit/**/*.test.js --timeout 5000",
+    "test:unit:backend": "mocha tests/unit/!(frontend-*).test.js --timeout 5000",
+    "test:unit:frontend": "mocha tests/unit/frontend-*.test.js --timeout 5000",
     "test:integration": "mocha tests/integration/**/*.test.js --timeout 10000",
     "test:watch": "mocha tests/**/*.test.js --watch",
     "generate:jwt": "node scripts/generate-jwt-secret.js",
