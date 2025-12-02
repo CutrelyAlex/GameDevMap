@@ -4,8 +4,8 @@
  */
 const path = require('path');
 
-// 项目根目录
-const PROJECT_ROOT = path.resolve(__dirname, '..');
+// 项目根目录（从 server/config 上升两级到项目根）
+const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 // 数据目录
 const DATA_DIR = path.join(PROJECT_ROOT, 'data');

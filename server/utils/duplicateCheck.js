@@ -209,5 +209,6 @@ function escapeRegex(string) {
 
 module.exports = {
   findSimilarClubs,
-  calculateStringSimilarity
+  calculateStringSimilarity,
+  calculateDistance
 };
