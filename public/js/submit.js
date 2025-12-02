@@ -38,6 +38,35 @@ function flushDebug(payload) {
   }
 }
 
+// 追踪本次提交上传的文件，如果提交失败则清理这些文件
+let uploadedFiles = {
+  logo: null,
+  qrcodes: []
+};
+
+function trackUploadedFile(type, filePath) {
+  if (type === 'logo') {
+    uploadedFiles.logo = filePath;
+  } else if (type === 'qrcode') {
+    uploadedFiles.qrcodes.push(filePath);
+  }
+}
+
+async function cleanupUploadedFiles() {
+  const filesToDelete = [];
+  if (uploadedFiles.logo) {
+    filesToDelete.push(uploadedFiles.logo);
+  }
+  filesToDelete.push(...uploadedFiles.qrcodes);
+
+  for (const filePath of filesToDelete) {
+    await deleteUploadedFile(filePath);
+  }
+
+  // 重置上传文件追踪
+  uploadedFiles = { logo: null, qrcodes: [] };
+}
+
 const form = document.getElementById('submissionForm');
 const provinceSelect = document.getElementById('province');
 const submitButton = document.getElementById('submitButton');
@@ -296,6 +325,9 @@ function attachQrcodeHandlersToItem(linkItem) {
         
         pushDebug(`✅ 二维码上传成功: ${qrcodePath}`);
         
+        // 追踪已上传的二维码文件（用于提交失败时清理）
+        trackUploadedFile('qrcode', qrcodePath);
+        
         // Store the uploaded path in a data attribute
         linkItem.dataset.qrcodePath = qrcodePath;
         
@@ -535,6 +567,8 @@ form.addEventListener('submit', async (event) => {
     if (logoFile) {
       const logoPath = await uploadLogo(logoFile);
       payload.logo = logoPath;
+      // 追踪已上传的 logo（用于提交失败时清理）
+      trackUploadedFile('logo', logoPath);
     } else if (currentMode === 'edit') {
       // In edit mode, preserve the original logo if no new logo is uploaded
       payload.logo = selectedClub.logo || formData.get('logo') || '';
@@ -576,7 +610,11 @@ form.addEventListener('submit', async (event) => {
 
     resetForm();
     showStatus(result.message || '提交成功！感谢您的贡献，我们将尽快审核。', 'success');
+    // 清空上传文件追踪
+    uploadedFiles = { logo: null, qrcodes: [] };
   } catch (error) {
+    // 提交失败时，清理已上传的文件
+    await cleanupUploadedFiles();
     showStatus(error.message || '提交失败，请稍后再试', 'error');
   } finally {
     toggleLoading(false);
@@ -696,43 +734,47 @@ toggleEditMode.addEventListener('click', () => {
   }
 });
 
-// Club search (real-time search like homepage)
-clubSearchInput.addEventListener('input', async (e) => {
-  const query = e.target.value.toLowerCase().trim();
+// Club search with debounce (2s delay to avoid excessive API calls)
+let searchDebounceTimer = null;
+
+clubSearchInput.addEventListener('input', (e) => {
+  const query = e.target.value.trim();
+  
+  // Clear previous debounce timer
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
   
   if (query.length < 1) {
     searchResults.innerHTML = '';
     return;
   }
   
-  try {
-    // Load clubs data if not already loaded
-    if (!window.clubsData) {
-      const response = await fetch('/data/clubs.json');
+  // Wait 2 seconds after user stops typing before making API request
+  searchDebounceTimer = setTimeout(async () => {
+    try {
+      // Query API with search parameter to get latest clubs from database
+      // API endpoint supports search across: name, school, province, city
+      const response = await fetch(`/api/clubs?search=${encodeURIComponent(query)}`);
+      
       if (!response.ok) {
-        throw new Error('Failed to load clubs data');
+        throw new Error('Failed to search clubs');
       }
-      window.clubsData = await response.json();
+      
+      const result = await response.json();
+      const clubs = result.success ? result.data : [];
+      
+      displaySearchResults(clubs.slice(0, 10));
+      
+    } catch (error) {
+      console.error('Search failed:', error);
+      searchResults.innerHTML = '';
+      const p = document.createElement('p');
+      p.style.cssText = 'padding: 10px; color: #f44336;';
+      p.textContent = '搜索失败，请稍后重试';
+      searchResults.appendChild(p);
     }
-    
-    // Search clubs
-    const results = window.clubsData.filter(club => 
-      club.name.toLowerCase().includes(query) ||
-      club.school.toLowerCase().includes(query) ||
-      club.city.toLowerCase().includes(query) ||
-      (club.tags && club.tags.some(tag => tag.toLowerCase().includes(query)))
-    );
-    
-    displaySearchResults(results.slice(0, 10));
-    
-  } catch (error) {
-    console.error('Search failed:', error);
-    searchResults.innerHTML = '';
-    const p = document.createElement('p');
-    p.style.cssText = 'padding: 10px; color: #f44336;';
-    p.textContent = '搜索失败，请稍后重试';
-    searchResults.appendChild(p);
-  }
+  }, 200); // 0.2 second debounce delay
 });
 
 // Display search results
@@ -1383,14 +1425,14 @@ function validateEditedValue(field, value) {
     case 'name':
     case 'school':
       if (!value) {
-        showMessage('此字段不能为空', 'error');
+        showStatus('此字段不能为空', 'error');
         return false;
       }
       break;
     
     case 'location':
       if (!value) {
-        showMessage('省份不能为空', 'error');
+        showStatus('省份不能为空', 'error');
         return false;
       }
       break;
@@ -1398,7 +1440,7 @@ function validateEditedValue(field, value) {
     case 'coordinates':
       const [lat, lng] = value.split(', ');
       if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        showMessage('坐标格式不正确', 'error');
+        showStatus('坐标格式不正确', 'error');
         return false;
       }
       break;
@@ -1409,6 +1451,7 @@ function validateEditedValue(field, value) {
       }
       break;
   }
+  return true;
 }
 
 // Update form data
@@ -1552,6 +1595,8 @@ confirmEdit.addEventListener('click', async () => {
         const uploadedPath = await uploadLogo(logoFile);
         if (uploadedPath) {
           logoPath = uploadedPath;
+          // 追踪已上传的 logo（用于提交失败时清理）
+          trackUploadedFile('logo', uploadedPath);
         }
       }
     }
@@ -1641,6 +1686,7 @@ confirmEdit.addEventListener('click', async () => {
     // 此时 submissionData 已包含所有编辑修改
     flushDebug(submissionData);
 
+    console.log('发送编辑提交请求到 /api/submissions...');
     const response = await fetch('/api/submissions', {
       method: 'POST',
       headers: {
@@ -1649,9 +1695,12 @@ confirmEdit.addEventListener('click', async () => {
       body: JSON.stringify(submissionData)
     });
 
+    console.log('收到响应，状态码:', response.status);
+
     // 调试信息已通过 flushDebug 在发送前一次性输出
 
     const result = await response.json().catch(() => null);
+    console.log('响应结果:', result);
 
     if (!response.ok || !result?.success) {
       // 提供更详细的错误信息
@@ -1684,8 +1733,12 @@ confirmEdit.addEventListener('click', async () => {
     toggleEditMode.classList.remove('active');
     currentMode = 'new';
     selectedClub = null;
+    // 清空上传文件追踪
+    uploadedFiles = { logo: null, qrcodes: [] };
 
   } catch (error) {
+    // 提交失败时，清理已上传的文件
+    await cleanupUploadedFiles();
     console.error('提交编辑失败:', error);
     showStatus(error.message || '提交失败，请重试', 'error');
   } finally {

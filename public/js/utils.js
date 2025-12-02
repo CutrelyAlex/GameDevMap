@@ -150,3 +150,32 @@ async function uploadQRCode(file) {
 
   return result.data.path;
 }
+
+/**
+ * 删除已上传的文件（用于提交失败后清理）
+ * @param {string} filePath - 文件相对路径（如 /assets/submissions/xxx.jpg）
+ * @returns {Promise<boolean>} 是否删除成功
+ */
+async function deleteUploadedFile(filePath) {
+  if (!filePath) {
+    return true; // 没有文件路径，返回成功
+  }
+
+  try {
+    // 从文件路径中提取文件名
+    const filename = filePath.split('/').pop();
+    if (!filename) {
+      return false;
+    }
+
+    const response = await fetch(`${API_ENDPOINTS.upload_logo.replace('/logo', '')}/file?filename=${encodeURIComponent(filename)}`, {
+      method: 'DELETE'
+    });
+
+    const result = await response.json().catch(() => null);
+    return response.ok && result?.success;
+  } catch (error) {
+    console.error('Failed to delete uploaded file:', error);
+    return false;
+  }
+}
