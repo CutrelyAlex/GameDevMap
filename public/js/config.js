@@ -32,3 +32,24 @@ const LIMITS = {
   max_description_short: 200,
   max_links: 10
 };
+
+/**
+ * 首页地图展示配置 - 用于 index.html
+ * 包含地图初始化参数、资源路径、数据加载配置
+ * script.js 使用这些配置来初始化高德地图和展示社团信息
+ */
+const MAP_CONFIG = {
+  // 资源路径（logo 和占位符）
+  LOGO_DIR: '/assets/compressedLogos/',           // Logo 压缩版本目录
+  FALLBACK_LOGO_DIR: '/assets/logos/',            // Logo 备用目录
+  PLACEHOLDER: '/assets/logos/placeholder.png',   // Logo 占位符
+  
+  // 数据加载配置
+  DATA_PATH: '/api/clubs',                        // 动态 API 接口
+  DATA_PATH_FALLBACK: '/data/clubs.json',         // 静态 JSON 备用
+  
+  // 地图显示配置
+  DEFAULT_ZOOM: 5,                                // 默认缩放级别（显示全国）
+  CENTER: [104.1954, 35.8617],                    // 默认中心点
+  DETAIL_ZOOM: 13                                 // 社团详情展示的缩放级别
+};

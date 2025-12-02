@@ -1,3 +1,21 @@
+/**
+ * 首页地图展示脚本 (index.html)
+ * 
+ * 核心功能：
+ *   - 高德地图初始化与社团标记点显示
+ *   - 社团数据加载（API 或 JSON 备用）
+ *   - 社团详情卡片展示（含外部链接和二维码）
+ *   - 搜索功能（按名称/学校/标签）
+ *   - 省份过滤与社团列表展示
+ *   - 二维码弹窗展示
+ * 
+ * 依赖：config.js (MAP_CONFIG), AMap (高德地图 API)
+ * 被依赖：index.html
+ *
+ * 注：escapeHtml, isValidUrl, getLinkTypeIcon 是首页专用函数，
+ * 不复用 utils.js，以保持代码独立性和页面加载性能
+ */
+
 let map;
 let markers = [];
 let clubsData = [];
@@ -5,6 +23,7 @@ let currentProvinceFilter = null; // 当前选中的省份过滤器
 
 /**
  * 转义HTML特殊字符，防止XSS攻击
+ * 用于将用户数据安全地渲染到 DOM 中
  */
 function escapeHtml(text) {
     if (!text) return '';
@@ -20,6 +39,7 @@ function escapeHtml(text) {
 
 /**
  * 根据链接类型返回对应的图标
+ * 为不同平台的社团外部链接提供 Emoji 图标表示
  */
 function getLinkTypeIcon(type) {
     const typeMap = {
@@ -57,7 +77,8 @@ function getLinkTypeIcon(type) {
 }
 
 /**
- * 判断字符串是否为有效的URL
+ * 判断字符串是否为有效的 URL
+ * 用于社团详情中区分是否显示可点击链接或纯文本
  */
 function isValidUrl(string) {
     try {
@@ -68,6 +89,12 @@ function isValidUrl(string) {
     }
 }
 
+/**
+ * 根据环境获取资源路径
+ * 本地开发使用相对路径，生产环境使用绝对路径，便于跨域访问
+ * @param {string} path - 资源路径
+ * @returns {string} 处理后的资源路径
+ */
 function getResourcePath(path) {
     // 如果是本地开发（localhost 或 127.0.0.1），用相对路径
     const isLocalDev = window.location.hostname === 'localhost' || 
@@ -82,22 +109,36 @@ function getResourcePath(path) {
     }
 }
 
+/**
+ * 获取 API 路径 - API 路径始终从根路径开始
+ * @param {string} path - API 路径
+ * @returns {string} 处理后的 API 路径
+ */
 function getApiPath(path) {
     // API路径始终从根路径开始
     return path.startsWith('/') ? path : '/' + path;
 }
 
-// 配置：资源路径
-const CONFIG = {
-    LOGO_DIR: getResourcePath('/assets/compressedLogos/'),
-    FALLBACK_LOGO_DIR: getResourcePath('/assets/logos/'),
-    DATA_PATH: getApiPath('/api/clubs'), // 使用动态API
-    DATA_PATH_FALLBACK: getResourcePath('/data/clubs.json'), // 静态文件作为备用
-    PLACEHOLDER: getResourcePath('/assets/logos/placeholder.png'),
-    DEFAULT_ZOOM: 5,
-    CENTER: [104.1954, 35.8617],
-    DETAIL_ZOOM: 13
-};
+/**
+ * 初始化并适配地图配置
+ * 将 config.js 中的 MAP_CONFIG 转换为环境相适应的资源路径格式
+ * @returns {object} 经过环境处理的配置对象
+ */
+function initMapConfig() {
+    return {
+        LOGO_DIR: getResourcePath(MAP_CONFIG.LOGO_DIR),
+        FALLBACK_LOGO_DIR: getResourcePath(MAP_CONFIG.FALLBACK_LOGO_DIR),
+        DATA_PATH: getApiPath(MAP_CONFIG.DATA_PATH),
+        DATA_PATH_FALLBACK: getResourcePath(MAP_CONFIG.DATA_PATH_FALLBACK),
+        PLACEHOLDER: getResourcePath(MAP_CONFIG.PLACEHOLDER),
+        DEFAULT_ZOOM: MAP_CONFIG.DEFAULT_ZOOM,
+        CENTER: MAP_CONFIG.CENTER,
+        DETAIL_ZOOM: MAP_CONFIG.DETAIL_ZOOM
+    };
+}
+
+// 实例化配置 - 在脚本加载时立即计算
+const CONFIG = initMapConfig();
 
 /**
  * 解析 Logo 图片路径

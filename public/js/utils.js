@@ -1,5 +1,15 @@
 /**
- * 工具函数库
+ * 全局工具函数库 - 被 submit.js 使用
+ * 
+ * 提供可复用的通用工具函数，主要包括：
+ *   - HTML 转义防 XSS：escapeHtmlAttr() - 处理 HTML 属性值
+ *   - 标签解析：parseTags() - 将逗号/换行分隔的字符串解析为数组
+ *   - 坐标校验：validateCoordinates() - 验证经纬度格式
+ *   - 文件校验：validateLogoFile() - 验证 Logo 文件格式和大小
+ *   - 文件上传：uploadLogo(), uploadQRCode() - 处理图片上传
+ * 
+ * 依赖模块：config.js (API_ENDPOINTS, LIMITS)
+ * 依赖函数：addDebugLog() (由 submit.html 中的 debug-panel.js 提供)
  */
 
 /**
@@ -63,18 +73,19 @@ function validateCoordinates(lat, lng) {
 /**
  * 校验 Logo 文件
  * @param {File} file
- * @returns {boolean}
- * @throws {Error} 文件不合法
+ * @returns {boolean} 是否合法
  */
 function validateLogoFile(file) {
   const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'];
   
   if (!allowedTypes.includes(file.type)) {
-    throw new Error('Logo 文件格式不正确，请使用 PNG、JPG、GIF 或 SVG 格式');
+    showStatus('Logo 文件格式不正确，请使用 PNG、JPG、GIF 或 SVG 格式', 'error');
+    return false;
   }
   
   if (file.size > LIMITS.logo_max_size) {
-    throw new Error(`Logo 文件大小不能超过 ${LIMITS.logo_max_size / (1024 * 1024)}MB`);
+    showStatus(`Logo 文件大小不能超过 ${LIMITS.logo_max_size / (1024 * 1024)}MB`, 'error');
+    return false;
   }
   
   return true;
@@ -91,7 +102,9 @@ async function uploadLogo(file) {
     return '';
   }
 
-  validateLogoFile(file);
+  if (!validateLogoFile(file)) {
+    throw new Error('Logo 文件校验失败');
+  }
 
   const formData = new FormData();
   formData.append('logo', file);
