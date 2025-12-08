@@ -93,4 +93,75 @@ router.post('/qrcode',
   }
 );
 
+/**
+ * DELETE /api/upload/file
+ * 删除已上传的文件（用于提交失败后的清理）
+ * 
+ * @query {string} filename - 要删除的文件名
+ * @returns {Object} 删除结果
+ */
+router.delete('/file',
+  apiLimiter,
+  (req, res) => {
+    try {
+      const { filename } = req.query;
+      
+      if (!filename) {
+        return res.status(400).json({
+          success: false,
+          error: 'NO_FILENAME',
+          message: '请提供要删除的文件名'
+        });
+      }
+
+      // 安全检查：确保文件名不包含路径遍历字符
+      if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) {
+        return res.status(400).json({
+          success: false,
+          error: 'INVALID_FILENAME',
+          message: '无效的文件名'
+        });
+      }
+
+      const fs = require('fs');
+      const path = require('path');
+      const filePath = path.join(__dirname, '../..', 'public/assets/submissions', filename);
+
+      // 确保文件在预期的目录中
+      const uploadDir = path.join(__dirname, '../..', 'public/assets/submissions');
+      if (!filePath.startsWith(uploadDir)) {
+        return res.status(400).json({
+          success: false,
+          error: 'INVALID_PATH',
+          message: '无效的文件路径'
+        });
+      }
+
+      // 检查文件是否存在
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+          success: false,
+          error: 'FILE_NOT_FOUND',
+          message: '文件不存在'
+        });
+      }
+
+      // 删除文件
+      fs.unlinkSync(filePath);
+
+      res.status(200).json({
+        success: true,
+        message: '文件已删除'
+      });
+    } catch (error) {
+      console.error('File deletion error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'SERVER_ERROR',
+        message: '文件删除失败，请稍后重试'
+      });
+    }
+  }
+);
+
 module.exports = router;

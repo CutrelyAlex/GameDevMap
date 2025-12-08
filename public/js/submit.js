@@ -1,28 +1,70 @@
-const PROVINCES = [
-  '北京市', '天津市', '上海市', '重庆市',
-  '河北省', '山西省', '辽宁省', '吉林省', '黑龙江省',
-  '江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省',
-  '河南省', '湖北省', '湖南省', '广东省', '海南省',
-  '四川省', '贵州省', '云南省', '陕西省', '甘肃省',
-  '青海省', '台湾省',
-  '内蒙古自治区', '广西壮族自治区', '西藏自治区',
-  '宁夏回族自治区', '新疆维吾尔自治区',
-  '香港特别行政区', '澳门特别行政区'
-];
-
 /**
- * HTML属性转义函数，防止XSS
+ * 表单提交脚本 (submit.html)
+ * 
+ * 核心功能：
+ *   - 社团信息表单收集与验证
+ *   - Logo 和二维码上传管理（支持预览）
+ *   - 外部链接编辑（支持多个链接的增删改）
+ *   - 表单数据 JSON 预览和最终提交
+ *   - 页面状态管理和用户交互反馈
+ * 
+ * 依赖模块：
+ *   - config.js (PROVINCES, API_ENDPOINTS, LIMITS) - 全局配置
+ *   - utils.js (escapeHtmlAttr, parseTags, 等工具函数) - 可复用功能
+ *   - debug-panel.js (addDebugLog) - 调试日志
+ * 
+ * 被依赖：submit.html
  */
-function escapeHtmlAttr(text) {
-  if (typeof text !== 'string') return '';
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, m => map[m]);
+
+// 调试收集器：用于在表单提交时收集一组调试信息，最终一次性输出到 debug-panel
+let debugReport = null;
+function startDebugReport() {
+  debugReport = [];
+}
+function pushDebug(msg) {
+  if (debugReport) debugReport.push(msg);
+}
+function flushDebug(payload) {
+  if (!debugReport) return;
+  try {
+    // 将收集到的调试信息合并并输出
+    const combined = debugReport.join('\n');
+    if (combined) addDebugLog(combined);
+    // 输出 externalLinks 的最终数量以及完整 payload
+    addDebugLog(`📤 externalLinks 最终有 ${payload.externalLinks ? payload.externalLinks.length : 0} 个`);
+    addDebugLog('📤 【提交】发送的完整 payload: ' + JSON.stringify(payload, null, 2));
+  } finally {
+    debugReport = null;
+  }
+}
+
+// 追踪本次提交上传的文件，如果提交失败则清理这些文件
+let uploadedFiles = {
+  logo: null,
+  qrcodes: []
+};
+
+function trackUploadedFile(type, filePath) {
+  if (type === 'logo') {
+    uploadedFiles.logo = filePath;
+  } else if (type === 'qrcode') {
+    uploadedFiles.qrcodes.push(filePath);
+  }
+}
+
+async function cleanupUploadedFiles() {
+  const filesToDelete = [];
+  if (uploadedFiles.logo) {
+    filesToDelete.push(uploadedFiles.logo);
+  }
+  filesToDelete.push(...uploadedFiles.qrcodes);
+
+  for (const filePath of filesToDelete) {
+    await deleteUploadedFile(filePath);
+  }
+
+  // 重置上传文件追踪
+  uploadedFiles = { logo: null, qrcodes: [] };
 }
 
 const form = document.getElementById('submissionForm');
@@ -130,97 +172,6 @@ function clearStatus() {
 }
 
 /**
- * Parse tags from user input.
- * @param {string} raw
- * @returns {string[]}
- */
-function parseTags(raw) {
-  if (!raw) {
-    return [];
-  }
-
-  const tags = raw
-    .split(/[,，\n]/)
-    .map(tag => tag.trim())
-    .filter(Boolean);
-
-  if (tags.length > 10) {
-    throw new Error('标签数量最多 10 个，请删除多余的标签');
-  }
-
-  return tags;
-}
-
-/**
- * Validate latitude/longitude range.
- */
-function validateCoordinates(lat, lng) {
-  if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    throw new Error('请填写有效的经纬度坐标');
-  }
-  if (lat < -90 || lat > 90) {
-    throw new Error('纬度必须在 -90 到 90 之间');
-  }
-  if (lng < -180 || lng > 180) {
-    throw new Error('经度必须在 -180 到 180 之间');
-  }
-}
-
-/**
- * Upload logo if present.
- * @param {File|undefined} file
- * @returns {Promise<string>}
- */
-async function uploadLogo(file) {
-  if (!file) {
-    return '';
-  }
-
-  const formData = new FormData();
-  formData.append('logo', file);
-
-  const response = await fetch('/api/upload/logo', {
-    method: 'POST',
-    body: formData
-  });
-
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok || !result?.success) {
-    throw new Error(result?.message || 'Logo 上传失败，请稍后再试');
-  }
-
-  return result.data.path;
-}
-
-/**
- * Upload QR code image to server
- * @param {File} file - QR code image file
- * @returns {Promise<string>} - Uploaded file path
- */
-async function uploadQRCode(file) {
-  if (!file) {
-    return '';
-  }
-
-  const formData = new FormData();
-  formData.append('qrcode', file);
-
-  const response = await fetch('/api/upload/qrcode', {
-    method: 'POST',
-    body: formData
-  });
-
-  const result = await response.json().catch(() => null);
-
-  if (!response.ok || !result?.success) {
-    throw new Error(result?.message || '二维码上传失败，请稍后再试');
-  }
-
-  return result.data.path;
-}
-
-/**
  * Collect links from the dynamic links container.
  * @param {HTMLElement} container - 链接容器元素，默认为linksContainer
  * @returns {Array} 链接数组
@@ -229,10 +180,10 @@ function collectLinks(container = linksContainer) {
   const linkItems = container.querySelectorAll('.link-item');
   const links = [];
 
-  addDebugLog(`🔍 开始收集链接，找到 ${linkItems.length} 个链接项`);
+  pushDebug(`🔍 开始收集链接，找到 ${linkItems.length} 个链接项`);
 
   linkItems.forEach((item, index) => {
-    addDebugLog(`  [链接${index + 1}] 开始处理...`);
+    pushDebug(`  [链接${index + 1}] 开始处理...`);
     
     const typeInput = item.querySelector('.link-type-input') || 
                       item.querySelector('[name="linkType"]') || 
@@ -248,7 +199,7 @@ function collectLinks(container = linksContainer) {
         const url = urlInput ? (urlInput.value || '').trim() : '';
         const qrcode = item.dataset.qrcodePath || '';
 
-        addDebugLog(`  [链接${index + 1}] type="${type}", url="${url}", qrcode="${qrcode}"`);
+        pushDebug(`  [链接${index + 1}] type="${type}", url="${url}", qrcode="${qrcode}"`);
 
         if (type && (url || qrcode)) {
           const link = { type };
@@ -258,7 +209,7 @@ function collectLinks(container = linksContainer) {
             let processedUrl = url;
             if (url && !url.includes('://')) {
               processedUrl = 'https://' + url;
-              addDebugLog(`  🔗 [链接${index + 1}] 自动添加https://前缀: "${url}" -> "${processedUrl}"`);
+              pushDebug(`  🔗 [链接${index + 1}] 自动添加https://前缀: "${url}" -> "${processedUrl}"`);
             }
             link.url = processedUrl;
           }
@@ -270,23 +221,23 @@ function collectLinks(container = linksContainer) {
               qrcodeFilename = qrcode.split('/').pop();
             }
             link.qrcode = qrcodeFilename;
-            addDebugLog(`  📷 [链接${index + 1}] QR码文件名: "${qrcode}" -> "${qrcodeFilename}"`);
+            pushDebug(`  📷 [链接${index + 1}] QR码文件名: "${qrcode}" -> "${qrcodeFilename}"`);
           }
           
-          addDebugLog(`  ✅ [链接${index + 1}] 添加成功: ${JSON.stringify(link)}`);
+          pushDebug(`  ✅ [链接${index + 1}] 添加成功: ${JSON.stringify(link)}`);
           links.push(link);
         } else {
-          addDebugLog(`  ❌ [链接${index + 1}] 不满足条件 (需要 type 和 (url 或 qrcode))`);
+          pushDebug(`  ❌ [链接${index + 1}] 不满足条件 (需要 type 和 (url 或 qrcode))`);
         }
       } catch (error) {
-        addDebugLog(`  ❌ [链接${index + 1}] 错误: ${error.message}`);
+        pushDebug(`  ❌ [链接${index + 1}] 错误: ${error.message}`);
       }
     } else {
-      addDebugLog(`  ❌ [链接${index + 1}] 找不到 typeInput`);
+      pushDebug(`  ❌ [链接${index + 1}] 找不到 typeInput`);
     }
   });
 
-  addDebugLog(`🎯 链接收集完毕，共 ${links.length} 个`);
+  pushDebug(`🎯 链接收集完毕，共 ${links.length} 个`);
   return links;
 }
 
@@ -367,17 +318,20 @@ function attachQrcodeHandlersToItem(linkItem) {
         uploadBtn.disabled = true;
         uploadBtn.textContent = '上传中...';
         
-        addDebugLog(`⬆️ 开始上传二维码: ${file.name} (${(file.size / 1024).toFixed(2)}KB)`);
+        pushDebug(`⬆️ 开始上传二维码: ${file.name} (${(file.size / 1024).toFixed(2)}KB)`);
         
         // Upload the QR code
         const qrcodePath = await uploadQRCode(file);
         
-        addDebugLog(`✅ 二维码上传成功: ${qrcodePath}`);
+        pushDebug(`✅ 二维码上传成功: ${qrcodePath}`);
+        
+        // 追踪已上传的二维码文件（用于提交失败时清理）
+        trackUploadedFile('qrcode', qrcodePath);
         
         // Store the uploaded path in a data attribute
         linkItem.dataset.qrcodePath = qrcodePath;
         
-        addDebugLog(`💾 保存到 linkItem.dataset.qrcodePath: ${linkItem.dataset.qrcodePath}`);
+        pushDebug(`💾 保存到 linkItem.dataset.qrcodePath: ${linkItem.dataset.qrcodePath}`);
         
         // Show preview
         previewQrcode(file, qrcodePreview, uploadBtn);
@@ -386,7 +340,7 @@ function attachQrcodeHandlersToItem(linkItem) {
         uploadBtn.textContent = '上传二维码';
       } catch (error) {
         console.error('QR code upload failed:', error);
-        addDebugLog(`❌ 二维码上传失败: ${error.message}`);
+        pushDebug(`❌ 二维码上传失败: ${error.message}`);
         alert(error.message || '二维码上传失败，请重试');
         uploadBtn.disabled = false;
         uploadBtn.textContent = '上传二维码';
@@ -508,7 +462,9 @@ form.addEventListener('submit', async (event) => {
     // Use formData values if in edit mode, otherwise use form inputs
     let latitude, longitude, tags, links, payload;
     
-    addDebugLog('📋 === 开始收集表单数据 ===');
+    // 开始收集调试信息（将在提交时一次性输出）
+    startDebugReport();
+    pushDebug('📋 === 开始收集表单数据 ===');
     
     if (currentMode === 'edit') {
       // In edit mode, start with original club data and override with edited fields
@@ -604,17 +560,22 @@ form.addEventListener('submit', async (event) => {
         submitterEmail: document.getElementById('submitterEmail').value.trim()
       };
       
-      addDebugLog(`📤 externalLinks 最终有 ${payload.externalLinks.length} 个`);
+      // externalLinks 的数量将在 flushDebug 时输出
     }
 
     const logoFile = logoInput.files?.[0];
     if (logoFile) {
       const logoPath = await uploadLogo(logoFile);
       payload.logo = logoPath;
+      // 追踪已上传的 logo（用于提交失败时清理）
+      trackUploadedFile('logo', logoPath);
     } else if (currentMode === 'edit') {
       // In edit mode, preserve the original logo if no new logo is uploaded
       payload.logo = selectedClub.logo || formData.get('logo') || '';
     }
+
+    // 输出本次提交的调试信息（包含链接处理过程和最终 payload）
+    flushDebug(payload);
 
     const response = await fetch('/api/submissions', {
       method: 'POST',
@@ -649,7 +610,11 @@ form.addEventListener('submit', async (event) => {
 
     resetForm();
     showStatus(result.message || '提交成功！感谢您的贡献，我们将尽快审核。', 'success');
+    // 清空上传文件追踪
+    uploadedFiles = { logo: null, qrcodes: [] };
   } catch (error) {
+    // 提交失败时，清理已上传的文件
+    await cleanupUploadedFiles();
     showStatus(error.message || '提交失败，请稍后再试', 'error');
   } finally {
     toggleLoading(false);
@@ -769,43 +734,47 @@ toggleEditMode.addEventListener('click', () => {
   }
 });
 
-// Club search (real-time search like homepage)
-clubSearchInput.addEventListener('input', async (e) => {
-  const query = e.target.value.toLowerCase().trim();
+// Club search with debounce (2s delay to avoid excessive API calls)
+let searchDebounceTimer = null;
+
+clubSearchInput.addEventListener('input', (e) => {
+  const query = e.target.value.trim();
+  
+  // Clear previous debounce timer
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
   
   if (query.length < 1) {
     searchResults.innerHTML = '';
     return;
   }
   
-  try {
-    // Load clubs data if not already loaded
-    if (!window.clubsData) {
-      const response = await fetch('/data/clubs.json');
+  // Wait 2 seconds after user stops typing before making API request
+  searchDebounceTimer = setTimeout(async () => {
+    try {
+      // Query API with search parameter to get latest clubs from database
+      // API endpoint supports search across: name, school, province, city
+      const response = await fetch(`/api/clubs?search=${encodeURIComponent(query)}`);
+      
       if (!response.ok) {
-        throw new Error('Failed to load clubs data');
+        throw new Error('Failed to search clubs');
       }
-      window.clubsData = await response.json();
+      
+      const result = await response.json();
+      const clubs = result.success ? result.data : [];
+      
+      displaySearchResults(clubs.slice(0, 10));
+      
+    } catch (error) {
+      console.error('Search failed:', error);
+      searchResults.innerHTML = '';
+      const p = document.createElement('p');
+      p.style.cssText = 'padding: 10px; color: #f44336;';
+      p.textContent = '搜索失败，请稍后重试';
+      searchResults.appendChild(p);
     }
-    
-    // Search clubs
-    const results = window.clubsData.filter(club => 
-      club.name.toLowerCase().includes(query) ||
-      club.school.toLowerCase().includes(query) ||
-      club.city.toLowerCase().includes(query) ||
-      (club.tags && club.tags.some(tag => tag.toLowerCase().includes(query)))
-    );
-    
-    displaySearchResults(results.slice(0, 10));
-    
-  } catch (error) {
-    console.error('Search failed:', error);
-    searchResults.innerHTML = '';
-    const p = document.createElement('p');
-    p.style.cssText = 'padding: 10px; color: #f44336;';
-    p.textContent = '搜索失败，请稍后重试';
-    searchResults.appendChild(p);
-  }
+  }, 200); // 0.2 second debounce delay
 });
 
 // Display search results
@@ -872,30 +841,30 @@ function populateEditInterface(club) {
   const logoToUse = club.logo;
   if (logoToUse) {
     // 检查是否是完整路径（包含 /assets/）
-    if (logoToUse.includes('/assets/')) {
+      if (logoToUse.includes('/assets/')) {
       // 直接使用完整路径
       displayElements.logo.src = logoToUse;
-      addDebugLog(`使用完整路径加载logo: ${logoToUse}`);
+      pushDebug(`使用完整路径加载logo: ${logoToUse}`);
     } else {
       // 只有文件名，需要查找
       const logoBase = logoToUse.split('.')[0]; // Remove extension to be format-agnostic
       
       // Try compressed version first (converted to PNG by compress script)
       displayElements.logo.src = `/assets/compressedLogos/${logoBase}.png`;
-      addDebugLog(`尝试加载压缩logo: /assets/compressedLogos/${logoBase}.png`);
+      pushDebug(`尝试加载压缩logo: /assets/compressedLogos/${logoBase}.png`);
       
       // Add fallback mechanism: if compressed version fails, try original
       displayElements.logo.onerror = function() {
         // Try original logo
         displayElements.logo.src = `/assets/logos/${logoToUse}`;
-        addDebugLog(`压缩logo不存在，尝试原始logo: /assets/logos/${logoToUse}`);
+        pushDebug(`压缩logo不存在，尝试原始logo: /assets/logos/${logoToUse}`);
         displayElements.logo.onerror = function() {
           // Try submissions directory as last resort
           displayElements.logo.src = `/assets/submissions/${logoToUse}`;
-          addDebugLog(`原始logo不存在，尝试submissions目录: /assets/submissions/${logoToUse}`);
+          pushDebug(`原始logo不存在，尝试submissions目录: /assets/submissions/${logoToUse}`);
           displayElements.logo.onerror = function() {
             // If all fail, hide and show placeholder
-            addDebugLog(`所有logo加载方式都失败`);
+            pushDebug(`所有logo加载方式都失败`);
             displayElements.logo.style.display = 'none';
             displayElements.logoPlaceholder.style.display = 'flex';
           };
@@ -1456,14 +1425,14 @@ function validateEditedValue(field, value) {
     case 'name':
     case 'school':
       if (!value) {
-        showMessage('此字段不能为空', 'error');
+        showStatus('此字段不能为空', 'error');
         return false;
       }
       break;
     
     case 'location':
       if (!value) {
-        showMessage('省份不能为空', 'error');
+        showStatus('省份不能为空', 'error');
         return false;
       }
       break;
@@ -1471,7 +1440,7 @@ function validateEditedValue(field, value) {
     case 'coordinates':
       const [lat, lng] = value.split(', ');
       if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        showMessage('坐标格式不正确', 'error');
+        showStatus('坐标格式不正确', 'error');
         return false;
       }
       break;
@@ -1482,25 +1451,6 @@ function validateEditedValue(field, value) {
       }
       break;
   }
-  
-  return true;
-}
-
-// Validate logo file
-function validateLogoFile(file) {
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'];
-  const maxSize = 20 * 1024 * 1024; // 20MB
-  
-  if (!allowedTypes.includes(file.type)) {
-    showMessage('Logo 文件格式不正确，请使用 PNG、JPG、GIF 或 SVG 格式', 'error');
-    return false;
-  }
-  
-  if (file.size > maxSize) {
-    showMessage('Logo 文件大小不能超过 20MB', 'error');
-    return false;
-  }
-  
   return true;
 }
 
@@ -1645,11 +1595,14 @@ confirmEdit.addEventListener('click', async () => {
         const uploadedPath = await uploadLogo(logoFile);
         if (uploadedPath) {
           logoPath = uploadedPath;
+          // 追踪已上传的 logo（用于提交失败时清理）
+          trackUploadedFile('logo', uploadedPath);
         }
       }
     }
 
-    // Collect external links from the form (use editLinksContainer for edit mode)
+    // 开始收集调试信息并收集外部链接（编辑模式）
+    startDebugReport();
     const editLinksContainer = document.getElementById('editLinksContainer');
     const externalLinks = editLinksContainer ? collectLinks(editLinksContainer) : [];
 
@@ -1729,6 +1682,11 @@ confirmEdit.addEventListener('click', async () => {
       }
     }
 
+    // 输出本次编辑提交的调试信息（包含链接处理过程和最终 payload）
+    // 此时 submissionData 已包含所有编辑修改
+    flushDebug(submissionData);
+
+    console.log('发送编辑提交请求到 /api/submissions...');
     const response = await fetch('/api/submissions', {
       method: 'POST',
       headers: {
@@ -1737,12 +1695,12 @@ confirmEdit.addEventListener('click', async () => {
       body: JSON.stringify(submissionData)
     });
 
-    // DEBUG: 打印发送的数据
-    console.log('📤 【编辑模式提交】发送的完整 payload:', JSON.stringify(submissionData, null, 2));
-    console.log('📤 description 值:', submissionData.description);
-    console.log('📤 shortDescription 值:', submissionData.shortDescription);
+    console.log('收到响应，状态码:', response.status);
+
+    // 调试信息已通过 flushDebug 在发送前一次性输出
 
     const result = await response.json().catch(() => null);
+    console.log('响应结果:', result);
 
     if (!response.ok || !result?.success) {
       // 提供更详细的错误信息
@@ -1775,8 +1733,12 @@ confirmEdit.addEventListener('click', async () => {
     toggleEditMode.classList.remove('active');
     currentMode = 'new';
     selectedClub = null;
+    // 清空上传文件追踪
+    uploadedFiles = { logo: null, qrcodes: [] };
 
   } catch (error) {
+    // 提交失败时，清理已上传的文件
+    await cleanupUploadedFiles();
     console.error('提交编辑失败:', error);
     showStatus(error.message || '提交失败，请重试', 'error');
   } finally {
@@ -1803,4 +1765,3 @@ cancelAllEdits.addEventListener('click', () => {
     showStatus('已取消所有修改', 'success');
   }
 });
-

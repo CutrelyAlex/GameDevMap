@@ -6,22 +6,24 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
+    "test": "mocha tests/**/*.test.js --timeout 5000",
+    "test:unit": "mocha tests/unit/**/*.test.js --timeout 5000",
+    "test:unit:backend": "mocha tests/unit/!(frontend-*).test.js --timeout 5000",
+    "test:unit:frontend": "mocha tests/unit/frontend-*.test.js --timeout 5000",
+    "test:integration": "mocha tests/integration/**/*.test.js --timeout 10000",
+    "test:watch": "mocha tests/**/*.test.js --watch",
     "generate:jwt": "node scripts/generate-jwt-secret.js",
-    "seed:admin": "node server/scripts/seedAdmin.js",
-    "migrate:clubs": "node server/scripts/migrateClubs.js",
-    "migrate:logos": "node server/scripts/migrateLogos.js",
-    "sync:json": "node server/scripts/syncToJson.js",
-    "sync:merge": "node server/scripts/syncToJson.js merge",
-    "sync:update": "node server/scripts/syncToJson.js update",
-    "sync:addOnly": "node server/scripts/syncToJson.js addOnly",
-    "compress:images": "python scripts/compress_images.py",
-    "cleanup:logos": "node server/scripts/cleanupOrphanedLogos.js",
+    "seed:admin": "node server/scripts/create-admin.js",
+    "migrate:clubs": "node server/scripts/migrate-clubs.js",
+    "sync:json": "node server/scripts/sync-to-json.js",
+    "sync:merge": "node server/scripts/sync-to-json.js merge",
+    "cleanup:logos": "node server/scripts/cleanup-orphaned-logos.js",
+    "reset:index": "node server/scripts/reset-index-field.js",
+    "validate:db": "node server/scripts/validate-database.js",
     "cache:start": "node server/cache-server.js",
     "pre-cache": "node server/pre-cache.js",
     "cache:clear": "curl -X DELETE http://localhost:3000/api/cache/clear",
-    "cache:clear:all": "curl -X DELETE \"http://localhost:3000/api/cache/clear?permanent=true\"",
-    "cache:stats": "curl http://localhost:3000/api/cache/stats",
-    "validate:db": "node server/scripts/validateDatabase.js"
+    "cache:stats": "curl http://localhost:3000/api/cache/stats"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
@@ -47,6 +49,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2",
     "nodemon": "^3.1.10"
   }
 }
