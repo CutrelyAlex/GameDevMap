@@ -37,6 +37,8 @@
 - MongoDB 4.0+
 - Python 3.6+ (用于图片压缩)
 
+> 迁移说明：本仓库正在推进 `specs/001-python-sql-refactor/` 的 Python + SQL 单一数据源重构。迁移窗口内 `server/`（Node）与 `backend/`（Python）会并存，用于对照与回滚。
+
 #### 安装步骤
 
 1. **克隆项目**
@@ -79,6 +81,16 @@
 8. **访问应用**
    - 前端：http://localhost:3000
    - 管理后台：http://localhost:3000/admin
+
+#### 启动 Python 后端（重构中）
+
+> 目标：替代 Node 后端提供 `/api/*`，并以 SQLite（默认 `data/gamedevmap.db`）作为权威数据源。
+
+1. 安装 Python 依赖（见 `backend/requirements.txt`）
+2. 配置环境变量（建议从 `.env.example` 合并到你的 `.env`）：至少需要 `JWT_SECRET`，以及 `DB_PATH` 或 `DATABASE_URL`
+3. 启动：`uvicorn backend.app:app --host 0.0.0.0 --port 3001`
+
+启动后可访问健康检查：`GET /api/health`
 
 ### 数据迁移（可选）
 

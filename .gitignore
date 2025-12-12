@@ -42,6 +42,13 @@ map-cache/
 .specify/
 specs/
 /.venv
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
 public/assets/submissions/
 /data/pending_submissions
 /data/submissions
