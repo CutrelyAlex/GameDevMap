@@ -8,6 +8,7 @@
 
 ### 在线访问
 - **当前部署于**：http://8.163.12.243
+- 欢迎加入作者的QQ群交流：1076040464
 
 ## 联系方式
 ![QQ](https://img.shields.io/badge/QQ-2470819243-blue?style=flat&logo=qq)
@@ -34,7 +35,6 @@
 
 #### 环境要求
 - Node.js 16+
-- MongoDB 4.0+
 - Python 3.6+ (用于图片压缩)
 
 #### 安装步骤
@@ -87,93 +87,17 @@
 npm run migrate:clubs
 ```
 
-## 使用指南
-
-### 添加社团Logo
-
-1. 将Logo图片上传到 `public/assets/logos/` 目录
-2. 运行图片压缩脚本：
-   ```bash
-   npm run compress:images
-   ```
-3. 在提交表单或管理后台中选择对应的Logo文件
-
-### 数据同步
-
-项目支持多种数据同步模式：
-
-```bash
-# JSON -> MongoDB 完全替换
-npm run sync:json
-
-# 双向智能合并
-npm run sync:merge
-
-# 仅更新现有记录
-npm run sync:update
-
-# 仅添加新记录
-npm run sync:addOnly
-```
-
-
 ## 项目架构
 
 ```
-GameDevMap/
-├── server/                 # 后端服务
-│   ├── index.js           # 主服务器文件
-│   ├── models/            # 数据模型
-│   ├── routes/            # API路由
-│   ├── middleware/        # 中间件
-│   ├── scripts/           # 维护脚本
-│   └── utils/             # 工具函数
-├── public/                # 前端静态文件
-│   ├── index.html         # 主页
-│   ├── admin/             # 管理后台
-│   ├── submit.html        # 提交页面
-│   ├── css/               # 样式文件
-│   ├── js/                # 前端脚本
-│   └── assets/            # 静态资源
-├── scripts/               # 工具脚本
-├── specs/                 # 项目规范文档
-├── docs/                  # 详细文档
-└── data/                  # 数据文件
+待更新
 ```
 
 ## 贡献指南
 
 ### 添加新社团
 
-1. **在线提交**：访问提交页面直接填写信息
-2. **Pull Request**：
-   - Fork 本仓库
-   - 在 `public/data/clubs.json` 中添加社团信息
-   - 上传Logo到 `public/assets/logos/`
-   - 提交 PR
-
-### 社团数据格式
-
-```json
-{
-  "id": "unique-club-id",
-  "name": "社团名称",
-  "school": "学校名称",
-  "city": "城市名称",
-  "province": "省份名称",
-  "coordinates": [经度, 纬度],
-  "logo": "logo-filename.png",
-  "shortDescription": "简短介绍",
-  "description": "详细介绍",
-  "tags": ["正式社团", "Unity", "游戏开发"],
-  "externalLinks": [
-    {
-      "type": "官网(此处可以是任何外链、也可以是信息)",
-      "url": "https://example.com(也可以不是网址)"
-    }
-  ]
-}
-```
+**在线提交**：现在请通过访问提交页面直接填写信息，审核通过后会同步到仓库中。
 
 ### 开发贡献
 
