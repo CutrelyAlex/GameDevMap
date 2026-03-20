@@ -1,5 +1,38 @@
 [
   {
+    "name": "三院科协游戏开发方向",
+    "school": "桂林电子科技大学",
+    "city": "桂林市",
+    "province": "广西壮族自治区",
+    "coordinates": [
+      110.415899,
+      25.311518
+    ],
+    "logo": "2026_0120_id2pl7_logo.jpg",
+    "shortDescription": "计算机与信息安全学院科协的游戏开发方向，主要以Unity、C#、程序为主",
+    "description": "",
+    "tags": [
+      "游戏开发",
+      "编程",
+      "C#",
+      "Unity"
+    ],
+    "externalLinks": [
+      {
+        "type": "网站",
+        "url": "https://hello.kexie.space/"
+      },
+      {
+        "type": "Github",
+        "url": "https://github.com/kexie-gamemaker-department"
+      },
+      {
+        "type": "Github",
+        "url": "https://github.com/sanyuankexie"
+      }
+    ]
+  },
+  {
     "name": "VR畅游协会",
     "school": "福州大学",
     "city": "福州市",
