@@ -1,5 +1,74 @@
 [
   {
+    "name": "青藤游戏开发社",
+    "school": "河南大学",
+    "city": "开封市",
+    "province": "河南省",
+    "coordinates": [
+      114.351,
+      34.803
+    ],
+    "logo": "2026_1023_j1uzy5_logo.jpg",
+    "shortDescription": "联合中原地区各大高校 培养游戏开发行业人才",
+    "description": "青游社是2026年九月成立的年轻社团，现挂靠河南大学tms电竞社，宗旨在于集结有意向共同走上游戏开发事业的河大学子，为中原地区乃至山河四省的游戏开发提供平台。\n我们希望我们所做的事情能够先帮助河大学子成才，再帮助中国游戏行业发展！日常会组织开发小游戏，由指导老师带队并做后续变现工作、以及共同学习、互相监督努力、并以就业及创业为导向组织线下沙龙活动或gamejam比赛等。",
+    "tags": [
+      "游戏开发",
+      "程序",
+      "美术设计",
+      "音频",
+      "运营",
+      "策划"
+    ],
+    "externalLinks": []
+  },
+  {
+    "name": "重庆邮电大学 RD-Studio",
+    "school": "重庆邮电大学",
+    "city": "重庆市",
+    "province": "重庆市",
+    "coordinates": [
+      106.604889,
+      29.532625
+    ],
+    "logo": "2026_1027_hiod5o_logo.png",
+    "shortDescription": "",
+    "description": "",
+    "tags": [
+      "游戏开发",
+      "程序",
+      "策划",
+      "美术",
+      "技术美术"
+    ],
+    "externalLinks": [
+      {
+        "type": "网站",
+        "url": "https://rd-studio.club/"
+      }
+    ]
+  },
+  {
+    "name": "九云游戏开发社",
+    "school": "太原理工大学",
+    "city": "晋中市",
+    "province": "山西省",
+    "coordinates": [
+      112.71432,
+      37.74823
+    ],
+    "logo": "2026_1023_ykljl1_logo.jpg",
+    "shortDescription": "游戏开发，兴趣最重要啦~",
+    "description": "九云游戏开发社致力于打造成山西地区最大的游戏开发者交流社群，吸纳更多的年轻人加入我们，共同探讨游戏设计与开发的技术和创新",
+    "tags": [
+      "游戏开发",
+      "编程",
+      "美术",
+      "策划",
+      "兴趣"
+    ],
+    "externalLinks": []
+  },
+  {
     "name": "三院科协游戏开发方向",
     "school": "桂林电子科技大学",
     "city": "桂林市",
@@ -23,12 +92,16 @@
         "url": "https://hello.kexie.space/"
       },
       {
-        "type": "Github",
+        "type": "游戏开发Github",
         "url": "https://github.com/kexie-gamemaker-department"
       },
       {
-        "type": "Github",
+        "type": "社团Github",
         "url": "https://github.com/sanyuankexie"
+      },
+      {
+        "type": "飞书知识库",
+        "url": "https://ccn80b5bgw86.feishu.cn/wiki/CKD8wrIVyi1E9VkdUVGclVFxnlb"
       }
     ]
   },
