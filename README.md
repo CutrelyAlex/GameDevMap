@@ -13,23 +13,7 @@
 ## 联系方式
 ![QQ](https://img.shields.io/badge/QQ-2470819243-blue?style=flat&logo=qq)
 
-如果这个项目对你有帮助，欢迎赞助支持项目的发展！
-
-### 赞助方式
-
-<table>
-<tr>
-<td valign="top">
-<img src="/public/assets/payment.jpg" alt="赞助二维码" width="200" height="267" />
-</td>
-<td valign="top" style="padding-left: 20px;">
-您的支持将帮助我们：<br>
-- 🖥️ 维护服务器运行成本<br>
-- 🗺️ 地图服务成本<br>
-- ☕ 喝一杯咖啡/奶茶
-</td>
-</tr>
-</table>
+如果这个项目对你有帮助，欢迎支持项目的发展！
 
 ### 本地开发环境搭建
 
